@@ -44,14 +44,17 @@ export class Exception {
       ? 429
       : 500
 
+    const body = JSON.stringify({
+      message,
+      code
+    })
+
     this.response = new Response(
-      JSON.stringify({
-        message,
-        code
-      }),
+      body,
       {
         headers: {
-          'content-type': ''
+          'content-length': body.length.toString(),
+          'content-type': 'application/json; charset=utf-8;'
         },
         status: code
       }
