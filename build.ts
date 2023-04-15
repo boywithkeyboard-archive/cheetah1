@@ -4,14 +4,14 @@ import { denoPlugin } from 'https://deno.land/x/esbuild_deno_loader@0.6.0/mod.ts
 await build({
   // @ts-ignore:
   plugins: [denoPlugin()],
-  entryPoints: ['./mod.ts'],
+  entryPoints: [Deno.args[0] ?? './mod.ts'],
   bundle: true,
   minify: true,
   format: 'esm',
   banner: {
     js: '// deno-lint-ignore-file',
   },
-  outfile: './worker.js',
+  outfile: Deno.args[1] ?? './worker.js',
 })
 
 stop()
