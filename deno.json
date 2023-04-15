@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "lint": "npm run lint",
+    "format": "npm run format",
+    "bench": "deno bench --allow-env --no-check",
+    "build": "deno run -A .github/build.ts",
+    "test": "deno test -A --no-check"
+  }
+}
