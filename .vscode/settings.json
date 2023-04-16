@@ -1,13 +1,8 @@
 {
-  "editor.codeActionsOnSave": {
-    "source.fixAll": true,
-    "source.organizeImports": true
-  },
   "deno.enable": true,
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.formatOnSave": false,
   "files.insertFinalNewline": true,
-  "files.autoSave": "off",
   "files.eol": "\n"
 }
