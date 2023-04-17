@@ -12,10 +12,10 @@
 
 | Benchmark | Time (avg) | min ... max | p75 | p99 | p995 | p999 | Diff |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **cheetah** | 46.66 µs/run | 37.2 µs ... 1.43 ms | 40.3 µs | 154.4 µs | 229.7 µs | 946.7 µs | 0% |
-| [hono](https://github.com/honojs/hono) | 62.54 µs/run | 48.2 µs ... 2.05 ms | 56.5 µs | 178.9 µs | 278.2 µs | 1.57 ms | ***-34.04%*** |
-| [itty-router](https://github.com/kwhitley/itty-router) | 60.79 µs/run | 51.2 µs ... 2.11 ms | 56.1 µs | 165.3 µs | 217.5 µs | 1.44 ms | ***-30.3%*** |
-| [oak](https://github.com/oakserver/oak) | 84.15 µs/run | 70.3 µs ... 1.24 ms | 77.1 µs | 256.7 µs | 352 µs | 975.3 µs | ***-80.36%*** |
+| **cheetah** | 46.37 µs/run | 37.3 µs ... 1.56 ms | 40.4 µs | 130.9 µs | 221.3 µs | 974.4 µs | ... |
+| [hono](https://github.com/honojs/hono) | 62.32 µs/run | 47.2 µs ... 2.1 ms | 56.4 µs | 146.7 µs | 261 µs | 1.63 ms | ***-34.4%*** |
+| [itty-router](https://github.com/kwhitley/itty-router) | 59.88 µs/run | 51.9 µs ... 2.47 ms | 55.9 µs | 105.9 µs | 132 µs | 1.48 ms | ***-29.13%*** |
+| [oak](https://github.com/oakserver/oak) | 85.74 µs/run | 71.2 µs ... 1.47 ms | 76 µs | 237.3 µs | 343.3 µs | 1.22 ms | ***-84.91%*** |
 
 > Benchmark: [basic.ts](https://github.com/azurystudio/cheetah/blob/dev/benchmark/basic.ts) — Runtime: Deno 1.32.4 (x86_64-pc-windows-msvc) — CPU: AMD Ryzen 9 5900X 12-Core
 
