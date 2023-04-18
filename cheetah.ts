@@ -1,43 +1,92 @@
 import { IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230321.0/index.ts'
-import Router from 'https://cdn.jsdelivr.net/npm/@medley/router@0.2.1/+esm'
-import { Context } from './Context.d.ts'
+import URLRouter from 'https://cdn.jsdelivr.net/npm/@medley/router@0.2.1/+esm'
+import { brightBlue, brightGreen, brightRed, gray, white } from 'https://deno.land/std@0.183.0/fmt/colors.ts'
+import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.27.4'
+import { Collection } from './Collection.ts'
 import { Exception } from './Exception.ts'
-import { Handler } from './Handler.d.ts'
-import { CloudflareRequest, ObjectSchema, RequestContext, Schema, Validator } from './types.ts'
+import { Context, Handler, ObjectSchema, RequestContext, Schema } from './types.ts'
+import { TypeBoxValidator } from './validator/typebox.ts'
+import { ZodValidator } from './validator/zod.ts'
 
-export class cheetah<Environment extends Record<string, unknown> = Record<string, never>> {
-  #name
+export class cheetah<
+  Environment extends Record<string, unknown> = Record<string, unknown>,
+  Validator extends (TypeBoxValidator | ZodValidator) | undefined = undefined
+> {
+  #env: Environment | undefined
+  #router
+
   #base
   #cors
   #cache
-  #validator
-  #router
-  #env: Environment | undefined
-  #routers
+  #debugging
+  #validator: TypeBoxValidator | ZodValidator | undefined
+  #notFound
+  #error
   
-  constructor(options?: {
-    name?: string
-    base?: string
+  constructor(options: {
+    /**
+     * A prefix for all routes, e.g. `/api`.
+     */
+    base?: `/${string}`
+    /**
+     * Enable Cross-Origin Resource Sharing (CORS) for your app by setting a origin, e.g. `*`.
+     */
     cors?: string
-    cache?: string
-    validator?: Validator<'typebox'> | Validator<'zod'>
-    notFound?: () => void
-    error?: () => void
-  }) {
-    // deno-lint-ignore no-explicit-any
-    this.#routers = new Map<string, cheetah<any>>()
+    cache?: {
+      /**
+       * A unique name for your cache.
+       */
+      name: string
+      /**
+       * Duration in seconds for how long a cached response should be held in memory.
+       */
+      duration: number
+    }
+    /**
+     * Enable **Debug Mode**. As a result, every fetch and error event will be logged.
+     */
+    debug?: boolean
+    /**
+     * Set a validator to validate the body, cookies, headers, and query parameters of the incoming request.
+     */
+    validator?: Validator
+    /**
+     * Set a custom error handler.
+     */
+    error?: (error: unknown, request: Request) => Response | Promise<Response>
+    /**
+     * Set a custom 404 handler.
+     */
+    notFound?: (request: Request) => Response | Promise<Response>
+  } = {}) {
+    this.#router = new URLRouter()
 
-    this.#name = options?.name
-    this.#base = options?.base
-    this.#cors = options?.cors
-    this.#cache = options?.cache as number | undefined
-    this.#validator = options?.validator
-
-    this.#router = new Router()
+    this.#base = options.base === '/' ? undefined : options.base
+    this.#cors = options.cors
+    this.#cache = options.cache
+    this.#debugging = options.debug ?? false
+    this.#validator = options.validator
+    this.#error = options.error
+    this.#notFound = options.notFound
   }
 
-  use(base: string, app: cheetah) {
-    this.#routers = this.#routers.set(this.#base + base, app)
+  use(base: `/${string}`, collection: Collection<Environment, Validator>) {
+    const length = collection.__routes.length
+
+    for (let i = 0; i < length; ++i) {
+      let url = collection.__routes[i][1]
+
+      if (url === '/')
+        url = ''
+
+      this.#addRoute(
+        collection.__routes[i][0],
+        this.#base ? this.#base + base + url : base + url,
+        collection.__routes[i][2]
+      )
+    }
+
+    return this
   }
 
   /* -------------------------------------------------------------------------- */
@@ -45,19 +94,16 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
   /* -------------------------------------------------------------------------- */
 
   async fetch(
-    request: CloudflareRequest | Request,
+    request: Request,
     env?: Environment,
-    context?: RequestContext,
-    base?: string
+    context?: RequestContext
   ): Promise<Response> {
-    // base = base && this.base ? base + this.base : this.base ? this.base : base
-    base = this.#base
-    env = this.#env ?? (env ? env : globalThis.Deno ? globalThis.Deno.env.toObject() : {}) as Environment | undefined
+    env = env ?? this.#env
 
     let cache: Cache | undefined
 
-    if ( this.#cache && request.method === 'GET') {
-      cache = await caches.open(this.#name ?? 'cheetah')
+    if (this.#cache && request.method === 'GET') {
+      cache = await caches.open(this.#cache.name)
   
       const cachedResponse = await cache.match(request)
   
@@ -67,16 +113,15 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
 
     const url = new URL(request.url)
 
-    // if (this.routers.size > 0)
-    //   for (const [key, value] of this.routers)
-    //     if (url.pathname.startsWith(key))
-    //       return value.fetch(request, env, context, base)
-
     try {
       const route = this.#router.find(url.pathname)
 
-      if (!route?.store?.[request.method])
+      if (!route?.store?.[request.method]) {
+        if (this.#notFound)
+          return this.#notFound(request)
+
         throw new Exception(404)
+      }
 
       const waitUntil = context
         ? context.waitUntil
@@ -92,27 +137,39 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
         env,
         waitUntil,
         url,
-        route.store.params,
+        route.params,
         route.store[request.method]
       )
 
       if (cache && response.ok)
         waitUntil(cache.put(request, response.clone()))
 
+      if (this.#debugging)
+        this.#log(response.ok ? 'fetch' : 'error', request.method, url.pathname, response.status)
+
       return response
     } catch (err) {
-      if (err instanceof Exception)
-        return err.response
+      let res: Response
 
-      return new Response(JSON.stringify({
-        message: 'Something Went Wrong',
-        code: 500
-      }), {
-        status: 500,
-        headers: {
-          'content-type': 'application/json; charset=utf-8;'
-        }
-      })
+      if (err instanceof Exception)
+        res = err.response
+      else if (this.#error)
+        res = await this.#error(err, request)
+      else
+        res = new Response(JSON.stringify({
+          message: 'Something Went Wrong',
+          code: 500
+        }), {
+          status: 500,
+          headers: {
+            'content-type': 'application/json; charset=utf-8;'
+          }
+        })
+
+      if (this.#debugging)
+        this.#log('error', request.method, url.pathname, res.status)
+
+      return res
     }
   }
 
@@ -121,7 +178,7 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
   /* -------------------------------------------------------------------------- */
 
   async #handle(
-    request: CloudflareRequest | Request,
+    request: Request,
     // deno-lint-ignore no-explicit-any
     env: any,
     waitUntil: RequestContext['waitUntil'],
@@ -129,17 +186,17 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
     params: Record<string, string>,
     route: (
       {
-        body?: Schema,
-        cookies?: ObjectSchema,
-        headers?: ObjectSchema,
-        query?: ObjectSchema
+        body?: Schema<Validator>,
+        cookies?: ObjectSchema<Validator>,
+        headers?: ObjectSchema<Validator>,
+        query?: ObjectSchema<Validator>
       } |
       // deno-lint-ignore no-explicit-any
       Handler<Environment, any, any, any, any, any>
     )[]
   ) {
     /* Preflight Request -------------------------------------------------------- */
-  
+
     if (
       request.method === 'OPTIONS' &&
       request.headers.has('origin') &&
@@ -160,7 +217,7 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
 
     const schema = typeof route[0] !== 'function' ? route[0] : null
     const headers: Record<string, string> = {}
-    let query: Record<string, unknown> = {}
+    const query: Record<string, unknown> = {}
     let cookies: Record<string, string> = {}
     let body
   
@@ -171,8 +228,8 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
         for (const [key, value] of request.headers)
           headers[key.toLowerCase()] = value
 
-        const isValid = this.#validator.name === 'typebox'
-          ? this.#validator.check(schema.headers, headers)
+        const isValid = this.#validator.name === 'typebox' && this.#validator.check
+          ? this.#validator.check(schema.headers as TSchema, headers)
           : schema.headers.safeParse(headers).success
 
         if (!isValid)
@@ -182,27 +239,23 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
       /* Parse Query Parameters --------------------------------------------------- */
     
       if (schema.query) {
-        query = Object.fromEntries(url.searchParams)
-    
-        for (const key in query) {
-          const item = query[key] as string
-        
-          if (item === '' || item === 'true')
+        for (const [key, value] of url.searchParams) {
+          if (value === '' || value === 'true')
             query[key] = true
-          else if (item === 'false')
+          else if (value === 'false')
             query[key] = false
-          else if (item.includes(','))
-            query[key] = item.split(',')
-          else if (!isNaN((item as unknown) as number) && !isNaN(parseFloat(item)))
-            query[key] = parseInt(item)
-          else if (item === 'undefined')
+          else if (value.includes(','))
+            query[key] = value.split(',')
+          else if (!isNaN((value as unknown) as number) && !isNaN(parseFloat(value)))
+            query[key] = parseInt(value)
+          else if (value === 'undefined')
             query[key] = undefined
-          else if (item === 'null')
+          else if (value === 'null')
             query[key] = null
         }
 
-        const isValid = this.#validator.name === 'typebox'
-          ? this.#validator.check(schema.query, query)
+        const isValid = this.#validator.name === 'typebox' && this.#validator.check
+          ? this.#validator.check(schema.query as TSchema, query)
           : schema.query.safeParse(query).success
 
         if (!isValid)
@@ -225,8 +278,8 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
           cookies = {}
         }
 
-        const isValid = this.#validator.name === 'typebox'
-          ? this.#validator.check(schema.cookies, cookies)
+        const isValid = this.#validator.name === 'typebox' && this.#validator.check
+          ? this.#validator.check(schema.cookies as TSchema, cookies)
           : schema.cookies.safeParse(cookies).success
 
         if (!isValid)
@@ -249,8 +302,8 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
         )
           body = await request.text()
 
-        const isValid = this.#validator.name === 'typebox'
-          ? this.#validator.check(schema.body, body)
+        const isValid = this.#validator.name === 'typebox' && this.#validator.check
+          ? this.#validator.check(schema.body as TSchema, body)
           : schema.body.safeParse(body).success
 
         if (!isValid)
@@ -261,6 +314,7 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
     /* Construct Context -------------------------------------------------------- */
   
     let geo: ReturnType<Context<Environment, Record<string, string>>['req']['geo']>
+    let requiresFormatting = true
     let responseCode = 200
 
     const responseHeaders: Record<string, string> = {
@@ -278,15 +332,15 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
       | Uint8Array 
       | ArrayBuffer
       | null
-      = null
-
-    let isResponseBodyObject = true
+    = null
   
     const context: Context<Environment, Record<string, string>> = {
       env: env as Environment,
       waitUntil,
   
       req: {
+        ip: request.headers.get('cf-connecting-ip') ?? undefined,
+        
         raw: () => request.clone(),
   
         body,
@@ -298,10 +352,10 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
           if (geo)
             return geo
 
-          const cf: IncomingRequestCfProperties | undefined = (request as CloudflareRequest).cf
+          const cf: IncomingRequestCfProperties | undefined
+            = (request as Request & { cf: IncomingRequestCfProperties }).cf
   
           geo = {
-            ip: request.headers.get('cf-connecting-ip') ?? undefined,
             city: cf?.city,
             region: cf?.region,
             country: cf?.country,
@@ -363,7 +417,7 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
 
         blob(blob, code) {
           responseBody = blob
-          isResponseBodyObject = false
+          requiresFormatting = false
 
           responseHeaders['content-length'] = blob.size.toString()
           
@@ -373,7 +427,7 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
 
         stream(stream, code) {
           responseBody = stream
-          isResponseBodyObject = false
+          requiresFormatting = false
           
           if (code)
             responseCode = code
@@ -381,7 +435,7 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
 
         formData(formData, code) {
           responseBody = formData
-          isResponseBodyObject = false
+          requiresFormatting = false
           
           if (code)
             responseCode = code
@@ -389,9 +443,35 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
 
         buffer(buffer, code) {
           responseBody = buffer
-          isResponseBodyObject = false
+          requiresFormatting = false
 
           responseHeaders['content-length'] = buffer.byteLength.toString()
+          
+          if (code)
+            responseCode = code
+        },
+
+        json(json, code) {
+          responseBody = JSON.stringify(json)
+          requiresFormatting = false
+
+          if (!responseHeaders['content-type'])
+            responseHeaders['content-type'] = 'application/json; charset=utf-8'
+
+          responseHeaders['content-length'] = responseBody.length.toString()
+          
+          if (code)
+            responseCode = code
+        },
+
+        text(text, code) {
+          responseBody = text
+          requiresFormatting = false
+
+          if (!responseHeaders['content-type'])
+            responseHeaders['content-type'] = 'text/plain; charset=utf-8'
+
+          responseHeaders['content-length'] = text.length.toString()
           
           if (code)
             responseCode = code
@@ -429,22 +509,24 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
         headers: responseHeaders,
         status: responseCode
       })
-  
-    if (typeof responseBody === 'string') {
-      responseHeaders['content-length'] = responseBody.length.toString()
-  
-      if (!responseHeaders['content-type'])
-        responseHeaders['content-type'] = 'text/plain; charset=utf-8;'
-    } else if (isResponseBodyObject) {
-      responseBody = JSON.stringify(responseBody)
-  
-      responseHeaders['content-length'] = responseBody.length.toString()
-  
-      if (!responseHeaders['content-type'])
-        responseHeaders['content-type'] = 'application/json; charset=utf-8;'
-  
-      if (((responseBody as unknown) as { code: number }).code)
-        responseCode = ((responseBody as unknown) as { code: number }).code
+
+    if (requiresFormatting) {
+      if (typeof responseBody === 'string') {
+        responseHeaders['content-length'] = responseBody.length.toString()
+    
+        if (!responseHeaders['content-type'])
+          responseHeaders['content-type'] = 'text/plain; charset=utf-8'
+      } else {
+        responseBody = JSON.stringify(responseBody)
+    
+        responseHeaders['content-length'] = responseBody.length.toString()
+    
+        if (!responseHeaders['content-type'])
+          responseHeaders['content-type'] = 'application/json; charset=utf-8'
+    
+        if (((responseBody as unknown) as { code: number }).code)
+          responseCode = ((responseBody as unknown) as { code: number }).code
+      }
     }
   
     return new Response(responseBody as string, {
@@ -454,17 +536,31 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
   }
 
   /* -------------------------------------------------------------------------- */
+  /* Logger                                                                     */
+  /* -------------------------------------------------------------------------- */
+
+  #log(event: 'fetch' | 'error', method: string, pathname: string, statusCode: number) {
+    if (!this.#debugging)
+      return
+
+    if (event === 'error')
+      console.error(gray(`${brightRed(statusCode.toString())} - ${method} ${pathname}`))
+    else
+      console.log(gray(`${statusCode === 301 || statusCode === 307 ? brightBlue(statusCode.toString()) : brightGreen(statusCode.toString())} - ${method} ${white(pathname)}`))
+  }
+
+  /* -------------------------------------------------------------------------- */
   /* Routes                                                                     */
   /* -------------------------------------------------------------------------- */
 
   /* Add New Route ------------------------------------------------------------ */
 
-  private addRoute(method: string, path: string, handler: (
+  #addRoute(method: string, path: string, handler: (
     {
-      body?: Schema,
-      cookies?: ObjectSchema,
-      headers?: ObjectSchema,
-      query?: ObjectSchema
+      body?: Schema<Validator>,
+      cookies?: ObjectSchema<Validator>,
+      headers?: ObjectSchema<Validator>,
+      query?: ObjectSchema<Validator>
     } |
     // deno-lint-ignore no-explicit-any
     Handler<Environment, any, any, any, any, any>
@@ -476,16 +572,16 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
 
   /* Get Method --------------------------------------------------------------- */
 
-  get<RequestUrl extends string>(
+  get<RequestUrl extends `/${string}`>(
     url: RequestUrl,
     ...handler: Handler<Environment, RequestUrl, undefined>[]
   ): this
 
   get<
-    RequestUrl extends string,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     schema: {
@@ -504,10 +600,10 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
   ): this
 
   get<
-    RequestUrl extends string,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     ...handler: (
@@ -526,24 +622,24 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
       >
     )[]
   ) {
-    this.addRoute('GET', this.#base ? this.#base + url : url, handler)
+    this.#addRoute('GET', this.#base ? this.#base + url : url, handler)
 
     return this
   }
 
   /* Delete Method ------------------------------------------------------------ */
 
-  delete<RequestUrl extends string>(
+  delete<RequestUrl extends `/${string}`>(
     url: RequestUrl,
     ...handler: Handler<Environment, RequestUrl>[]
   ): this
   
   delete<
-    RequestUrl extends string,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedBody extends Schema<Validator>,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     schema: {
@@ -563,11 +659,11 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
   ): this
   
   delete<
-    RequestUrl extends string,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedBody extends Schema<Validator>,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     ...handler: (
@@ -587,24 +683,24 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
       >
     )[]
   ) {
-    this.addRoute('DELETE', this.#base ? this.#base + url : url, handler)
+    this.#addRoute('DELETE', this.#base ? this.#base + url : url, handler)
 
     return this
   }
 
   /* Post Method -------------------------------------------------------------- */
 
-  post<RequestUrl extends string>(
+  post<RequestUrl extends `/${string}`>(
     url: RequestUrl,
     ...handler: Handler<Environment, RequestUrl>[]
   ): this
   
   post<
-    RequestUrl extends string,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedBody extends Schema<Validator>,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     schema: {
@@ -624,11 +720,11 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
   ): this
   
   post<
-    RequestUrl extends string,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedBody extends Schema<Validator>,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     ...handler: (
@@ -648,24 +744,24 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
       >
     )[]
   ) {
-    this.addRoute('POST', this.#base ? this.#base + url : url, handler)
+    this.#addRoute('POST', this.#base ? this.#base + url : url, handler)
   
     return this
   }
 
   /* Put Method --------------------------------------------------------------- */
 
-  put<RequestUrl extends string>(
+  put<RequestUrl extends `/${string}`>(
     url: RequestUrl,
     ...handler: Handler<Environment, RequestUrl>[]
   ): this
   
   put<
-    RequestUrl extends string,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedBody extends Schema<Validator>,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     schema: {
@@ -685,11 +781,11 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
   ): this
   
   put<
-    RequestUrl extends string,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedBody extends Schema<Validator>,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     ...handler: (
@@ -709,24 +805,24 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
       >
     )[]
   ) {
-    this.addRoute('PUT', this.#base ? this.#base + url : url, handler)
+    this.#addRoute('PUT', this.#base ? this.#base + url : url, handler)
   
     return this
   }
 
   /* Patch Method ------------------------------------------------------------- */
 
-  patch<RequestUrl extends string>(
+  patch<RequestUrl extends `/${string}`>(
     url: RequestUrl,
     ...handler: Handler<Environment, RequestUrl>[]
   ): this
   
   patch<
-    RequestUrl extends string,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedBody extends Schema<Validator>,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     schema: {
@@ -746,11 +842,11 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
   ): this
   
   patch<
-    RequestUrl extends string,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedBody extends Schema<Validator>,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     ...handler: (
@@ -770,23 +866,23 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
       >
     )[]
   ) {
-    this.addRoute('PATCH', this.#base ? this.#base + url : url, handler)
+    this.#addRoute('PATCH', this.#base ? this.#base + url : url, handler)
   
     return this
   }
 
   /* Head Method -------------------------------------------------------------- */
 
-  head<RequestUrl extends string>(
+  head<RequestUrl extends `/${string}`>(
     url: RequestUrl,
     ...handler: Handler<Environment, RequestUrl, undefined>[]
   ): this
 
   head<
-    RequestUrl extends string,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     schema: {
@@ -805,10 +901,10 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
   ): this
 
   head<
-    RequestUrl extends string,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema
+    RequestUrl extends `/${string}`,
+    ValidatedCookies extends ObjectSchema<Validator>,
+    ValidatedHeaders extends ObjectSchema<Validator>,
+    ValidatedQuery extends ObjectSchema<Validator>
   >(
     url: RequestUrl,
     ...handler: (
@@ -827,7 +923,7 @@ export class cheetah<Environment extends Record<string, unknown> = Record<string
       >
     )[]
   ) {
-    this.addRoute('HEAD', this.#base ? this.#base + url : url, handler)
+    this.#addRoute('HEAD', this.#base ? this.#base + url : url, handler)
 
     return this
   }
