@@ -1,9 +1,16 @@
 {
+  "fmt": {
+    "options": {
+      "semiColons": false,
+      "singleQuote": true
+    }
+  },
   "tasks": {
     "lint": "npm run lint",
     "format": "npm run format",
-    "bench": "deno bench --allow-env --no-check",
-    "build": "deno run -A .github/build.ts",
-    "test": "deno test -A --no-check"
+    "bench:markdown": "deno run -A .github/updateBenchmark.ts",
+    "bench": "deno bench benchmark/basic.ts --allow-env",
+    "build": "deno run -A build.ts mod.ts index.js",
+    "test": "deno test -A"
   }
 }
