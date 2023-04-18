@@ -71,7 +71,7 @@ for (const bench of result.benches) {
     prefix = `[${bench.name}](${frameworks[bench.name]})`
   }
 
-  body += `| ${prefix} | ${format(bench.results[0].ok.avg)}/run | ${format(bench.results[0].ok.min)} ... ${format(bench.results[0].ok.max)} | ${format(bench.results[0].ok.p75)} | ${format(bench.results[0].ok.p99)} | ${format(bench.results[0].ok.p995)} | ${format(bench.results[0].ok.p999)} | ${isFirst ? '...' : `***${round((result.benches[0].results[0].ok.avg - bench.results[0].ok.avg) / result.benches[0].results[0].ok.avg * 100, 2)}%***`} |\n`
+  body += `| ${prefix} | ${format(bench.results[0].ok.avg)}/run | ${format(bench.results[0].ok.min)} ... ${format(bench.results[0].ok.max)} | ${format(bench.results[0].ok.p75)} | ${format(bench.results[0].ok.p99)} | ${format(bench.results[0].ok.p995)} | ${format(bench.results[0].ok.p999)} | ${isFirst ? '...' : `**${round((result.benches[0].results[0].ok.avg - bench.results[0].ok.avg) / result.benches[0].results[0].ok.avg * 100, 2)}%**`} |\n`
 
   isFirst = false
 }
