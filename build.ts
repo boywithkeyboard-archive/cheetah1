@@ -1,4 +1,4 @@
-import { build, stop } from 'https://deno.land/x/esbuild@v0.17.16/mod.js'
+import { build, stop } from 'https://deno.land/x/esbuild@v0.17.17/mod.js'
 import { denoPlugin } from 'https://deno.land/x/esbuild_deno_loader@0.6.0/mod.ts'
 
 await build({
