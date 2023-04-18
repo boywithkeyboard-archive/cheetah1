@@ -1,6 +1,8 @@
 import { IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230321.0/index.ts'
 import URLRouter from 'https://cdn.jsdelivr.net/npm/@medley/router@0.2.1/+esm'
+import { deadline, DeadlineError } from 'https://deno.land/std@0.183.0/async/deadline.ts'
 import { brightBlue, brightGreen, brightRed, gray, white } from 'https://deno.land/std@0.183.0/fmt/colors.ts'
+import { ConnInfo } from 'https://deno.land/std@0.183.0/http/server.ts'
 import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.27.4'
 import { Collection } from './Collection.ts'
 import { Exception } from './Exception.ts'
@@ -95,12 +97,11 @@ export class cheetah<
 
   async fetch(
     request: Request,
-    env?: Environment,
+    env?: Environment | ConnInfo,
     context?: RequestContext
   ): Promise<Response> {
-    env = env ?? this.#env
-
     let cache: Cache | undefined
+    const ip = env?.remoteAddr ? ((env as ConnInfo & { remoteAddr: { hostname: string }}).remoteAddr).hostname : request.headers.get('cf-connecting-ip') ?? undefined
 
     if (this.#cache && request.method === 'GET') {
       cache = await caches.open(this.#cache.name)
@@ -110,6 +111,12 @@ export class cheetah<
       if (cachedResponse)
         return cachedResponse
     }
+
+    if (!this.#env)
+      this.#env = (globalThis?.Deno ? globalThis.Deno.env.toObject() : {}) as Environment
+
+    if (!env || env?.remoteAddr)
+      env = this.#env
 
     const url = new URL(request.url)
 
@@ -136,6 +143,7 @@ export class cheetah<
         request,
         env,
         waitUntil,
+        ip,
         url,
         route.params,
         route.store[request.method]
@@ -182,6 +190,7 @@ export class cheetah<
     // deno-lint-ignore no-explicit-any
     env: any,
     waitUntil: RequestContext['waitUntil'],
+    ip: string | undefined,
     url: URL,
     params: Record<string, string>,
     route: (
@@ -223,10 +232,17 @@ export class cheetah<
   
     if (this.#validator && schema) {
       /* Parse Headers ------------------------------------------------------------ */
-  
       if (schema.headers) {
-        for (const [key, value] of request.headers)
+        let num = 0
+
+        for (const [key, value] of request.headers) {
+          if (num === 100)
+            throw new Exception(413)
+
           headers[key.toLowerCase()] = value
+
+          num++
+        }
 
         const isValid = this.#validator.name === 'typebox' && this.#validator.check
           ? this.#validator.check(schema.headers as TSchema, headers)
@@ -266,7 +282,12 @@ export class cheetah<
 
       if (schema.cookies) {
         try {
-          cookies = (request.headers.get('cookies') || '')
+          const cookiesHeader = request.headers.get('cookies') ?? ''
+
+          if (cookiesHeader.length > 1000)
+            throw new Exception(413)
+
+          cookies = cookiesHeader
             .split(/;\s*/)
             .map((pair) => pair.split(/=(.+)/))
             .reduce((acc: Record<string, string>, [key, value]) => {
@@ -274,6 +295,8 @@ export class cheetah<
       
               return acc
             }, {})
+
+          delete cookies['']
         } catch (_err) {
           cookies = {}
         }
@@ -289,18 +312,22 @@ export class cheetah<
       /* Parse Body --------------------------------------------------------------- */
     
       if (schema.body) {
-        if (
-          schema.body?._def?.typeName === 'ZodObject' ||
-          // @ts-ignore: typescript bs
-          schema.body[Object.getOwnPropertySymbols(schema.body)[0]] === 'Object'
-        )
-          body = await request.json()
-        else if (
-          schema.body._def?.typeName === 'ZodString' ||
-          // @ts-ignore: typescript bs
-          schema.body[Object.getOwnPropertySymbols(schema.body)[0]] === 'String'
-        )
-          body = await request.text()
+        try {
+          if (
+            schema.body?._def?.typeName === 'ZodObject' ||
+            // @ts-ignore: typescript bs
+            schema.body[Object.getOwnPropertySymbols(schema.body)[0]] === 'Object'
+          )
+            body = await deadline(request.json(), 3000)
+          else if (
+            schema.body._def?.typeName === 'ZodString' ||
+            // @ts-ignore: typescript bs
+            schema.body[Object.getOwnPropertySymbols(schema.body)[0]] === 'String'
+          )
+            body = await deadline(request.text(), 3000)
+        } catch (err) {
+          throw new Exception(err instanceof DeadlineError ? 413 : 400)
+        }
 
         const isValid = this.#validator.name === 'typebox' && this.#validator.check
           ? this.#validator.check(schema.body as TSchema, body)
@@ -339,7 +366,7 @@ export class cheetah<
       waitUntil,
   
       req: {
-        ip: request.headers.get('cf-connecting-ip') ?? undefined,
+        ip,
         
         raw: () => request.clone(),
   
@@ -369,14 +396,38 @@ export class cheetah<
   
           return geo
         },
-        async buffer() {
-          return request.bodyUsed ? await request.clone().arrayBuffer() : request.arrayBuffer()
+        async buffer(d) {
+          try {
+            const promise = request.bodyUsed
+              ? request.clone().arrayBuffer()
+              : request.arrayBuffer()
+
+            return await deadline(promise, d ?? 3000)
+          } catch (_err) {
+            return null
+          }
         },
-        async blob() {
-          return request.bodyUsed ? await request.clone().blob() : request.blob()
+        async blob(d) {
+          try {
+            const promise = request.bodyUsed
+              ? request.clone().blob()
+              : request.blob()
+
+            return await deadline(promise, d ?? 3000)
+          } catch (_err) {
+            return null
+          }
         },
-        async formData() {
-          return request.bodyUsed ? await request.clone().formData() : request.formData()
+        async formData(d) {
+          try {
+            const promise = request.bodyUsed
+              ? request.clone().formData()
+              : request.formData()
+
+            return await deadline(promise, d ?? 3000)
+          } catch (_err) {
+            return null
+          }
         },
         stream() {
           return request.bodyUsed ? request.clone().body : request.body
@@ -510,7 +561,7 @@ export class cheetah<
         status: responseCode
       })
 
-    if (requiresFormatting) {
+    if (requiresFormatting && responseBody !== null && responseBody !== undefined) {
       if (typeof responseBody === 'string') {
         responseHeaders['content-length'] = responseBody.length.toString()
     
