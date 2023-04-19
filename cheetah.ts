@@ -16,6 +16,7 @@ export class cheetah<
 > {
   #env: Environment | undefined
   #router
+  #runtime: 'deno' | 'cloudflare'
 
   #base
   #cors
@@ -60,6 +61,10 @@ export class cheetah<
      * Set a custom 404 handler.
      */
     notFound?: (request: Request) => Response | Promise<Response>
+    /**
+     * If you don't want to give cheetah the permissions to read your environment variables, you can also set them here instead.
+     */
+    env?: Environment
   } = {}) {
     this.#router = new URLRouter()
 
@@ -70,6 +75,24 @@ export class cheetah<
     this.#validator = options.validator
     this.#error = options.error
     this.#notFound = options.notFound
+    
+    const runtime = globalThis?.Deno
+      ? 'deno'
+      // deno-lint-ignore no-explicit-any
+      : typeof (globalThis as any)?.WebSocketPair === 'function'
+      ? 'cloudflare'
+      : 'unknown'
+
+    if (runtime === 'unknown')
+      throw new Error('Unknown Runtime')
+
+    this.#runtime = runtime
+
+    this.#env = options.env
+      ? options.env
+      : this.#runtime === 'deno'
+      ? globalThis.Deno.env.toObject() as Environment
+      : undefined
   }
 
   use(base: `/${string}`, collection: Collection<Environment, Validator>) {
@@ -112,10 +135,7 @@ export class cheetah<
         return cachedResponse
     }
 
-    if (!this.#env)
-      this.#env = (globalThis?.Deno ? globalThis.Deno.env.toObject() : {}) as Environment
-
-    if (!env || env?.remoteAddr)
+    if (this.#runtime === 'deno')
       env = this.#env
 
     const url = new URL(request.url)
