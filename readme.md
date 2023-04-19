@@ -20,3 +20,27 @@
 > Benchmark: [basic.ts](https://github.com/azurystudio/cheetah/blob/dev/benchmark/basic.ts) — Runtime: Deno 1.32.4 (x86_64-pc-windows-msvc) — CPU: AMD Ryzen 9 5900X 12-Core
 
 [//]: benchmarkend
+
+### Sneak Peek
+
+```ts
+import cheetah from 'https://deno.land/x/cheetah@v0.1.0/mod.ts'
+import { serve } from 'https://deno.land/std@v0.184.0/http/server.ts'
+
+const app = new cheetah()
+  .get('/', () => 'Hello World')
+
+serve(cheetah.fetch)
+```
+
+### Guide
+
+- ##### General
+  - [**Syntax**](https://github.com/azurystudio/cheetah/blob/dev/guide/syntax.md)
+  - [**Parsing & Validation**](https://github.com/azurystudio/cheetah/blob/dev/guide/parsing_and_validation.md)
+  - [**Deploying**](https://github.com/azurystudio/cheetah/blob/dev/guide/deploying.md)
+- ##### Context
+  - [**IP Address**](https://github.com/azurystudio/cheetah/blob/dev/guide/ip_address.md)
+  - [**Environment Variables**](https://github.com/azurystudio/cheetah/blob/dev/guide/environment_variables.md)
+  - [**Request**](https://github.com/azurystudio/cheetah/blob/dev/guide/request.md)
+  - [**Response**](https://github.com/azurystudio/cheetah/blob/dev/guide/response.md)
