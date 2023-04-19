@@ -6,7 +6,7 @@ import Cheetah from '../mod.ts'
 Deno.bench('noop', () => {})
 
 Deno.bench('cheetah', { group: 'timing', baseline: true }, async () => {
-  const app = new Cheetah()
+  const app = new Cheetah({ env: {} })
 
   app.get('/user', () => 'User')
 
@@ -23,25 +23,25 @@ Deno.bench('cheetah', { group: 'timing', baseline: true }, async () => {
   app.get('/user/lookup/username/:username', c => ({ message: `Hello ${c.req.param('username')}` }))
 
   const r1 = new Request('http://localhost:3000/user')
-  await app.fetch(r1, {}) // < second argument are environment variables (these would be determined automatically in production and be cached accordingly)
+  await app.fetch(r1) // < second argument are environment variables (these would be determined automatically in production and be cached accordingly)
 
   const r2 = new Request('http://localhost:3000/user/comments')
-  await app.fetch(r2, {})
+  await app.fetch(r2)
 
   const r3 = new Request('http://localhost:3000/user/avatar')
-  await app.fetch(r3, {})
+  await app.fetch(r3)
 
   const r4 = new Request('http://localhost:3000/user/lookup/email/benchmark')
-  await app.fetch(r4, {})
+  await app.fetch(r4)
 
   const r5 = new Request('http://localhost:3000/status', { method: 'POST' })
-  await app.fetch(r5, {})
+  await app.fetch(r5)
 
   const r6 = new Request('http://localhost:3000/how/deep/can/this/even/go/holy/shit/it/goes/even/deeper/omg/ok/now/it/finally/ends')
-  await app.fetch(r6, {})
+  await app.fetch(r6)
 
   const r7 = new Request('http://localhost:3000/user/lookup/username/johndoe')
-  await app.fetch(r7, {})
+  await app.fetch(r7)
 })
 
 Deno.bench('hono', { group: 'timing' }, async () => {
