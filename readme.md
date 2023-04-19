@@ -37,10 +37,10 @@ serve(cheetah.fetch)
 
 - ##### General
   - [**Syntax**](https://github.com/azurystudio/cheetah/blob/dev/guide/syntax.md)
+  - [**Collections**](https://github.com/azurystudio/cheetah/blob/dev/guide/collections.md)
   - [**Parsing & Validation**](https://github.com/azurystudio/cheetah/blob/dev/guide/parsing_and_validation.md)
   - [**Deploying**](https://github.com/azurystudio/cheetah/blob/dev/guide/deploying.md)
 - ##### Context
-  - [**IP Address**](https://github.com/azurystudio/cheetah/blob/dev/guide/ip_address.md)
-  - [**Environment Variables**](https://github.com/azurystudio/cheetah/blob/dev/guide/environment_variables.md)
   - [**Request**](https://github.com/azurystudio/cheetah/blob/dev/guide/request.md)
+  - [**Environment Variables**](https://github.com/azurystudio/cheetah/blob/dev/guide/environment_variables.md)
   - [**Response**](https://github.com/azurystudio/cheetah/blob/dev/guide/response.md)
