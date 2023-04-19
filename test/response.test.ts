@@ -81,13 +81,13 @@ Deno.test('Response', async t => {
     assertEquals(await (await app.fetch(new Request('http://localhost:3000/text'))).text(), 'test')
   })
 
-  await t.step('Inline JSON', async () => {
-    app.get('/inline-json', () => ({ message: 'test' }))
-    assertEquals(await (await app.fetch(new Request('http://localhost:3000/inline-json'))).json(), { message: 'test' })
+  await t.step('Implicit JSON', async () => {
+    app.get('/implicit-json', () => ({ message: 'test' }))
+    assertEquals(await (await app.fetch(new Request('http://localhost:3000/implicit-json'))).json(), { message: 'test' })
   })
 
-  await t.step('Inline Text', async () => {
-    app.get('/inline-text', () => 'test')
-    assertEquals(await (await app.fetch(new Request('http://localhost:3000/inline-text'))).text(), 'test')
+  await t.step('Implicit Text', async () => {
+    app.get('/implicit-text', () => 'test')
+    assertEquals(await (await app.fetch(new Request('http://localhost:3000/implicit-text'))).text(), 'test')
   })
 })
