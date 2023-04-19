@@ -118,11 +118,11 @@ export class cheetah<
   /* Fetch Handler                                                              */
   /* -------------------------------------------------------------------------- */
 
-  async fetch(
+  fetch = async (
     request: Request,
     env?: Environment | ConnInfo,
     context?: RequestContext
-  ): Promise<Response> {
+  ): Promise<Response> => {
     let cache: Cache | undefined
     const ip = env?.remoteAddr ? ((env as ConnInfo & { remoteAddr: { hostname: string }}).remoteAddr).hostname : request.headers.get('cf-connecting-ip') ?? undefined
 
