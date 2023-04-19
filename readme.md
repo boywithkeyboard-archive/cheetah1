@@ -37,6 +37,7 @@ serve(cheetah.fetch)
 
 - ##### General
   - [**Syntax**](https://github.com/azurystudio/cheetah/blob/dev/guide/syntax.md)
+  - [**Configuration**](https://github.com/azurystudio/cheetah/blob/dev/guide/configuration.md)
   - [**Collections**](https://github.com/azurystudio/cheetah/blob/dev/guide/collections.md)
   - [**Parsing & Validation**](https://github.com/azurystudio/cheetah/blob/dev/guide/parsing_and_validation.md)
   - [**Deploying**](https://github.com/azurystudio/cheetah/blob/dev/guide/deploying.md)
