@@ -30,7 +30,7 @@ import { serve } from 'https://deno.land/std@v0.184.0/http/server.ts'
 const app = new cheetah()
   .get('/', () => 'Hello World')
 
-serve(cheetah.fetch)
+serve(app.fetch.bind(app))
 ```
 
 ### Guide
