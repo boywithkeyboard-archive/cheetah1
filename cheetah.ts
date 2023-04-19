@@ -135,7 +135,7 @@ export class cheetah<
         return cachedResponse
     }
 
-    if (this.#runtime === 'deno')
+    if (this.#env)
       env = this.#env
 
     const url = new URL(request.url)
