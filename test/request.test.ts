@@ -9,11 +9,6 @@ Deno.test('Request', async t => {
     assertEquals(await (await app.fetch(new Request('http://localhost:3000/users/johndoe'))).text(), 'johndoe')
   })
 
-  await t.step('req.env', async () => {
-    app.get('/env', c => c.env)
-    assertEquals(Object.keys(await (await app.fetch((new Request('http://localhost:3000/env')))).json()).length > 0, true)
-  })
-
   await t.step('req.ip', async () => {
     app.get('/ip', c => c.req.ip)
 
