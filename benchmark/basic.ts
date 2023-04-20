@@ -6,7 +6,7 @@ import Cheetah from '../mod.ts'
 Deno.bench('noop', () => {})
 
 Deno.bench('cheetah', { group: 'timing', baseline: true }, async () => {
-  const app = new Cheetah({ env: {} })
+  const app = new Cheetah()
 
   app.get('/user', () => 'User')
 
