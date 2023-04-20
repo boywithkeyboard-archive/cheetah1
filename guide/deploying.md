@@ -5,7 +5,7 @@
 ### Cloudflare Workers
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.1.0/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.1.1/mod.ts'
 
 const app = new cheetah()
   .get('/', () => 'Hello World')
@@ -17,13 +17,13 @@ export default app // or: export default { fetch: app.fetch }
 
 ```bash
 # deno run -A https://deno.land/x/cheetah@v0.1.0/build.ts <input> <output>
-deno run -A https://deno.land/x/cheetah@v0.1.0/build.ts mod.ts worker.js
+deno run -A https://deno.land/x/cheetah@v0.1.0/build.ts mod.ts mod.js
 ```
 
 ### Deno Deploy
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.1.0/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.1.1/mod.ts'
 import { serve } from 'https://deno.land/std@v0.184.0/http/server.ts'
 
 const app = new cheetah()

@@ -5,7 +5,7 @@
 You can split your app into multiple files using **Collections**. Creating a new collection is also quite simple:
 
 ```ts
-import cheetah, { Collection } from 'https://deno.land/x/cheetah@v0.1.0/mod.ts'
+import cheetah, { Collection } from 'https://deno.land/x/cheetah@v0.1.1/mod.ts'
 
 const collection = new Collection()
   .get('/example', () => 'Hello World')

@@ -7,7 +7,7 @@
 #### TypeBox
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.1.0/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.1.1/mod.ts'
 import typebox, { Type, TypeBoxValidator } from 'https://deno.land/x/cheetah@v0.1.0/validator/typebox.ts'
 
 type EnvironmentVariables = {}
@@ -20,7 +20,7 @@ const app = new cheetah<EnvironmentVariables, TypeBoxValidator>({
 #### Zod
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.1.0/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.1.1/mod.ts'
 import zod, { z, ZodValidator } from 'https://deno.land/x/cheetah@v0.1.0/validator/zod.ts'
 
 type EnvironmentVariables = {}
