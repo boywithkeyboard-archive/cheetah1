@@ -95,6 +95,10 @@ export interface Context<
    */
   env: <T extends keyof Environment>(key: T) => Environment[T]
 
+  runtime:
+    | 'cloudflare'
+    | 'deno'
+
   /**
    * Wait until a response is sent to the client, then resolve the promise.
    */

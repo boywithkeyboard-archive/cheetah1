@@ -370,6 +370,7 @@ export class cheetah<
       // @ts-ignore: typescript bs
       env: name => this.#runtime === 'deno' ? Deno.env.get(name as string) as string : env[name],
       waitUntil,
+      runtime: this.#runtime,
   
       req: {
         ip,

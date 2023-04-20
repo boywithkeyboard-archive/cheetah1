@@ -10,4 +10,9 @@ Deno.test('Context', async t => {
     app.get('/env', c => c.env('cheetah_test'))
     assertEquals(await (await app.fetch((new Request('http://localhost:3000/env')))).text(), 'test')
   })
+
+  await t.step('c.runtime', async () => {
+    app.get('/runtime', c => c.runtime)
+    assertEquals(await (await app.fetch((new Request('http://localhost:3000/runtime')))).text(), 'deno')
+  })
 })
