@@ -1,7 +1,7 @@
 import { z, ZodObject, ZodType } from 'https://deno.land/x/zod@v3.21.4/mod.ts'
 import { Static as TypeBoxStatic, TObject, TSchema } from 'https://esm.sh/@sinclair/typebox@0.27.8'
-import { TypeBoxValidator } from './validator/typebox.ts'
-import { ZodValidator } from './validator/zod.ts'
+import typebox from './validator/typebox.ts'
+import zod from './validator/zod.ts'
 
 /* Request ------------------------------------------------------------------ */
 
@@ -11,21 +11,25 @@ export type RequestContext = {
 
 /* Validator ---------------------------------------------------------------- */
 
-export type Schema<Validator extends TypeBoxValidator | ZodValidator | unknown = unknown> = Validator extends TypeBoxValidator
+export type Schema<Validator extends typeof typebox | typeof zod | unknown = unknown> = Validator extends typeof typebox
   ? TSchema
-  : Validator extends ZodValidator
+  : Validator extends typeof zod
   ? ZodType
   : (ZodType | TSchema)
 
-export type ObjectSchema<Validator extends TypeBoxValidator | ZodValidator | unknown = unknown> = Validator extends TypeBoxValidator
+export type ObjectSchema<Validator extends typeof typebox | typeof zod | unknown = unknown> = Validator extends undefined
+  ? never
+  : Validator extends typeof typebox
   ? TObject
-  : Validator extends ZodValidator
+  : Validator extends typeof zod
   // deno-lint-ignore no-explicit-any
   ? ZodObject<any>
   // deno-lint-ignore no-explicit-any
   : (ZodObject<any> | TObject)
 
-export type Static<T extends TSchema | ZodType> = T extends TSchema
+export type Static<T extends TSchema | ZodType> = T extends undefined
+  ? never
+  : T extends TSchema
   // deno-lint-ignore no-explicit-any
   ? (TypeBoxStatic<T> extends any ? unknown : TypeBoxStatic<T>)
   : T extends ZodType
@@ -86,7 +90,10 @@ export interface Context<
   ValidatedHeaders extends ObjectSchema | unknown = unknown,
   ValidatedQuery extends ObjectSchema | unknown = unknown
 > {
-  env: Environment
+  /**
+   * A method to retrieve the value of a environment variable.
+   */
+  env: <T extends keyof Environment>(key: T) => Environment[T]
 
   /**
    * Wait until a response is sent to the client, then resolve the promise.

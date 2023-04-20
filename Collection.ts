@@ -1,12 +1,12 @@
 import { Handler, ObjectSchema, Schema } from './types.ts'
-import { TypeBoxValidator } from './validator/typebox.ts'
-import { ZodValidator } from './validator/zod.ts'
+import typebox from './validator/typebox.ts'
+import zod from './validator/zod.ts'
 
 export class Collection<
-  Environment extends Record<string, unknown> = Record<string, unknown>,
-  Validator extends (TypeBoxValidator | ZodValidator) | undefined = undefined
+  Environment extends Record<string, string> = Record<string, string>,
+  Validator extends (typeof typebox | typeof zod) | undefined = undefined
 > {
-  __routes: [
+  routes: [
     string,
     string,
     (
@@ -22,7 +22,7 @@ export class Collection<
   ][]
 
   constructor() {
-    this.__routes = []
+    this.routes = []
   }
 
   /* Get Method --------------------------------------------------------------- */
@@ -77,7 +77,7 @@ export class Collection<
       >
     )[]
   ) {
-    this.__routes.push([ 'GET', url, handler ])
+    this.routes.push([ 'GET', url, handler ])
 
     return this
   }
@@ -138,7 +138,7 @@ export class Collection<
       >
     )[]
   ) {
-    this.__routes.push([ 'DELETE', url, handler ])
+    this.routes.push([ 'DELETE', url, handler ])
 
     return this
   }
@@ -199,7 +199,7 @@ export class Collection<
       >
     )[]
   ) {
-    this.__routes.push([ 'POST', url, handler ])
+    this.routes.push([ 'POST', url, handler ])
   
     return this
   }
@@ -260,7 +260,7 @@ export class Collection<
       >
     )[]
   ) {
-    this.__routes.push([ 'PUT', url, handler ])
+    this.routes.push([ 'PUT', url, handler ])
   
     return this
   }
@@ -321,7 +321,7 @@ export class Collection<
       >
     )[]
   ) {
-    this.__routes.push([ 'PATCH', url, handler ])
+    this.routes.push([ 'PATCH', url, handler ])
   
     return this
   }
@@ -378,7 +378,7 @@ export class Collection<
       >
     )[]
   ) {
-    this.__routes.push([ 'HEAD', url, handler ])
+    this.routes.push([ 'HEAD', url, handler ])
 
     return this
   }
