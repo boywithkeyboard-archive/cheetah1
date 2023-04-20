@@ -34,7 +34,7 @@ const encodedResult = await Deno.run({
 
 const result: BenchmarkResult = JSON.parse(new TextDecoder().decode(encodedResult))
 
-const header = '\n\n| Benchmark | Time (avg) | min ... max | p75 | p99 | p995 | p999 | Diff |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n'
+const header = '\n\n| Benchmark | Time (avg) | min ... max | p75 | p99 | p995 | p999 |\n| --- | --- | --- | --- | --- | --- | --- |\n'
 
 result.benches.shift()
 
@@ -71,7 +71,7 @@ for (const bench of result.benches) {
     prefix = `[${bench.name}](${frameworks[bench.name]})`
   }
 
-  body += `| ${prefix} | ${format(bench.results[0].ok.avg)}/run | ${format(bench.results[0].ok.min)} ... ${format(bench.results[0].ok.max)} | ${format(bench.results[0].ok.p75)} | ${format(bench.results[0].ok.p99)} | ${format(bench.results[0].ok.p995)} | ${format(bench.results[0].ok.p999)} | ${isFirst ? '...' : `**${round((result.benches[0].results[0].ok.avg - bench.results[0].ok.avg) / result.benches[0].results[0].ok.avg * 100, 2)}%**`} |\n`
+  body += `| ${prefix} | ${format(bench.results[0].ok.avg)}/run | ${format(bench.results[0].ok.min)} ... ${format(bench.results[0].ok.max)} | ${format(bench.results[0].ok.p75)} | ${format(bench.results[0].ok.p99)} | ${format(bench.results[0].ok.p995)} | ${format(bench.results[0].ok.p999)} |\n`
 
   isFirst = false
 }
