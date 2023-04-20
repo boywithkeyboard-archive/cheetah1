@@ -10,14 +10,14 @@
 
 [//]: benchmarkstart
 
-| Benchmark | Time (avg) | min ... max | p75 | p99 | p995 | p999 | Diff |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| **cheetah** | 49.61 µs/run | 39.3 µs ... 1.81 ms | 43.1 µs | 167.2 µs | 332.4 µs | 922.1 µs | ... |
-| [hono](https://github.com/honojs/hono) | 63.79 µs/run | 48.3 µs ... 1.92 ms | 58.9 µs | 178.5 µs | 255.8 µs | 1.63 ms | **-28.57%** |
-| [itty-router](https://github.com/kwhitley/itty-router) | 63.22 µs/run | 51.7 µs ... 1.71 ms | 58.4 µs | 163 µs | 209.3 µs | 1.46 ms | **-27.44%** |
-| [oak](https://github.com/oakserver/oak) | 85.44 µs/run | 70.5 µs ... 1.29 ms | 77.8 µs | 222.1 µs | 326.4 µs | 1.05 ms | **-72.22%** |
+| Benchmark | Time (avg) | min ... max | p75 | p99 | p995 | p999 |
+| --- | --- | --- | --- | --- | --- | --- |
+| **cheetah** | 47.64 µs/run | 40 µs ... 1.62 ms | 42.9 µs | 144.7 µs | 185.8 µs | 899.3 µs |
+| [hono](https://github.com/honojs/hono) | 59.38 µs/run | 46.8 µs ... 1.73 ms | 54.6 µs | 128.9 µs | 209.8 µs | 1.31 ms |
+| [itty-router](https://github.com/kwhitley/itty-router) | 59.61 µs/run | 52.3 µs ... 1.85 ms | 56.4 µs | 91.5 µs | 106.3 µs | 1.37 ms |
+| [oak](https://github.com/oakserver/oak) | 79.59 µs/run | 70.6 µs ... 1.09 ms | 74.4 µs | 181.4 µs | 254.4 µs | 850.4 µs |
 
-> Benchmark: [basic.ts](https://github.com/azurystudio/cheetah/blob/dev/benchmark/basic.ts) — Runtime: Deno 1.32.4 (x86_64-pc-windows-msvc) — CPU: AMD Ryzen 9 5900X 12-Core
+> Benchmark: [basic.ts](https://github.com/azurystudio/cheetah/blob/dev/benchmark/basic.ts) — Runtime: Deno 1.32.5 (x86_64-pc-windows-msvc) — CPU: AMD Ryzen 9 5900X 12-Core
 
 [//]: benchmarkend
 
@@ -45,3 +45,6 @@ serve(app.fetch)
   - [**Request**](https://github.com/azurystudio/cheetah/blob/dev/guide/request.md)
   - [**Environment Variables**](https://github.com/azurystudio/cheetah/blob/dev/guide/environment_variables.md)
   - [**Response**](https://github.com/azurystudio/cheetah/blob/dev/guide/response.md)
+- ##### Examples
+  - [**Cloudflare Workers**](https://github.com/azurystudio/cheetah/blob/dev/guide/request.md)
+  - [**Deno (Deploy)**](https://github.com/azurystudio/cheetah/blob/dev/guide/request.md)
