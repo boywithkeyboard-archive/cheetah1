@@ -7,14 +7,13 @@ import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.27.8'
 import { Collection } from './Collection.ts'
 import { Exception } from './Exception.ts'
 import { Context, Handler, ObjectSchema, RequestContext, Schema } from './types.ts'
-import { TypeBoxValidator } from './validator/typebox.ts'
-import { ZodValidator } from './validator/zod.ts'
+import typebox from './validator/typebox.ts'
+import zod from './validator/zod.ts'
 
 export class cheetah<
-  Environment extends Record<string, unknown> = Record<string, unknown>,
-  Validator extends (TypeBoxValidator | ZodValidator) | undefined = undefined
+  Environment extends Record<string, string> = Record<string, string>,
+  Validator extends (typeof typebox | typeof zod) | undefined = undefined
 > {
-  #env: Environment | undefined
   #router
   #runtime: 'deno' | 'cloudflare'
 
@@ -22,7 +21,7 @@ export class cheetah<
   #cors
   #cache
   #debugging
-  #validator: TypeBoxValidator | ZodValidator | undefined
+  #validator: typeof typebox | typeof zod | undefined
   #notFound
   #error
   
@@ -61,10 +60,6 @@ export class cheetah<
      * Set a custom 404 handler.
      */
     notFound?: (request: Request) => Response | Promise<Response>
-    /**
-     * If you don't want to give cheetah the permissions to read your environment variables, you can also set them here instead.
-     */
-    env?: Environment
   } = {}) {
     this.#router = new URLRouter()
 
@@ -87,27 +82,21 @@ export class cheetah<
       throw new Error('Unknown Runtime')
 
     this.#runtime = runtime
-
-    this.#env = options.env
-      ? options.env
-      : this.#runtime === 'deno'
-      ? globalThis.Deno.env.toObject() as Environment
-      : undefined
   }
 
   use(base: `/${string}`, collection: Collection<Environment, Validator>) {
-    const length = collection.__routes.length
+    const length = collection.routes.length
 
     for (let i = 0; i < length; ++i) {
-      let url = collection.__routes[i][1]
+      let url = collection.routes[i][1]
 
       if (url === '/')
         url = ''
 
       this.#addRoute(
-        collection.__routes[i][0],
+        collection.routes[i][0],
         this.#base ? this.#base + base + url : base + url,
-        collection.__routes[i][2]
+        collection.routes[i][2]
       )
     }
 
@@ -120,13 +109,15 @@ export class cheetah<
 
   fetch = async (
     request: Request,
-    env?: Environment | ConnInfo,
+    // @ts-ignore: this is fine
+    env: Environment | ConnInfo = {},
     context?: RequestContext
   ): Promise<Response> => {
     let cache: Cache | undefined
+
     const ip = env?.remoteAddr ? ((env as ConnInfo & { remoteAddr: { hostname: string }}).remoteAddr).hostname : request.headers.get('cf-connecting-ip') ?? undefined
 
-    if (this.#cache && request.method === 'GET') {
+    if (this.#cache && request.method === 'GET' && this.#runtime === 'cloudflare') {
       cache = await caches.open(this.#cache.name)
   
       const cachedResponse = await cache.match(request)
@@ -134,9 +125,6 @@ export class cheetah<
       if (cachedResponse)
         return cachedResponse
     }
-
-    if (this.#env)
-      env = this.#env
 
     const url = new URL(request.url)
 
@@ -150,18 +138,16 @@ export class cheetah<
         throw new Exception(404)
       }
 
-      const waitUntil = context
-        ? context.waitUntil
-        // polyfill for deno
-        : (promise: Promise<unknown>) => {
+      const waitUntil = context?.waitUntil
+        ?? ((promise: Promise<unknown>) => {
           setTimeout(async () => {
             await promise
           }, 1000)
-        }
+        })
 
       const response = await this.#handle(
         request,
-        env,
+        env as Environment,
         waitUntil,
         ip,
         url,
@@ -169,7 +155,7 @@ export class cheetah<
         route.store[request.method]
       )
 
-      if (cache && response.ok)
+      if (cache && response.ok && this.#runtime === 'cloudflare')
         waitUntil(cache.put(request, response.clone()))
 
       if (this.#debugging)
@@ -207,8 +193,7 @@ export class cheetah<
 
   async #handle(
     request: Request,
-    // deno-lint-ignore no-explicit-any
-    env: any,
+    env: Environment,
     waitUntil: RequestContext['waitUntil'],
     ip: string | undefined,
     url: URL,
@@ -382,7 +367,8 @@ export class cheetah<
     = null
   
     const context: Context<Environment, Record<string, string>> = {
-      env: env as Environment,
+      // @ts-ignore: typescript bs
+      env: name => this.#runtime === 'deno' ? Deno.env.get(name as string) as string : env[name],
       waitUntil,
   
       req: {
