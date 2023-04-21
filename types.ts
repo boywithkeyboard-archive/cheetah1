@@ -1,5 +1,5 @@
 import { z, ZodObject, ZodType } from 'https://deno.land/x/zod@v3.21.4/mod.ts'
-import { Static as TypeBoxStatic, TObject, TSchema } from 'https://esm.sh/@sinclair/typebox@0.27.8'
+import { Static as TypeBoxStatic, TObject, TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.1'
 import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
 
