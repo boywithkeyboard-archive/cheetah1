@@ -11,7 +11,7 @@ import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
 
 export class cheetah<
-  Environment extends Record<string, string> = Record<string, string>,
+  Environment extends Record<string, unknown> = Record<string, unknown>,
   Validator extends (typeof typebox | typeof zod) | undefined = undefined
 > {
   #router
@@ -367,8 +367,8 @@ export class cheetah<
     = null
   
     const context: Context<Environment, Record<string, string>> = {
-      // @ts-ignore: typescript bs
-      env: name => this.#runtime === 'deno' ? Deno.env.get(name as string) as string : env[name],
+
+      env: <T extends keyof Environment>(name: T) => this.#runtime === 'deno' ? Deno.env.get(name as string) as Environment[T] : env[name],
       waitUntil,
       runtime: this.#runtime,
   

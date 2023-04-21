@@ -3,7 +3,7 @@ import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
 
 export class Collection<
-  Environment extends Record<string, string> = Record<string, string>,
+  Environment extends Record<string, unknown> = Record<string, unknown>,
   Validator extends (typeof typebox | typeof zod) | undefined = undefined
 > {
   routes: [
