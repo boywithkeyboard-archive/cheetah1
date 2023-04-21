@@ -1,3 +1,9 @@
+## [v0.2.1](https://github.com/azurystudio/cheetah/releases/tag/v0.2.1)
+
+- #### Bug Fixes
+
+  - Fixed a small type issue regarding the environment variables type.
+
 ## [v0.2.0](https://github.com/azurystudio/cheetah/releases/tag/v0.2.0)
 
 - #### Breaking Changes
