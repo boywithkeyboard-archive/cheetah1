@@ -11,7 +11,6 @@ import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
 
 export class cheetah<
-  Environment extends Record<string, unknown> = Record<string, unknown>,
   Validator extends (typeof typebox | typeof zod) | undefined = undefined
 > {
   #router
@@ -84,7 +83,7 @@ export class cheetah<
     this.#runtime = runtime
   }
 
-  use(base: `/${string}`, collection: Collection<Environment, Validator>) {
+  use<T extends Collection<Validator>>(base: `/${string}`, collection: T) {
     const length = collection.routes.length
 
     for (let i = 0; i < length; ++i) {
@@ -109,8 +108,7 @@ export class cheetah<
 
   fetch = async (
     request: Request,
-    // @ts-ignore: this is fine
-    env: Environment | ConnInfo = {},
+    env: Record<string, unknown> | ConnInfo = {},
     context?: RequestContext
   ): Promise<Response> => {
     let cache: Cache | undefined
@@ -147,7 +145,7 @@ export class cheetah<
 
       const response = await this.#handle(
         request,
-        env as Environment,
+        env,
         waitUntil,
         ip,
         url,
@@ -193,7 +191,8 @@ export class cheetah<
 
   async #handle(
     request: Request,
-    env: Environment,
+    // deno-lint-ignore no-explicit-any
+    env: Record<string, any>,
     waitUntil: RequestContext['waitUntil'],
     ip: string | undefined,
     url: URL,
@@ -206,7 +205,7 @@ export class cheetah<
         query?: ObjectSchema<Validator>
       } |
       // deno-lint-ignore no-explicit-any
-      Handler<Environment, any, any, any, any, any>
+      Handler<any, any, any, any, any>
     )[]
   ) {
     /* Preflight Request -------------------------------------------------------- */
@@ -345,7 +344,7 @@ export class cheetah<
   
     /* Construct Context -------------------------------------------------------- */
   
-    let geo: ReturnType<Context<Environment, Record<string, string>>['req']['geo']>
+    let geo: ReturnType<Context<Record<string, string>>['req']['geo']>
     let requiresFormatting = true
     let responseCode = 200
 
@@ -366,8 +365,9 @@ export class cheetah<
       | null
     = null
   
-    const context: Context<Environment, Record<string, string>> = {
+    const context: Context<Record<string, string>> = {
 
+      // @ts-ignore
       env: <T extends keyof Environment>(name: T) => this.#runtime === 'deno' ? Deno.env.get(name as string) as Environment[T] : env[name],
       waitUntil,
       runtime: this.#runtime,
@@ -544,7 +544,7 @@ export class cheetah<
         continue
 
       // deno-lint-ignore no-explicit-any
-      const result = await (route[i] as Handler<Environment, any, any, any, any, any>)(context)
+      const result = await (route[i] as Handler<any, any, any, any, any>)(context)
 
       if (result)
         responseBody = result
@@ -621,7 +621,7 @@ export class cheetah<
       query?: ObjectSchema<Validator>
     } |
     // deno-lint-ignore no-explicit-any
-    Handler<Environment, any, any, any, any, any>
+    Handler<any, any, any, any, any>
   )[]) {
     const store = this.#router.register(path)
 
@@ -632,7 +632,7 @@ export class cheetah<
 
   get<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl, undefined>[]
+    ...handler: Handler<RequestUrl, undefined>[]
   ): this
 
   get<
@@ -648,7 +648,6 @@ export class cheetah<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       undefined,
       ValidatedCookies,
@@ -671,7 +670,6 @@ export class cheetah<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         undefined,
         ValidatedCookies,
@@ -689,7 +687,7 @@ export class cheetah<
 
   delete<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl>[]
+    ...handler: Handler<RequestUrl>[]
   ): this
   
   delete<
@@ -707,7 +705,6 @@ export class cheetah<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       ValidatedBody,
       ValidatedCookies,
@@ -732,7 +729,6 @@ export class cheetah<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         ValidatedBody,
         ValidatedCookies,
@@ -750,7 +746,7 @@ export class cheetah<
 
   post<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl>[]
+    ...handler: Handler<RequestUrl>[]
   ): this
   
   post<
@@ -768,7 +764,6 @@ export class cheetah<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       ValidatedBody,
       ValidatedCookies,
@@ -793,7 +788,6 @@ export class cheetah<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         ValidatedBody,
         ValidatedCookies,
@@ -811,7 +805,7 @@ export class cheetah<
 
   put<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl>[]
+    ...handler: Handler<RequestUrl>[]
   ): this
   
   put<
@@ -829,7 +823,6 @@ export class cheetah<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       ValidatedBody,
       ValidatedCookies,
@@ -854,7 +847,6 @@ export class cheetah<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         ValidatedBody,
         ValidatedCookies,
@@ -872,7 +864,7 @@ export class cheetah<
 
   patch<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl>[]
+    ...handler: Handler<RequestUrl>[]
   ): this
   
   patch<
@@ -890,7 +882,6 @@ export class cheetah<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       ValidatedBody,
       ValidatedCookies,
@@ -915,7 +906,6 @@ export class cheetah<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         ValidatedBody,
         ValidatedCookies,
@@ -933,7 +923,7 @@ export class cheetah<
 
   head<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl, undefined>[]
+    ...handler: Handler<RequestUrl, undefined>[]
   ): this
 
   head<
@@ -949,7 +939,6 @@ export class cheetah<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       undefined,
       ValidatedCookies,
@@ -972,7 +961,6 @@ export class cheetah<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         undefined,
         ValidatedCookies,

@@ -3,8 +3,7 @@ import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
 
 export class Collection<
-  Environment extends Record<string, unknown> = Record<string, unknown>,
-  Validator extends (typeof typebox | typeof zod) | undefined = undefined
+  Validator extends typeof typebox | typeof zod | undefined = undefined
 > {
   routes: [
     string,
@@ -17,7 +16,7 @@ export class Collection<
         query?: ObjectSchema<Validator>
       } |
       // deno-lint-ignore no-explicit-any
-      Handler<Environment, any, any, any, any, any>
+      Handler<any, any, any, any, any>
     )[]
   ][]
 
@@ -29,7 +28,7 @@ export class Collection<
 
   get<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl, undefined>[]
+    ...handler: Handler<RequestUrl, undefined>[]
   ): this
 
   get<
@@ -45,7 +44,6 @@ export class Collection<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       undefined,
       ValidatedCookies,
@@ -68,7 +66,6 @@ export class Collection<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         undefined,
         ValidatedCookies,
@@ -86,7 +83,7 @@ export class Collection<
 
   delete<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl>[]
+    ...handler: Handler<RequestUrl>[]
   ): this
   
   delete<
@@ -104,7 +101,6 @@ export class Collection<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       ValidatedBody,
       ValidatedCookies,
@@ -129,7 +125,6 @@ export class Collection<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         ValidatedBody,
         ValidatedCookies,
@@ -147,7 +142,7 @@ export class Collection<
 
   post<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl>[]
+    ...handler: Handler<RequestUrl>[]
   ): this
   
   post<
@@ -165,7 +160,6 @@ export class Collection<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       ValidatedBody,
       ValidatedCookies,
@@ -190,7 +184,6 @@ export class Collection<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         ValidatedBody,
         ValidatedCookies,
@@ -208,7 +201,7 @@ export class Collection<
 
   put<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl>[]
+    ...handler: Handler<RequestUrl>[]
   ): this
   
   put<
@@ -226,7 +219,6 @@ export class Collection<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       ValidatedBody,
       ValidatedCookies,
@@ -251,7 +243,6 @@ export class Collection<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         ValidatedBody,
         ValidatedCookies,
@@ -269,7 +260,7 @@ export class Collection<
 
   patch<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl>[]
+    ...handler: Handler<RequestUrl>[]
   ): this
   
   patch<
@@ -287,7 +278,6 @@ export class Collection<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       ValidatedBody,
       ValidatedCookies,
@@ -312,7 +302,6 @@ export class Collection<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         ValidatedBody,
         ValidatedCookies,
@@ -330,7 +319,7 @@ export class Collection<
 
   head<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<Environment, RequestUrl, undefined>[]
+    ...handler: Handler<RequestUrl, undefined>[]
   ): this
 
   head<
@@ -346,7 +335,6 @@ export class Collection<
       query?: ValidatedQuery
     },
     ...handler: Handler<
-      Environment,
       RequestUrl,
       undefined,
       ValidatedCookies,
@@ -369,7 +357,6 @@ export class Collection<
         query?: ValidatedQuery
       } |
       Handler<
-        Environment,
         RequestUrl,
         undefined,
         ValidatedCookies,
