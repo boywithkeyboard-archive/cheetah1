@@ -76,7 +76,7 @@ for (const bench of result.benches) {
   isFirst = false
 }
 
-const footer = `\n> Benchmark: [basic.ts](https://github.com/azurystudio/cheetah/blob/dev/benchmark/basic.ts) — Runtime: ${result.runtime.replace(' ', ' (').replace('Deno/', 'Deno ')}) — CPU: ${result.cpu.replace(' Processor', '')}\n\n`
+const footer = `\n###### Benchmark: [basic.ts](https://github.com/azurystudio/cheetah/blob/dev/benchmark/basic.ts) — Runtime: ${result.runtime.replace(' ', ' (').replace('Deno/', 'Deno ')}) — CPU: ${result.cpu.replace(' Processor', '')}\n\n`
 
 const markdown = await Deno.readTextFile('./readme.md')
 
