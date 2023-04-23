@@ -1,4 +1,9 @@
-const zod = {
+type ZodValidator = {
+  name: 'zod',
+  check: undefined
+}
+
+const zod: ZodValidator = {
   name: 'zod',
   check: undefined
 }
