@@ -1,4 +1,4 @@
-[← readme](https://github.com/azurystudio/cheetah#readme)
+[← readme](https://github.com/azurystudio/cheetah/blob/dev/guide/overview.md)
 
 ## Environment Variables
 
