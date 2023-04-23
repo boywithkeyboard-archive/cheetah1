@@ -2,32 +2,32 @@
 
 ## Environment Variables
 
-cheetah automatically tries to fetch your environment variables, but if you want to set custom variables, please set them when constructing a new app.
-
-> **Warning**: We inherently advise against defining custom variables as this approach is prone to errors.
+At first, you should define a global `Environment` type. To do that, create a file named `env.d.ts` with the following content:
 
 ```ts
-const app = new cheetah({
-  env: {
-    ...
-  }
-})
-```
-
-To stay typesafe, provide a type for these variables:
-
-```ts
-type Variables = {
-  ...
+type Environment = {
+  example_key: string
 }
-
-const app = new cheetah<Variables>()
 ```
 
-You can then access them just like this:
+Then include it in your `deno.json` file like that:
+
+```json
+{
+  "compilerOptions": {
+    "types": [
+      "./env.d.ts"
+    ]
+  }
+}
+```
+
+You probably need to reload VSCode in order for the changes to take effect.
+
+After defining them, you can access them like that:
 
 ```ts
 app.get('/example', c => {
-  console.log(c.env)
+  console.log(c.env('example_key')) // should be a string
 })
 ```
