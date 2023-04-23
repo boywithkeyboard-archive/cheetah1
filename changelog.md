@@ -1,3 +1,13 @@
+## [v0.2.2](https://github.com/azurystudio/cheetah/releases/tag/v0.2.2)
+
+- #### Bug Fixes
+
+  - Fixed a bug that lead to type `unknown` when defining a schema for validation.
+
+- #### Revisions
+
+  - `cheetah` and `Collection` classes no longer take the environment type as first argument. This type should now be defined globally.
+
 ## [v0.2.1](https://github.com/azurystudio/cheetah/releases/tag/v0.2.1)
 
 - #### Bug Fixes
