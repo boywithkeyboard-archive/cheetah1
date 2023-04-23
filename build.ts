@@ -1,4 +1,4 @@
-import { build, stop } from 'https://deno.land/x/esbuild@v0.17.17/mod.js'
+import { build, stop } from 'https://deno.land/x/esbuild@v0.17.18/mod.js'
 
 await Deno.run({ cmd: ['deno', 'bundle', '-q', Deno.args[0] ?? './mod.ts', Deno.args[1] ?? './mod.js'] }).status()
 
