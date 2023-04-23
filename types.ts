@@ -1,7 +1,9 @@
 import { z, ZodObject, ZodType } from 'https://deno.land/x/zod@v3.21.4/mod.ts'
-import { Static as TypeBoxStatic, TObject, TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.4'
+import { TObject, TSchema, Static as TypeBoxStatic } from 'https://esm.sh/@sinclair/typebox@0.28.4'
 import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
+
+type Environment = Record<string, unknown>
 
 /* Request ------------------------------------------------------------------ */
 
@@ -11,13 +13,17 @@ export type RequestContext = {
 
 /* Validator ---------------------------------------------------------------- */
 
-export type Schema<Validator extends typeof typebox | typeof zod | unknown = unknown> = Validator extends typeof typebox
+export type Schema<
+  Validator extends typeof typebox | typeof zod | unknown = unknown
+> = Validator extends typeof typebox
   ? TSchema
   : Validator extends typeof zod
   ? ZodType
   : (ZodType | TSchema)
 
-export type ObjectSchema<Validator extends typeof typebox | typeof zod | unknown = unknown> = Validator extends undefined
+export type ObjectSchema<
+  Validator extends typeof typebox | typeof zod | unknown = unknown
+> = Validator extends undefined
   ? never
   : Validator extends typeof typebox
   ? TObject
@@ -30,11 +36,9 @@ export type ObjectSchema<Validator extends typeof typebox | typeof zod | unknown
 export type Static<T extends TSchema | ZodType> = T extends undefined
   ? never
   : T extends TSchema
-  // deno-lint-ignore no-explicit-any
-  ? (TypeBoxStatic<T> extends any ? unknown : TypeBoxStatic<T>)
+  ? TypeBoxStatic<T>
   : T extends ZodType
-  // deno-lint-ignore no-explicit-any
-  ? (z.infer<T> extends any ? unknown : z.infer<T>)
+  ? z.infer<T>
   : unknown
 
 /* Handler ------------------------------------------------------------------ */
@@ -55,14 +59,15 @@ export type ResponsePayload =
   | undefined
 
 export type Handler<
-  Environment extends Record<string, unknown> = Record<string, unknown>,
   Params = unknown,
   ParsedBody = unknown,
   ParsedCookies = unknown,
   ParsedHeaders = unknown,
   ParsedQuery = unknown
 > = (
-  c: Context<Environment, ExtractParams<Params>, ParsedBody, ParsedCookies, ParsedHeaders, ParsedQuery>
+  c: Context<
+    ExtractParams<Params>, ParsedBody, ParsedCookies, ParsedHeaders, ParsedQuery
+  >
 ) => ResponsePayload | Promise<ResponsePayload>
 
 type DisembodiedResponsePayload =
@@ -70,20 +75,20 @@ type DisembodiedResponsePayload =
   | undefined
 
 export type DisembodiedHandler<
-  Environment extends Record<string, unknown> = Record<string, unknown>,
   Params = unknown,
   ParsedBody = unknown,
   ParsedCookies = unknown,
   ParsedHeaders = unknown,
   ParsedQuery = unknown
 > = (
-  c: Context<Environment, ExtractParams<Params>, ParsedBody, ParsedCookies, ParsedHeaders, ParsedQuery>
+  c: Context<
+    ExtractParams<Params>, ParsedBody, ParsedCookies, ParsedHeaders, ParsedQuery
+  >
 ) => DisembodiedResponsePayload | Promise<DisembodiedResponsePayload>
 
 /* Context ------------------------------------------------------------------ */
 
 export interface Context<
-  Environment extends Record<string, unknown>,
   Params extends Record<string, unknown>,
   ValidatedBody extends Schema | unknown = unknown,
   ValidatedCookies extends ObjectSchema | unknown = unknown,
@@ -93,7 +98,7 @@ export interface Context<
   /**
    * A method to retrieve the value of a environment variable.
    */
-  env: <T extends keyof Environment>(key: T) => Environment[T]
+  env: <T extends keyof Environment>(key: T) => unknown
 
   runtime:
     | 'cloudflare'
