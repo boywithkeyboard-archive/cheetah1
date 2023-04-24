@@ -1,3 +1,24 @@
+## [v0.2.3](https://github.com/azurystudio/cheetah/releases/tag/v0.2.3)
+
+- #### New Features
+
+  - We've ported cheetah to NPM.
+
+    ***We strongly recommend using Deno.***
+
+    ```bash
+    npm i @azury/cheetah
+    ```
+
+    ```ts
+    import cheetah from '@azury/cheetah'
+
+    const app = new cheetah()
+      .get('/', () => 'Hello World')
+
+    export default app
+    ```
+
 ## [v0.2.2](https://github.com/azurystudio/cheetah/releases/tag/v0.2.2)
 
 - #### Bug Fixes

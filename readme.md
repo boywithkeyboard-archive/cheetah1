@@ -23,8 +23,10 @@
 
 ### Sneak Peek
 
+#### Deno
+
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.2.2/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.2.3/mod.ts'
 import { serve } from 'https://deno.land/std@v0.184.0/http/server.ts'
 
 const app = new cheetah()
@@ -33,11 +35,22 @@ const app = new cheetah()
 serve(app.fetch)
 ```
 
+#### Node.js (Cloudflare Workers)
+
+```ts
+import cheetah from '@azury/cheetah'
+
+const app = new cheetah()
+  .get('/', () => 'Hello World')
+
+export default app
+```
+
 > Read our [Guide](https://github.com/azurystudio/cheetah/blob/dev/guide/overview.md) to learn more.
 
-#### Why cheetah?
+### Why cheetah?
 
-- [x] 🔗 **Chained Routes**
-- [x] 🧙‍♂️ **Schema Validation**
-- [x] 🛡️ **Top-Notch Security**
-- [x] 🪹 **Nested Routes**
+- [x] 🔗 Chained Routes
+- [x] 🧙‍♂️ Schema Validation
+- [x] 🛡️ Top-Notch Security
+- [x] 🪹 Nested Routes
