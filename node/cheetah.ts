@@ -2,13 +2,12 @@ import { IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloud
 import URLRouter from 'https://cdn.jsdelivr.net/npm/@medley/router@0.2.1/+esm'
 import { deadline, DeadlineError } from 'https://deno.land/std@v0.184.0/async/deadline.ts'
 import { brightBlue, brightGreen, brightRed, gray, white } from 'https://deno.land/std@v0.184.0/fmt/colors.ts'
-import { ConnInfo } from 'https://deno.land/std@v0.184.0/http/server.ts'
 import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.5'
-import { Collection } from './Collection.ts'
-import { Exception } from './Exception.ts'
-import { Context, Handler, ObjectSchema, RequestContext, Schema } from './types.ts'
-import typebox from './validator/typebox.ts'
-import zod from './validator/zod.ts'
+import { Collection } from '../Collection.ts'
+import { Exception } from '../Exception.ts'
+import { Context, Handler, ObjectSchema, RequestContext, Schema } from '../types.ts'
+import typebox from '../validator/typebox.ts'
+import zod from '../validator/zod.ts'
 
 export class cheetah<
   Validator extends (typeof typebox | typeof zod) | undefined = undefined
@@ -108,12 +107,12 @@ export class cheetah<
 
   fetch = async (
     request: Request,
-    env: Record<string, unknown> | ConnInfo = {},
+    env: Record<string, unknown> = {},
     context?: RequestContext
   ): Promise<Response> => {
     let cache: Cache | undefined
 
-    const ip = env?.remoteAddr ? ((env as ConnInfo & { remoteAddr: { hostname: string }}).remoteAddr).hostname : request.headers.get('cf-connecting-ip') ?? undefined
+    const ip = request.headers.get('cf-connecting-ip') ?? undefined
 
     if (this.#cache && request.method === 'GET' && this.#runtime === 'cloudflare') {
       cache = await caches.open(this.#cache.name)
