@@ -379,23 +379,33 @@ export class cheetah<
         headers,
         param: key => params[key],
         query,
-        geo() {
+        geo: () => {
           if (geo)
             return geo
 
-          const cf: IncomingRequestCfProperties | undefined
-            = (request as Request & { cf: IncomingRequestCfProperties }).cf
-  
-          geo = {
-            city: cf?.city,
-            region: cf?.region,
-            country: cf?.country,
-            continent: cf?.continent,
-            regionCode: cf?.regionCode,
-            latitude: cf?.latitude,
-            longitude: cf?.longitude,
-            timezone: cf?.timezone,
-            datacenter: cf?.colo
+          if (this.#runtime === 'cloudflare') {
+            const cf: IncomingRequestCfProperties | undefined
+              = (request as Request & { cf: IncomingRequestCfProperties }).cf
+
+            geo = {
+              city: cf?.city,
+              region: cf?.region,
+              country: cf?.country,
+              continent: cf?.continent,
+              regionCode: cf?.regionCode,
+              latitude: cf?.latitude,
+              longitude: cf?.longitude,
+              timezone: cf?.timezone,
+              datacenter: cf?.colo
+            }
+          } else {
+            geo = {
+              city: request.headers.get('cf-ipcity') ?? undefined,
+              country: request.headers.get('cf-ipcountry') ?? undefined,
+              continent: request.headers.get('cf-ipcontinent') ?? undefined,
+              latitude: request.headers.get('cf-iplatitude') ?? undefined,
+              longitude: request.headers.get('cf-iplongitude') ?? undefined
+            }
           }
   
           return geo
