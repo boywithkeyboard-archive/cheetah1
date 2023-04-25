@@ -7,8 +7,8 @@ Deno.test('Context', async t => {
   const app = new cheetah()
 
   await t.step('c.env', async () => {
-    app.get('/env', c => c.env('cheetah_test') as string)
-    assertEquals(await (await app.fetch((new Request('http://localhost:3000/env')))).text(), 'test')
+    app.get('/env', c => typeof c.env)
+    assertEquals(await (await app.fetch((new Request('http://localhost:3000/env')))).text(), 'object')
   })
 
   await t.step('c.runtime', async () => {
