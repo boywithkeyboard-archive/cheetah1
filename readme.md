@@ -50,7 +50,8 @@ export default app
 
 ### Why cheetah?
 
-- [x] 🔗 Chained Routes
-- [x] 🧙‍♂️ Schema Validation
-- [x] 🛡️ Top-Notch Security
-- [x] 🪹 Nested Routes
+- [x] 🪖 `secure` - cheetah ensures that parsing doesn't cause your app to freeze.
+- [x] 🧙‍♂️ `schema validation` - out-of-the-box support for schema validation using TypeBox or Zod.
+- [x] 💎 `simple` - built-in support for CORS, caching, schema validation, debugging and more!
+- [x] 🪹 `chaining & nesting` - cheetah doesn't dictate you how to write your app.
+- [x] 🪶 `light` - all core functionality in **~15 kB**.
