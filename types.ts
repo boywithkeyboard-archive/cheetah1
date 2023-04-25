@@ -98,7 +98,7 @@ export interface Context<
   /**
    * A method to retrieve the value of a environment variable.
    */
-  env: <T extends keyof Environment>(key: T) => unknown
+  env: Environment
 
   runtime:
     | 'cloudflare'

@@ -366,7 +366,7 @@ export class cheetah<
     = null
   
     const context: Context<Record<string, string>> = {
-      env: (name: string) => this.#runtime === 'deno' ? Deno.env.get(name) : env[name],
+      env,
       waitUntil,
       runtime: this.#runtime,
   
