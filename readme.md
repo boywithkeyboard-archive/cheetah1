@@ -54,4 +54,4 @@ export default app
 - [x] 🧙‍♂️ `schema validation` - out-of-the-box support for schema validation using TypeBox or Zod.
 - [x] 💎 `simple` - built-in support for CORS, caching, schema validation, debugging and more!
 - [x] 🪹 `chaining & nesting` - cheetah doesn't dictate you how to write your app.
-- [x] 🪶 `light` - all core functionality in **14.5 kB**.
+- [x] 🪶 `light` - all core functionality in **~14.5 kB**.
