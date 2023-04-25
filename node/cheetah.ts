@@ -139,7 +139,7 @@ export class cheetah<
         ?? ((promise: Promise<unknown>) => {
           setTimeout(async () => {
             await promise
-          }, 1000)
+          }, 0)
         })
 
       const response = await this.#handle(
