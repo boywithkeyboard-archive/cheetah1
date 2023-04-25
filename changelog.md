@@ -1,3 +1,25 @@
+## [v0.3.0](https://github.com/azurystudio/cheetah/releases/tag/v0.3.0)
+
+- #### Breaking Changes
+
+  - `c.env` is now (again) a object.
+
+    ***If you're deploying your app to Deno Deploy or self-hosting it, you should use `Deno.env.get()` instead.***
+
+    ```ts
+    app.get('/', c => {
+      const value = c.env.name
+    })
+    ```
+
+- #### Revisions
+
+  - `c.req.geo` received a fallback for Deno.
+
+    If you use Cloudflare as a proxy, but for whatever reason self-host your application instead of deploying it to Cloudflare Workers, cheetah will automatically parse the [visitor location headers](https://developers.cloudflare.com/rules/transform/managed-transforms/reference) of the incoming request.
+
+  - `c.waitUntil` now fulfills the promise after the shortest possible delay on Deno. *(This doesn't affect Cloudflare Workers!)*
+
 ## [v0.2.3](https://github.com/azurystudio/cheetah/releases/tag/v0.2.3)
 
 - #### New Features
