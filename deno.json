@@ -6,13 +6,12 @@
     }
   },
   "tasks": {
-    "lint": "npm run lint",
-    "format": "npm run format",
     "bench:markdown": "deno run -A .github/updateBenchmark.ts",
     "bench": "deno bench benchmark/basic.ts --allow-env",
     "build": "deno run -A build.ts mod.ts index.js",
     "npm": "deno run -A .github/npm.ts",
     "publish": "cd npm && npm publish --access=public",
+    "bundle_size": "deno run -A .github/bundleSize.ts",
     "test": "deno test -A"
   }
 }
