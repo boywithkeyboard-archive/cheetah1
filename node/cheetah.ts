@@ -2,7 +2,7 @@ import { IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloud
 import URLRouter from 'https://cdn.jsdelivr.net/npm/@medley/router@0.2.1/+esm'
 import { deadline, DeadlineError } from 'https://deno.land/std@v0.184.0/async/deadline.ts'
 import { brightBlue, brightGreen, brightRed, gray, white } from 'https://deno.land/std@v0.184.0/fmt/colors.ts'
-import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.5'
+import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.6'
 import { Collection } from '../Collection.ts'
 import { Exception } from '../Exception.ts'
 import { Context, Handler, ObjectSchema, RequestContext, Schema } from '../types.ts'
