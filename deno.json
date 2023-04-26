@@ -11,5 +11,6 @@
     "build": "deno run -A build.ts mod.ts index.js",
     "bundle_size": "deno run -A .github/bundleSize.ts",
     "test": "deno test -A"
-  }
+  },
+  "lock": false
 }
