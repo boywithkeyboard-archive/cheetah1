@@ -1,3 +1,13 @@
+## [v0.3.1](https://github.com/azurystudio/cheetah/releases/tag/v0.3.1)
+
+- #### New Features
+
+  - Introducing the `x` namespace.
+
+    This namespace is meant for auxiliary features that are useful for designing an API, but largely depend on third-party code or don't really fit into the core.
+
+    *Documentation will follow soon!*
+
 ## [v0.3.0](https://github.com/azurystudio/cheetah/releases/tag/v0.3.0)
 
 - #### Breaking Changes
