@@ -1,3 +1,9 @@
+## [v0.3.2](https://github.com/azurystudio/cheetah/releases/tag/v0.3.2)
+
+- #### Bug Fixes
+
+  - Fixed just a tiny issue with the global `Environment` type.
+
 ## [v0.3.1](https://github.com/azurystudio/cheetah/releases/tag/v0.3.1)
 
 - #### New Features

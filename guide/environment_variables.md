@@ -5,9 +5,14 @@
 At first, you should define a global `Environment` type. To do that, create a file named `env.d.ts` with the following content:
 
 ```ts
-type Environment = {
-  example_key: string
+declare global {
+  // @ts-ignore
+  type Environment = {
+    // ...
+  }
 }
+
+export {}
 ```
 
 Then include it in your `deno.json` file like that:
@@ -28,6 +33,6 @@ After defining them, you can access them like that:
 
 ```ts
 app.get('/example', c => {
-  console.log(c.env('example_key')) // should be a string
+  console.log(c.env.example_key) // should be a string
 })
 ```
