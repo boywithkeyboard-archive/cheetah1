@@ -1,9 +1,9 @@
+/// <reference types='./env.d.ts' />
+
 import { z, ZodObject, ZodType } from 'https://deno.land/x/zod@v3.21.4/mod.ts'
 import { TObject, TSchema, Static as TypeBoxStatic } from 'https://esm.sh/@sinclair/typebox@0.28.6'
 import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
-
-type Environment = Record<string, unknown>
 
 /* Request ------------------------------------------------------------------ */
 
