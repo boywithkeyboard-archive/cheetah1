@@ -277,14 +277,13 @@ export class cheetah<
             query[key] = undefined
           else if (value === 'null')
             query[key] = null
+          else
+            query[key] = value
         }
 
         const isValid = this.#validator.name === 'typebox' && this.#validator.check
           ? this.#validator.check(schema.query as TSchema, query)
           : schema.query.safeParse(query).success
-
-        console.log(schema.query)
-        console.log(query)
 
         if (!isValid)
           throw new Exception(400)
