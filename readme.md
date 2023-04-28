@@ -26,7 +26,7 @@
 #### Deno
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.3.3/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.3.4/mod.ts'
 import { serve } from 'https://deno.land/std@v0.184.0/http/server.ts'
 
 const app = new cheetah()

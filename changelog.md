@@ -1,17 +1,8 @@
-## Upcoming
+## [v0.3.4](https://github.com/azurystudio/cheetah/releases/tag/v0.3.4)
 
-- #### New Features
+- #### Bug Fixes
 
-  - cheetah has now support for **plugins**.
-
-    Create, share & publish your own plugins or use one of the [official plugins](https://github.com/azurystudio/cheetah/blob/dev/guide/plugins/index.md). Here's an example for the official `helmet` plugin:
-
-    ```ts
-    import { helmet } from 'https://deno.land/x/cheetah@v0.4.0/plugins/helmet.ts'
-
-    const app = new cheetah()
-      .use(helmet())
-    ```
+  - Fixed a bug that caused an [illegal invocation](https://stackoverflow.com/questions/9677985/uncaught-typeerror-illegal-invocation-in-chrome) on Cloudflare Workers.
 
 ## [v0.3.3](https://github.com/azurystudio/cheetah/releases/tag/v0.3.3)
 
