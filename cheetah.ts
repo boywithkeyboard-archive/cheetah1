@@ -92,6 +92,10 @@ export class cheetah<
       if (url === '/')
         url = ''
 
+      if (base === '/')
+        // @ts-ignore: ok
+        base = ''
+
       this.#addRoute(
         collection.routes[i][0],
         this.#base ? this.#base + base + url : base + url,
