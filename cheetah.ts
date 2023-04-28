@@ -9,7 +9,6 @@ import { Exception } from './Exception.ts'
 import { Context, Handler, ObjectSchema, RequestContext, Schema } from './types.ts'
 import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
-import { ZodObject } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 
 export class cheetah<
   Validator extends (typeof typebox | typeof zod) | undefined = undefined
@@ -141,25 +140,23 @@ export class cheetah<
         throw new Exception(404)
       }
 
-      const waitUntil = context?.waitUntil
+      const response = await this.#handle(
+        request,
+        env,
+        context?.waitUntil
         ?? ((promise: Promise<unknown>) => {
           setTimeout(async () => {
             await promise
           }, 0)
-        })
-
-      const response = await this.#handle(
-        request,
-        env,
-        waitUntil,
+        }),
         ip,
         url,
         route.params,
         route.store[request.method]
       )
 
-      if (cache && response.ok && this.#runtime === 'cloudflare')
-        waitUntil(cache.put(request, response.clone()))
+      if (cache && response.ok && this.#runtime === 'cloudflare' && context)
+        context.waitUntil(cache.put(request, response.clone()))
 
       if (this.#debugging)
         this.#log(response.ok ? 'fetch' : 'error', request.method, url.pathname, response.status)
