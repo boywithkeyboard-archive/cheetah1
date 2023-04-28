@@ -263,6 +263,17 @@ export class cheetah<
       /* Parse Query Parameters --------------------------------------------------- */
     
       if (schema.query) {
+        let a: any = {
+
+          
+        }
+
+        for (const [key, value] of url.searchParams)
+          a[key] = value
+
+        console.log(a)
+
+        
         for (const [key, value] of url.searchParams) {
           if (value === '' || value === 'true')
             query[key] = true
