@@ -9,6 +9,7 @@ import { Exception } from './Exception.ts'
 import { Context, Handler, ObjectSchema, RequestContext, Schema } from './types.ts'
 import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
+import { ZodObject } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 
 export class cheetah<
   Validator extends (typeof typebox | typeof zod) | undefined = undefined
@@ -263,17 +264,6 @@ export class cheetah<
       /* Parse Query Parameters --------------------------------------------------- */
     
       if (schema.query) {
-        let a: any = {
-
-          
-        }
-
-        for (const [key, value] of url.searchParams)
-          a[key] = value
-
-        console.log(a)
-
-        
         for (const [key, value] of url.searchParams) {
           if (value === '' || value === 'true')
             query[key] = true
@@ -292,6 +282,9 @@ export class cheetah<
         const isValid = this.#validator.name === 'typebox' && this.#validator.check
           ? this.#validator.check(schema.query as TSchema, query)
           : schema.query.safeParse(query).success
+
+        console.log(isValid)
+        console.log(schema.query.safeParse(query).success)
 
         if (!isValid)
           throw new Exception(400)
