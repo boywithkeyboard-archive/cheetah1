@@ -1,3 +1,30 @@
+## Upcoming
+
+- #### New Features
+
+  - cheetah has now support for **plugins**.
+
+    Create, share & publish your own plugins or use one of the [official plugins](https://github.com/azurystudio/cheetah/blob/dev/guide/plugins/index.md). Here's an example for the official `helmet` plugin:
+
+    ```ts
+    import { helmet } from 'https://deno.land/x/cheetah@v0.4.0/plugins/helmet.ts'
+
+    const app = new cheetah()
+      .use(helmet())
+    ```
+
+## [v0.3.3](https://github.com/azurystudio/cheetah/releases/tag/v0.3.3)
+
+- #### Bug Fixes
+
+  - The parser ignored simple strings and should add them to the object instead. This issue is now solved.
+
+- #### Revisions
+
+  - Allow `/` as prefix for collections.
+
+    This allows you to split your routing logic into multiple files without having to add a prefix to each collection.
+
 ## [v0.3.2](https://github.com/azurystudio/cheetah/releases/tag/v0.3.2)
 
 - #### Bug Fixes
