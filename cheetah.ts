@@ -283,8 +283,8 @@ export class cheetah<
           ? this.#validator.check(schema.query as TSchema, query)
           : schema.query.safeParse(query).success
 
-        console.log(isValid)
-        console.log(schema.query.safeParse(query).success)
+        console.log(schema.query)
+        console.log(query)
 
         if (!isValid)
           throw new Exception(400)
