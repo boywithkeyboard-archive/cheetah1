@@ -8,9 +8,9 @@ import cheetah from 'https://deno.land/x/cheetah@v0.4.0/mod.ts'
 const app = new cheetah()
   .get('/cake', () => '🎂') // GET '/cake'
 
-  .patch('/cookie', () => '🍪') // GET '/cookie'
+  .patch('/cookie', () => '🍪') // PATCH '/cookie'
 
-  .put('/donut', () => '🍩') // GET '/donut'
+  .put('/donut', () => '🍩') // PUT '/donut'
 ```
 
 ## 🪹 Nesting
@@ -24,5 +24,5 @@ const fastFood = new Collection()
 const app = new cheetah()
   .use('/fast-food', fastFood)
 
-  .get('/pancakes', () => '🥞') // GET '/pancakes'
+  .patch('/pancakes', () => '🥞') // PATCH '/pancakes'
 ```
