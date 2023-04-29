@@ -2,7 +2,7 @@
 
 ## CORS
 
-cheetah has built-in support for [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). You can configure it according to the [specification]((https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin)) of the `Access-Control-Allow-Origin` header.
+cheetah has built-in support for [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). You can configure it according to the [specification](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) of the `Access-Control-Allow-Origin` header.
 
 ```ts
 import cheetah from 'https://deno.land/x/cheetah@v0.4.0/mod.ts'
