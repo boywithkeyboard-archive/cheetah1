@@ -38,7 +38,7 @@ serve(app.fetch)
 ### Why cheetah?
 
 - [x] 🪖 `secure` - cheetah ensures that parsing doesn't cause your app to freeze.
-- [x] 🧙‍♂️ `schema validation` - out-of-the-box support for schema validation via TypeBox or Zod.[\*](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/schema_validation.md)
-- [x] 💎 `simple` - built-in support for CORS, caching, schema validation, debugging and more\![\*](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/simple.md)
-- [x] 🪹 `chaining & nesting` - cheetah doesn't dictate you how to write your app.[\*](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/caching_and_nesting.md)
-- [x] 🪶 `light` - all core functionality in **~14.5 kB**.[\*](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/light.md)
+- [x] 🧙‍♂️ `schema validation` - out-of-the-box support for schema validation via TypeBox or Zod. [🛈](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/schema_validation.md)
+- [x] 💎 `simple` - built-in support for CORS, caching, schema validation, debugging and more! [🛈](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/simple.md)
+- [x] 🪹 `chaining & nesting` - cheetah doesn't dictate you how to write your app. [🛈](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/caching_and_nesting.md)
+- [x] 🪶 `light` - all core functionality in **~14.5 kB**. [🛈](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/light.md)
