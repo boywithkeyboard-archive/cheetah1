@@ -16,7 +16,5 @@ const app = new cheetah({
 
 app.post('/emoji', {
   body: z.string().emoji()
-}, c => {
-  return `it's an emoji!`
-})
+}, () => `it's an emoji!`)
 ```
