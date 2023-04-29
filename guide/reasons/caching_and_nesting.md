@@ -3,7 +3,7 @@
 ## 🔗 Chaining
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.4.0/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.3.4/mod.ts'
 
 const app = new cheetah()
   .get('/cake', () => '🎂') // GET '/cake'
@@ -16,7 +16,7 @@ const app = new cheetah()
 ## 🪹 Nesting
 
 ```ts
-import cheetah, { Collection } from 'https://deno.land/x/cheetah@v0.4.0/mod.ts'
+import cheetah, { Collection } from 'https://deno.land/x/cheetah@v0.3.4/mod.ts'
 
 const fastFood = new Collection()
   .get('/burger', () => '🍔') // GET '/fast-food/burger'
