@@ -1,4 +1,4 @@
-[← Why cheetah?](https://github.com/azurystudio/cheetah#readme)
+[← Why cheetah?](https://github.com/azurystudio/cheetah#why-cheetah)
 
 ## 🪶 Light
 
