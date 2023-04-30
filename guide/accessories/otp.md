@@ -6,6 +6,8 @@
 import { otp } from 'https://deno.land/x/cheetah@v0.3.4/x/mod.ts'
 ```
 
+### Usage
+
 - #### Generate a random secret.
 
     ```ts
