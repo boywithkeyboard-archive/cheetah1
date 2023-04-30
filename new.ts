@@ -7,8 +7,10 @@ async function download(prefix: string, ...paths: string[]) {
   for (const path of paths) {
     const response = await fetch(`https://raw.githubusercontent.com/azurystudio/cheetah/dev/templates/${prefix}/${path}`)
 
-    if (path.includes('/'))
+    if (path.includes('/')) {
       await Deno.mkdir(path.substring(1, path.lastIndexOf('/')), { recursive: true })
+      await Deno.rename(path.substring(1, path.lastIndexOf('/')).replace('/', ''), path.substring(1, path.lastIndexOf('/')))
+    }
 
     await Deno.writeTextFile(path, await response.text())
   }
