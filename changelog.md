@@ -1,3 +1,13 @@
+## [v0.3.5](https://github.com/azurystudio/cheetah/releases/tag/v0.3.5)
+
+- #### New Features
+
+  - There's now a [template for Deno and Cloudflare Workers](https://github.com/azurystudio/cheetah/blob/dev/guide/get_started.md) available, which you can use by running `deno run --allow-read=. --allow-write=. --allow-net https://deno.land/x/cheetah@v0.3.5/new.ts --template <template>`.
+
+- #### Revisions
+
+  - The whole guide was rewritten and restructured to make it easier to get started with cheetah.
+
 ## [v0.3.4](https://github.com/azurystudio/cheetah/releases/tag/v0.3.4)
 
 - #### Bug Fixes

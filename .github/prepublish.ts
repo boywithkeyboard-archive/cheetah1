@@ -51,7 +51,10 @@ await Deno.writeTextFile('./guide/reasons/light.md', `[← readme](https://githu
 
 // update imports
 
-for await (const { path } of walk('guide')) {
+for await (const { path, isFile } of walk('guide')) {
+  if (!isFile)
+    continue
+
   const content = await Deno.readTextFile(path)
 
   await Deno.writeTextFile(path, content.replaceAll(`https://deno.land/x/cheetah@${Deno.args[0]}`, `https://deno.land/x/cheetah@${Deno.args[1]}`))
