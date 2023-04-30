@@ -12,5 +12,11 @@
     "prepublish": "deno run -A .github/prepublish.ts",
     "test": "deno test -A"
   },
+  // for the templates (only for development)
+  "imports": {
+    "cheetah": "https://deno.land/x/cheetah@v0.3.4/mod.ts",
+    "std/": "https://deno.land/std@v0.185.0/",
+    "zod": "https://deno.land/x/cheetah@v0.3.4/validator/zod.ts"
+  },
   "lock": false
 }
