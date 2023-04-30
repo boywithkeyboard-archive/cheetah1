@@ -1,11 +1,11 @@
-[← readme](https://github.com/azurystudio/cheetah/blob/dev/guide/overview.md)
+[← overview](https://github.com/azurystudio/cheetah/blob/dev/guide/index.md)
 
 ## Syntax
 
-### Suggested Syntax
+### Suggested
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.3.4/mod.ts'
 
 // #1
 const app = new cheetah()
@@ -27,12 +27,12 @@ const app = new cheetah()
   })
 ```
 
-### Alternative Syntaxes
+### Alternatives
 
 [Express.js](https://github.com/expressjs/express)ish
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.3.4/mod.ts'
 
 const app = new cheetah()
 
@@ -48,7 +48,7 @@ app.get('/b', c => {
 [Hono](https://github.com/honojs/hono)ish
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.3.4/mod.ts'
 
 const app = new cheetah()
   .get('/a', c => c.text('Hello World'))
