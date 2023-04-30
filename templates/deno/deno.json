@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "cheetah": "https://deno.land/x/cheetah@v0.3.4/mod.ts",
+    "std/": "https://deno.land/std@v0.185.0/",
+    "zod": "https://deno.land/x/cheetah@v0.3.4/validator/zod.ts"
+  }
+}
