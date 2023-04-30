@@ -1,145 +1,149 @@
-[← readme](https://github.com/azurystudio/cheetah/blob/dev/guide/overview.md)
+[← overview](https://github.com/azurystudio/cheetah/blob/dev/guide/index.md)
 
 ## Parsing & Validation
 
-### Configuration
+### TypeBox
 
-#### TypeBox
+- #### Setup
 
-```ts
-import cheetah from 'https://deno.land/x/cheetah/mod.ts'
-import typebox, { Type } from 'https://deno.land/x/cheetah/validator/typebox.ts'
+    ```ts
+    import cheetah from 'https://deno.land/x/cheetah/mod.ts'
+    import typebox, { Type } from 'https://deno.land/x/cheetah@v0.3.4/validator/typebox.ts'
 
-const app = new cheetah({
-  validator: typebox
-})
-```
+    const app = new cheetah({
+      validator: typebox
+    })
+    ```
 
-#### Zod
+- #### Parsing & Validating Body
 
-```ts
-import cheetah from 'https://deno.land/x/cheetah/mod.ts'
-import zod, { z } from 'https://deno.land/x/cheetah/validator/zod.ts'
+  JSON:
 
-const app = new cheetah({
-  validator: zod
-})
-```
+    ```ts
+    app.post('/example', {
+      body: Type.Object({
+        key: Type.String()
+      })
+    }, c => {
+      const validatedObject = c.req.body
+    })
+    ```
 
-### Validating & Parsing Body
+  Text:
 
-#### JSON
+    ```ts
+    app.post('/example', {
+      body: Type.String({ minLength: 4, maxLength: 16 })
+    }, c => {
+      const validatedString = c.req.body
+    })
+    ```
 
-```ts
-// TypeBox
+- #### Parsing & Validating Query Parameters
 
-app.post('/example', {
-  body: Type.Object({
-    key: Type.String()
-  })
-}, c => {
-  const validatedObject = c.req.body
-})
+    ```ts
+    app.get('/example', {
+      query: Type.Object({
+        key: Type.String()
+      })
+    }, c => {
+      const validatedObject = c.req.query
+    })
+    ```
 
-// Zod
+- #### Parsing & Validating Headers
 
-app.post('/example', {
-  body: z.object({
-    key: z.string()
-  })
-}, c => {
-  const validatedObject = c.req.body
-})
-```
+    ```ts
+    app.get('/example', {
+      query: Type.Object({
+        key: Type.String()
+      }, { additionalParameters: true })
+    }, c => {
+      const validatedObject = c.req.query
+    })
+    ```
 
-#### Text
+- #### Parsing & Validating Cookies
 
-```ts
-// TypeBox
+    ```ts
+    app.get('/example', {
+      cookies: Type.Object({
+        key: Type.String()
+      })
+    }, c => {
+      const validatedObject = c.req.cookies
+    })
+    ```
 
-app.post('/example', {
-  body: Type.String({ minLength: 4, maxLength: 16 })
-}, c => {
-  const validatedString = c.req.body
-})
+### Zod
 
-// Zod
+- #### Setup
 
-app.post('/example', {
-  body: z.string().min(4).max(16)
-}, c => {
-  const validatedString = c.req.body
-})
-```
+    ```ts
+    import cheetah from 'https://deno.land/x/cheetah@v0.3.4/mod.ts'
+    import zod, { z } from 'https://deno.land/x/cheetah@v0.3.4/validator/zod.ts'
 
-### Validating & Parsing Query Parameters
+    const app = new cheetah({
+      validator: zod
+    })
+    ```
 
-```ts
-// TypeBox
+- #### Parsing & Validating Body
 
-app.get('/example', {
-  query: Type.Object({
-    key: Type.String()
-  })
-}, c => {
-  const validatedObject = c.req.query
-})
+  JSON:
 
-// Zod
+    ```ts
+    app.post('/example', {
+      body: z.object({
+        key: z.string()
+      })
+    }, c => {
+      const validatedObject = c.req.body
+    })
+    ```
 
-app.get('/example', {
-  query: z.object({
-    key: z.string()
-  }).strict()
-}, c => {
-  const validatedObject = c.req.query
-})
-```
+  Text:
 
-### Validating & Parsing Headers
+    ```ts
+    app.post('/example', {
+      body: z.string().min(4).max(16)
+    }, c => {
+      const validatedString = c.req.body
+    })
+    ```
 
-```ts
-// TypeBox
+- #### Parsing & Validating Query Parameters
 
-app.get('/example', {
-  query: Type.Object({
-    key: Type.String()
-  }, { additionalParameters: true })
-}, c => {
-  const validatedObject = c.req.query
-})
+    ```ts
+    app.get('/example', {
+      query: z.object({
+        key: z.string()
+      }).strict()
+    }, c => {
+      const validatedObject = c.req.query
+    })
+    ```
 
-// Zod
+- #### Parsing & Validating Headers
 
-app.get('/example', {
-  query: z.object({
-    key: z.string()
-  })
-}, c => {
-  const validatedObject = c.req.query
-})
-```
+    ```ts
+    app.get('/example', {
+      query: z.object({
+        key: z.string()
+      })
+    }, c => {
+      const validatedObject = c.req.query
+    })
+    ```
 
-### Validating & Parsing Cookies
+- #### Parsing & Validating Cookies
 
-```ts
-// TypeBox
-
-app.get('/example', {
-  cookies: Type.Object({
-    key: Type.String()
-  })
-}, c => {
-  const validatedObject = c.req.cookies
-})
-
-// Zod
-
-app.get('/example', {
-  cookies: z.object({
-    key: z.string()
-  }).strict()
-}, c => {
-  const validatedObject = c.req.cookies
-})
-```
+    ```ts
+    app.get('/example', {
+      cookies: z.object({
+        key: z.string()
+      }).strict()
+    }, c => {
+      const validatedObject = c.req.cookies
+    })
+    ```
