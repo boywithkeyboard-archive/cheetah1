@@ -9,7 +9,7 @@ async function download(prefix: string, ...paths: string[]) {
     const response = await fetch(`https://raw.githubusercontent.com/azurystudio/cheetah/dev/templates/${prefix}/${path}`)
 
     if (path.includes('/'))
-      await ensureDir(path.substring(1, path.lastIndexOf('/')))
+      await ensureDir(`./${path.substring(1, path.lastIndexOf('/'))}`)
 
     await Deno.writeTextFile(path, await response.text())
   }
