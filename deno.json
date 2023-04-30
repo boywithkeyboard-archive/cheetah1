@@ -9,7 +9,7 @@
     "bench:markdown": "deno run -A .github/updateBenchmark.ts",
     "bench": "deno bench benchmark/basic.ts --allow-env",
     "build": "deno run -A build.ts mod.ts index.js",
-    "bundle_size": "deno run -A .github/bundleSize.ts",
+    "prepublish": "deno run -A .github/prepublish.ts",
     "test": "deno test -A"
   },
   "lock": false
