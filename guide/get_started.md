@@ -1,0 +1,21 @@
+[← overview](https://github.com/azurystudio/cheetah/blob/dev/guide/index.md)
+
+## Get Started
+
+> **Note**: You can either look through our [templates](https://github.com/azurystudio/cheetah/tree/dev/templates) yourself to get an idea of how to get started, or follow the instructions below.
+
+- Create a new directory for your project and make sure to navigate into it. Then you can download the template using the below command.
+
+    #### Deno
+
+    ```bash
+    deno run https://deno.land/x/cheetah@v0.4.0/new.ts --template deno
+    ```
+
+    #### Cloudflare
+
+    ```bash
+    deno run https://deno.land/x/cheetah@v0.4.0/new.ts --template cloudflare
+    ```
+
+- Now you should have a basic app with good default preferences. **Make sure to read the `readme.md` file in your project root to learn more.**
