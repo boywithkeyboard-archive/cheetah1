@@ -25,7 +25,7 @@
 
 ```ts
 import cheetah from 'https://deno.land/x/cheetah@v0.3.4/mod.ts'
-import { serve } from 'https://deno.land/std@v0.184.0/http/server.ts'
+import { serve } from 'https://deno.land/std@v0.185.0/http/server.ts'
 
 const app = new cheetah()
   .get('/', () => 'Hello World')
@@ -33,12 +33,12 @@ const app = new cheetah()
 serve(app.fetch)
 ```
 
-> Read our [Guide](https://github.com/azurystudio/cheetah/blob/dev/guide/overview.md) to learn more.
+> ❔ Read our [Guide](https://github.com/azurystudio/cheetah/blob/dev/guide/index.md) to get started.
 
 ### Why cheetah?
 
 - [x] 🪖 `secure` - cheetah ensures that parsing doesn't cause your app to freeze.
-- [x] 🧙‍♂️ `schema validation` - out-of-the-box support for schema validation via TypeBox or Zod. [🛈](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/schema_validation.md)
-- [x] 💎 `simple` - built-in support for CORS, caching, schema validation, debugging and more! [🛈](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/simple.md)
-- [x] 🪹 `chaining & nesting` - cheetah doesn't dictate you how to write your app. [🛈](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/caching_and_nesting.md)
-- [x] 🪶 `light` - all core functionality in **~14.5 kB**. [🛈](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/light.md)
+- [x] 🧙‍♂️ `schema validation` - out-of-the-box support for schema validation via TypeBox or Zod. [more](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/schema_validation.md)
+- [x] 💎 `simple` - built-in support for CORS, caching, schema validation, debugging and more! [mShow more!ore](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/simple.md)
+- [x] 🪹 `chaining & nesting` - cheetah doesn't dictate you how to write your app. [Show more!](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/chaining_and_nesting.md)
+- [x] 🪶 `light` - all core functionality in **~14.5 kB**. [i](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/light.md)
