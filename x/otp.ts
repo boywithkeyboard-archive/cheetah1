@@ -41,7 +41,7 @@ export const otp = {
   },
 
   /**
-   * Determine if the token is valid.
+   * Determine if a given token is valid.
    */
   validate(token: string, secret: string) {
     const totp = new OTP.TOTP({
