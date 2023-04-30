@@ -1,4 +1,4 @@
-[← readme](https://github.com/azurystudio/cheetah/blob/dev/guide/overview.md)
+[← overview](https://github.com/azurystudio/cheetah/blob/dev/guide/index.md)
 
 ## Response
 
