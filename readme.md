@@ -6,6 +6,8 @@
 <br />
 <br />
 
+> 🙌 If you need help getting started, have ideas for new features or just want to hang out, make sure to join our Discord server [here](https://discord.gg/hrvetU2cJZ).
+
 **cheetah** is ***~30% faster*** than hono, which is supposed to be the fastest JavaScript framework, and ***~70% faster*** than oak, the Express.js of Deno.
 
 [//]: benchmarkstart
