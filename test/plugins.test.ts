@@ -52,7 +52,7 @@ Deno.test('Plugins', async t => {
     const app = new cheetah()
 
     const plugin = createPlugin({
-      afterParsing(c) {
+      beforeHandling(c) {
         c.req.headers.custom = 'test'
       }
     })

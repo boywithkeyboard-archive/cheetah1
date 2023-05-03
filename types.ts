@@ -282,9 +282,8 @@ export type Context<
 
 export type PluginMethods = {
   beforeParsing?: (request: Request) => void | Promise<void>
-  afterParsing?: (c: Context<Record<string, never>, unknown, unknown, Record<string, string>, unknown>) => ResponsePayload | Promise<ResponsePayload>
   beforeHandling?: (c: Context<Record<string, never>, unknown, unknown, Record<string, string>, unknown>) => ResponsePayload | Promise<ResponsePayload>
-  afterHandling?: (c: Context<Record<string, never>, unknown, unknown, Record<string, string>, unknown>) => ResponsePayload | Promise<ResponsePayload>
+  beforeResponding?: (c: Context<Record<string, never>, unknown, unknown, Record<string, string>, unknown>) => ResponsePayload | Promise<ResponsePayload>
 }
 
 export type Plugin<Settings extends Record<string, unknown> | undefined = undefined> =

@@ -24,9 +24,8 @@ export class cheetah<
   #error
   #plugins: {
     beforeParsing: Record<string, PluginMethods['beforeParsing'][]>
-    afterParsing: Record<string, PluginMethods['afterParsing'][]>
     beforeHandling: Record<string, PluginMethods['beforeHandling'][]>
-    afterHandling: Record<string, PluginMethods['afterHandling'][]>
+    beforeResponding: Record<string, PluginMethods['beforeResponding'][]>
   }
   
   constructor(config: Config<V> = {}) {
@@ -41,9 +40,8 @@ export class cheetah<
     this.#notFound = config.notFound
     this.#plugins = {
       beforeParsing: {},
-      afterParsing: {},
       beforeHandling: {},
-      afterHandling: {}
+      beforeResponding: {}
     }
     
     const runtime = globalThis?.Deno
@@ -251,23 +249,23 @@ export class cheetah<
     const query: Record<string, unknown> = {}
     let cookies: Record<string, string> = {}
     let body
-
-    /* Parse Headers ------------------------------------------------------------ */
-
-    let num = 0
-
-    for (const [key, value] of request.headers) {
-      if (num === 50)
-        break
-
-      headers[key.toLowerCase()] = value
-
-      num++
-    }
   
     if (this.#validator && schema) {
-      /* Validate Headers --------------------------------------------------------- */
+      /* Parse Headers ------------------------------------------------------------ */
+
       if (schema.headers) {
+        let num = 0
+
+        for (const [key, value] of request.headers) {
+          if (num === 50)
+            break
+
+          if (!headers[key.toLowerCase()])
+            headers[key.toLowerCase()] = value
+
+          num++
+        }
+
         const isValid = this.#validator.name === 'typebox' && this.#validator.check
           ? this.#validator.check(schema.headers as TSchema, headers)
           : schema.headers.safeParse(headers).success
@@ -567,19 +565,6 @@ export class cheetah<
       }
     }
 
-    /* afterParsing Plugin ------------------------------------------------------ */
-
-    for (const key in this.#plugins.afterParsing) {
-      if (key !== '*' && !url.pathname.startsWith(key + '/') && url.pathname !== key)
-        continue
-     
-      const length = this.#plugins.afterParsing[key].length
-
-      for (let i = 0; i < length; ++i)
-        // @ts-ignore:
-        await this.#plugins.afterParsing[key][i](context)
-    }
-
     /* beforeHandling Plugin ---------------------------------------------------- */
 
     for (const key in this.#plugins.beforeHandling) {
@@ -613,15 +598,15 @@ export class cheetah<
 
     /* afterHandling Plugin ----------------------------------------------------- */
 
-    for (const key in this.#plugins.afterHandling) {
+    for (const key in this.#plugins.beforeResponding) {
       if (key !== '*' && !url.pathname.startsWith(key + '/') && url.pathname !== key)
         continue
      
-      const length = this.#plugins.afterHandling[key].length
+      const length = this.#plugins.beforeResponding[key].length
 
       for (let i = 0; i < length; ++i)
         // @ts-ignore:
-        await this.#plugins.afterHandling[key][i](context)
+        await this.#plugins.beforeResponding[key][i](context)
     }
 
     /* Construct Response ------------------------------------------------------- */

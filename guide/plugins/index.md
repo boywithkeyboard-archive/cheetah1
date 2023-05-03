@@ -17,7 +17,7 @@ export const myPlugin = createPlugin<{
   option: string // < settings the user can pass to the plugin
 }>(settings => { // < will be a object with the key 'option'
   return {
-    beforeValidating(c) { // access context to modify request/response
+    beforeParsing(c) { // access context to modify request/response
       ...
     }
   }
@@ -37,7 +37,7 @@ Alternatively, you can create one without settings:
 import cheetah, { createPlugin } from 'https://deno.land/x/cheetah@v0.3.5/mod.ts'
 
 export const myPlugin = createPlugin({
-  beforeValidating(c) { // access context to modify request/response
+  beforeParsing(c) { // access context to modify request/response
     ...
   }
 })
@@ -70,9 +70,8 @@ const app = new cheetah()
 
 1. cache *(built-in)*
 2. preflight response *(built-in)*
-3. `beforeValidating`
+3. `beforeParsing`
 4. validation & advanced parsing *(built-in)*
-5. `afterValidating`
 6. `beforeHandling`
 7. route handlers *(the methods you define inside a `.get`, `.post` etc. method)*
-8. `afterHandling`
+8. `beforeResponding`
