@@ -5,6 +5,53 @@ import { TObject, TSchema, Static as TypeBoxStatic } from 'https://esm.sh/@sincl
 import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
 
+/* Config ------------------------------------------------------------------- */
+
+export type Config<
+  V extends Validator | unknown = unknown
+> = {
+  /**
+   * A prefix for all routes, e.g. `/api`.
+   */
+  base?: `/${string}`
+
+  /**
+   * Enable Cross-Origin Resource Sharing (CORS) for your app by setting a origin, e.g. `*`.
+   */
+  cors?: string
+
+  cache?: {
+    /**
+     * A unique name for your cache.
+     */
+    name: string
+    /**
+     * Duration in seconds for how long a cached response should be held in memory.
+     */
+    duration: number
+  }
+
+  /**
+   * Enable **Debug Mode**. As a result, every fetch and error event will be logged.
+   */
+  debug?: boolean
+
+  /**
+   * Set a validator to validate the body, cookies, headers, and query parameters of the incoming request.
+   */
+  validator?: V
+
+  /**
+   * Set a custom error handler.
+   */
+  error?: (error: unknown, request: Request) => Response | Promise<Response>
+
+  /**
+   * Set a custom 404 handler.
+   */
+  notFound?: (request: Request) => Response | Promise<Response>
+}
+
 /* Request ------------------------------------------------------------------ */
 
 export type RequestContext = {
@@ -13,21 +60,23 @@ export type RequestContext = {
 
 /* Validator ---------------------------------------------------------------- */
 
+export type Validator = typeof typebox | typeof zod
+
 export type Schema<
-  Validator extends typeof typebox | typeof zod | unknown = unknown
-> = Validator extends typeof typebox
+  V extends Validator | unknown = unknown
+> = V extends typeof typebox
   ? TSchema
-  : Validator extends typeof zod
+  : V extends typeof zod
   ? ZodType
   : (ZodType | TSchema)
 
 export type ObjectSchema<
-  Validator extends typeof typebox | typeof zod | unknown = unknown
-> = Validator extends undefined
+  V extends Validator | unknown = unknown
+> = V extends undefined
   ? never
-  : Validator extends typeof typebox
+  : V extends typeof typebox
   ? TObject
-  : Validator extends typeof zod
+  : V extends typeof zod
   // deno-lint-ignore no-explicit-any
   ? ZodObject<any>
   // deno-lint-ignore no-explicit-any
@@ -88,13 +137,13 @@ export type DisembodiedHandler<
 
 /* Context ------------------------------------------------------------------ */
 
-export interface Context<
+export type Context<
   Params extends Record<string, unknown>,
   ValidatedBody extends Schema | unknown = unknown,
   ValidatedCookies extends ObjectSchema | unknown = unknown,
   ValidatedHeaders extends ObjectSchema | unknown = unknown,
   ValidatedQuery extends ObjectSchema | unknown = unknown
-> {
+> = {
   /**
    * A method to retrieve the value of a environment variable.
    */

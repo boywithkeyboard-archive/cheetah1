@@ -6,16 +6,15 @@ import { ConnInfo } from 'https://deno.land/std@v0.185.0/http/server.ts'
 import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.9'
 import { Collection } from './Collection.ts'
 import { Exception } from './Exception.ts'
-import { Context, Handler, ObjectSchema, RequestContext, Schema } from './types.ts'
+import { Config, Context, Handler, ObjectSchema, RequestContext, Schema, Validator } from './types.ts'
 import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
 
 export class cheetah<
-  Validator extends (typeof typebox | typeof zod) | undefined = undefined
+  V extends Validator | undefined = undefined
 > {
   #router
   #runtime: 'deno' | 'cloudflare'
-
   #base
   #cors
   #cache
@@ -24,51 +23,16 @@ export class cheetah<
   #notFound
   #error
   
-  constructor(options: {
-    /**
-     * A prefix for all routes, e.g. `/api`.
-     */
-    base?: `/${string}`
-    /**
-     * Enable Cross-Origin Resource Sharing (CORS) for your app by setting a origin, e.g. `*`.
-     */
-    cors?: string
-    cache?: {
-      /**
-       * A unique name for your cache.
-       */
-      name: string
-      /**
-       * Duration in seconds for how long a cached response should be held in memory.
-       */
-      duration: number
-    }
-    /**
-     * Enable **Debug Mode**. As a result, every fetch and error event will be logged.
-     */
-    debug?: boolean
-    /**
-     * Set a validator to validate the body, cookies, headers, and query parameters of the incoming request.
-     */
-    validator?: Validator
-    /**
-     * Set a custom error handler.
-     */
-    error?: (error: unknown, request: Request) => Response | Promise<Response>
-    /**
-     * Set a custom 404 handler.
-     */
-    notFound?: (request: Request) => Response | Promise<Response>
-  } = {}) {
+  constructor(config: Config<V> = {}) {
     this.#router = new URLRouter()
 
-    this.#base = options.base === '/' ? undefined : options.base
-    this.#cors = options.cors
-    this.#cache = options.cache
-    this.#debugging = options.debug ?? false
-    this.#validator = options.validator
-    this.#error = options.error
-    this.#notFound = options.notFound
+    this.#base = config.base === '/' ? undefined : config.base
+    this.#cors = config.cors
+    this.#cache = config.cache
+    this.#debugging = config.debug ?? false
+    this.#validator = config.validator
+    this.#error = config.error
+    this.#notFound = config.notFound
     
     const runtime = globalThis?.Deno
       ? 'deno'
@@ -83,7 +47,7 @@ export class cheetah<
     this.#runtime = runtime
   }
 
-  use<T extends Collection<Validator>>(base: `/${string}`, collection: T) {
+  use<T extends Collection<V>>(base: `/${string}`, collection: T) {
     const length = collection.routes.length
 
     for (let i = 0; i < length; ++i) {
@@ -201,10 +165,10 @@ export class cheetah<
     params: Record<string, string>,
     route: (
       {
-        body?: Schema<Validator>,
-        cookies?: ObjectSchema<Validator>,
-        headers?: ObjectSchema<Validator>,
-        query?: ObjectSchema<Validator>
+        body?: Schema<V>,
+        cookies?: ObjectSchema<V>,
+        headers?: ObjectSchema<V>,
+        query?: ObjectSchema<V>
       } |
       // deno-lint-ignore no-explicit-any
       Handler<any, any, any, any, any>
@@ -627,10 +591,10 @@ export class cheetah<
 
   #addRoute(method: string, path: string, handler: (
     {
-      body?: Schema<Validator>,
-      cookies?: ObjectSchema<Validator>,
-      headers?: ObjectSchema<Validator>,
-      query?: ObjectSchema<Validator>
+      body?: Schema<V>,
+      cookies?: ObjectSchema<V>,
+      headers?: ObjectSchema<V>,
+      query?: ObjectSchema<V>
     } |
     // deno-lint-ignore no-explicit-any
     Handler<any, any, any, any, any>
@@ -649,9 +613,9 @@ export class cheetah<
 
   get<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     schema: {
@@ -670,9 +634,9 @@ export class cheetah<
 
   get<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     ...handler: (
@@ -704,10 +668,10 @@ export class cheetah<
   
   delete<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<Validator>,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedBody extends Schema<V>,
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     schema: {
@@ -727,10 +691,10 @@ export class cheetah<
   
   delete<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<Validator>,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedBody extends Schema<V>,
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     ...handler: (
@@ -763,10 +727,10 @@ export class cheetah<
   
   post<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<Validator>,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedBody extends Schema<V>,
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     schema: {
@@ -786,10 +750,10 @@ export class cheetah<
   
   post<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<Validator>,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedBody extends Schema<V>,
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     ...handler: (
@@ -822,10 +786,10 @@ export class cheetah<
   
   put<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<Validator>,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedBody extends Schema<V>,
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     schema: {
@@ -845,10 +809,10 @@ export class cheetah<
   
   put<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<Validator>,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedBody extends Schema<V>,
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     ...handler: (
@@ -881,10 +845,10 @@ export class cheetah<
   
   patch<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<Validator>,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedBody extends Schema<V>,
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     schema: {
@@ -904,10 +868,10 @@ export class cheetah<
   
   patch<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<Validator>,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedBody extends Schema<V>,
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     ...handler: (
@@ -940,9 +904,9 @@ export class cheetah<
 
   head<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     schema: {
@@ -961,9 +925,9 @@ export class cheetah<
 
   head<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema<Validator>,
-    ValidatedHeaders extends ObjectSchema<Validator>,
-    ValidatedQuery extends ObjectSchema<Validator>
+    ValidatedCookies extends ObjectSchema<V>,
+    ValidatedHeaders extends ObjectSchema<V>,
+    ValidatedQuery extends ObjectSchema<V>
   >(
     url: RequestUrl,
     ...handler: (
