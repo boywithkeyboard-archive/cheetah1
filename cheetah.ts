@@ -6,7 +6,7 @@ import { ConnInfo } from 'https://deno.land/std@v0.185.0/http/server.ts'
 import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.9'
 import { Collection } from './Collection.ts'
 import { Exception } from './Exception.ts'
-import { Config, Context, Handler, ObjectSchema, RequestContext, Schema, Validator } from './types.ts'
+import { Config, Context, Handler, ObjectSchema, PluginMethods, RequestContext, Schema, Validator } from './types.ts'
 import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
 
@@ -22,6 +22,12 @@ export class cheetah<
   #validator: typeof typebox | typeof zod | undefined
   #notFound
   #error
+  #plugins: {
+    beforeParsing: Record<string, PluginMethods['beforeParsing'][]>
+    afterParsing: Record<string, PluginMethods['afterParsing'][]>
+    beforeHandling: Record<string, PluginMethods['beforeHandling'][]>
+    afterHandling: Record<string, PluginMethods['afterHandling'][]>
+  }
   
   constructor(config: Config<V> = {}) {
     this.#router = new URLRouter()
@@ -33,6 +39,12 @@ export class cheetah<
     this.#validator = config.validator
     this.#error = config.error
     this.#notFound = config.notFound
+    this.#plugins = {
+      beforeParsing: {},
+      afterParsing: {},
+      beforeHandling: {},
+      afterHandling: {}
+    }
     
     const runtime = globalThis?.Deno
       ? 'deno'
@@ -47,24 +59,51 @@ export class cheetah<
     this.#runtime = runtime
   }
 
-  use<T extends Collection<V>>(base: `/${string}`, collection: T) {
-    const length = collection.routes.length
+  use<T extends Collection<V>>(...plugins: PluginMethods[]): this
+  use<T extends Collection<V>>(prefix: `/${string}`, ...plugins: PluginMethods[]): this
+  use<T extends Collection<V>>(prefix: `/${string}`, collection: T, ...plugins: PluginMethods[]): this
 
-    for (let i = 0; i < length; ++i) {
-      let url = collection.routes[i][1]
+  use<T extends Collection<V>>(...items: (`/${string}` | T | PluginMethods)[]) {
+    let prefix
 
-      if (url === '/')
-        url = ''
+    for (const item of items) {
+      if (typeof item === 'string') { // prefix
+        prefix = item
+      } else if (item instanceof Collection) { // collection
+        if (!prefix)
+          throw new Error('Please define a prefix when attaching a collection!')
 
-      if (base === '/')
-        // @ts-ignore: ok
-        base = ''
+        const length = item.routes.length
 
-      this.#addRoute(
-        collection.routes[i][0],
-        this.#base ? this.#base + base + url : base + url,
-        collection.routes[i][2]
-      )
+        for (let i = 0; i < length; ++i) {
+          let url = item.routes[i][1]
+
+          if (url === '/')
+            url = ''
+
+          if (prefix === '/')
+            // @ts-ignore: ok
+            prefix = ''
+
+          this.#addRoute(
+            item.routes[i][0],
+            this.#base ? this.#base + prefix + url : prefix + url,
+            item.routes[i][2]
+          )
+        }
+      } else { // plugin
+        if (!prefix)
+          prefix = '*'
+
+        for (const key in item) {
+          if (this.#plugins[key as keyof PluginMethods][prefix])
+            // @ts-ignore:
+            this.#plugins[key as keyof PluginMethods][prefix].push(item[key])
+          else
+            // @ts-ignore:
+            this.#plugins[key as keyof PluginMethods][prefix] = [item[key]]
+        }
+      }
     }
 
     return this
@@ -192,6 +231,19 @@ export class cheetah<
         }
       })
 
+    /* beforeParsing Plugin ----------------------------------------------------- */
+
+    for (const key in this.#plugins.beforeParsing) {
+      if (key !== '*' && !url.pathname.startsWith(key + '/') && url.pathname !== key)
+        continue
+     
+      const length = this.#plugins.beforeParsing[key].length
+
+      for (let i = 0; i < length; ++i)
+        // @ts-ignore:
+        await this.#plugins.beforeParsing[key][i](request)
+    }
+
     /* Set Variables ------------------------------------------------------------ */
 
     const schema = typeof route[0] !== 'function' ? route[0] : null
@@ -199,21 +251,23 @@ export class cheetah<
     const query: Record<string, unknown> = {}
     let cookies: Record<string, string> = {}
     let body
+
+    /* Parse Headers ------------------------------------------------------------ */
+
+    let num = 0
+
+    for (const [key, value] of request.headers) {
+      if (num === 50)
+        break
+
+      headers[key.toLowerCase()] = value
+
+      num++
+    }
   
     if (this.#validator && schema) {
-      /* Parse Headers ------------------------------------------------------------ */
+      /* Validate Headers --------------------------------------------------------- */
       if (schema.headers) {
-        let num = 0
-
-        for (const [key, value] of request.headers) {
-          if (num === 100)
-            throw new Exception(413)
-
-          headers[key.toLowerCase()] = value
-
-          num++
-        }
-
         const isValid = this.#validator.name === 'typebox' && this.#validator.check
           ? this.#validator.check(schema.headers as TSchema, headers)
           : schema.headers.safeParse(headers).success
@@ -513,6 +567,34 @@ export class cheetah<
       }
     }
 
+    /* afterParsing Plugin ------------------------------------------------------ */
+
+    for (const key in this.#plugins.afterParsing) {
+      if (key !== '*' && !url.pathname.startsWith(key + '/') && url.pathname !== key)
+        continue
+     
+      const length = this.#plugins.afterParsing[key].length
+
+      for (let i = 0; i < length; ++i)
+        // @ts-ignore:
+        await this.#plugins.afterParsing[key][i](context)
+    }
+
+    /* beforeHandling Plugin ---------------------------------------------------- */
+
+    for (const key in this.#plugins.beforeHandling) {
+      if (key !== '*' && !url.pathname.startsWith(key + '/') && url.pathname !== key)
+        continue
+     
+      const length = this.#plugins.beforeHandling[key].length
+
+      for (let i = 0; i < length; ++i)
+        // @ts-ignore:
+        await this.#plugins.beforeHandling[key][i](context)
+    }
+
+    /* Route Handling ----------------------------------------------------------- */
+
     const length = route.length
 
     for (let i = 0; i < length; ++i) {
@@ -528,6 +610,21 @@ export class cheetah<
       if (responseBody)
         break
     }
+
+    /* afterHandling Plugin ----------------------------------------------------- */
+
+    for (const key in this.#plugins.afterHandling) {
+      if (key !== '*' && !url.pathname.startsWith(key + '/') && url.pathname !== key)
+        continue
+     
+      const length = this.#plugins.afterHandling[key].length
+
+      for (let i = 0; i < length; ++i)
+        // @ts-ignore:
+        await this.#plugins.afterHandling[key][i](context)
+    }
+
+    /* Construct Response ------------------------------------------------------- */
   
     if (responseCode !== 200 && responseCode !== 301)
       delete responseHeaders['cache-control']

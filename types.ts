@@ -138,7 +138,7 @@ export type DisembodiedHandler<
 /* Context ------------------------------------------------------------------ */
 
 export type Context<
-  Params extends Record<string, unknown>,
+  Params extends Record<string, unknown> = Record<string, never>,
   ValidatedBody extends Schema | unknown = unknown,
   ValidatedCookies extends ObjectSchema | unknown = unknown,
   ValidatedHeaders extends ObjectSchema | unknown = unknown,
@@ -169,27 +169,27 @@ export type Context<
     /**
      * The validated body of the incoming request.
      */
-    body: ValidatedBody extends Schema ? Static<ValidatedBody> : unknown,
+    body: ValidatedBody extends Schema ? Static<ValidatedBody> : ValidatedBody,
 
     /**
      * The validated cookies of the incoming request.
      */
-    cookies: ValidatedCookies extends ObjectSchema ? Static<ValidatedCookies> : unknown
+    cookies: ValidatedCookies extends ObjectSchema ? Static<ValidatedCookies> : ValidatedCookies
 
     /**
      * The validated headers of the incoming request.
      */
-    headers: ValidatedHeaders extends ObjectSchema ? Static<ValidatedHeaders> : unknown
+    headers: ValidatedHeaders extends ObjectSchema ? Static<ValidatedHeaders> : ValidatedHeaders
 
     /**
      * A method to retrieve the corresponding value of a parameter.
      */
-    param: (param: keyof Params) => string
+    param: <T extends keyof Params>(param: T) => Params[T]
 
     /**
      * The validated query parameters of the incoming request.
      */
-    query: ValidatedQuery extends ObjectSchema ? Static<ValidatedQuery> : unknown
+    query: ValidatedQuery extends ObjectSchema ? Static<ValidatedQuery> : ValidatedQuery
 
     /**
      * Parse the request body as an `ArrayBuffer` with a set time limit in milliseconds *(defaults to 3000)*.
@@ -277,3 +277,15 @@ export type Context<
     text: (text: string, code?: number) => void
   }
 }
+
+/* Plugin ------------------------------------------------------------------- */
+
+export type PluginMethods = {
+  beforeParsing?: (request: Request) => void | Promise<void>
+  afterParsing?: (c: Context<Record<string, never>, unknown, unknown, Record<string, string>, unknown>) => ResponsePayload | Promise<ResponsePayload>
+  beforeHandling?: (c: Context<Record<string, never>, unknown, unknown, Record<string, string>, unknown>) => ResponsePayload | Promise<ResponsePayload>
+  afterHandling?: (c: Context<Record<string, never>, unknown, unknown, Record<string, string>, unknown>) => ResponsePayload | Promise<ResponsePayload>
+}
+
+export type Plugin<Settings extends Record<string, unknown> | undefined = undefined> =
+  Settings extends undefined ? PluginMethods : ((settings: Settings) => PluginMethods)
