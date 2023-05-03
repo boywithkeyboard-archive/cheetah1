@@ -1,3 +1,11 @@
+## [v0.4.0](https://github.com/azurystudio/cheetah/releases/tag/v0.4.0)
+
+- #### New Features
+
+  - cheetah has now support for [plugins](https://github.com/azurystudio/cheetah/blob/dev/guide/plugins/index.md).
+
+    Create, share & publish your own plugins or use one of the official plugins *(coming [soon](https://github.com/azurystudio/cheetah/issues/20)!)*.
+
 ## [v0.3.5](https://github.com/azurystudio/cheetah/releases/tag/v0.3.5)
 
 - #### New Features
