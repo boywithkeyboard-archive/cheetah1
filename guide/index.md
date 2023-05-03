@@ -7,6 +7,7 @@
   - 🪄 [Syntax](https://github.com/azurystudio/cheetah/blob/dev/guide/syntax.md)
   - ⚙️ [Configuration](https://github.com/azurystudio/cheetah/blob/dev/guide/configuration.md)
   - 🧙‍♂️ [Parsing & Validation](https://github.com/azurystudio/cheetah/blob/dev/guide/parsing_and_validation.md)
+  - 🔌 [Plugins](https://github.com/azurystudio/cheetah/blob/dev/guide/plugins/index.md)
   - 🌐 [Deploying](https://github.com/azurystudio/cheetah/blob/dev/guide/deploying.md)
 - #### Context
   - [Request](https://github.com/azurystudio/cheetah/blob/dev/guide/request.md)
