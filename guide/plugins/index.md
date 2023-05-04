@@ -6,6 +6,14 @@
 
 > **Note**: Currently there are no official plugins, but we are working on some, as you can see [here](https://github.com/azurystudio/cheetah/issues/20).
 
+### Official Plugins
+
+We provide a set of plugins that are guaranteed to work with cheetah.
+
+- [helmet](https://github.com/azurystudio/cheetah/blob/dev/guide/plugins/helmet.md)
+
+### Introduction
+
 If you want to add additional functionality to your application on a global, per collection, or per path level, plugins suit your needs.
 
 Plugins let you create and publish reusable functions for your own and open source purposes.
