@@ -1,40 +1,119 @@
 import { createPlugin } from '../createPlugin.ts'
 
 export type HelmetSettings = {
+  /**
+   * Set the `Content-Security-Policy` header with a strict security policy.
+   * 
+   * @default
+   * true
+   */
   contentSecurityPolicy?: boolean
+
+  /**
+   * Set the `Cross-Origin-Embedder-Policy` header.
+   * 
+   * @default
+   * null
+   */
   crossOriginEmbedderPolicy?:
     | 'require-corp'
     | 'unsafe-none'
     | 'credentialless'
     | null
+  
+  /**
+   * Set the `Cross-Origin-Opener-Policy` header.
+   * 
+   * @default
+   * 'same-origin'
+   */
   crossOriginOpenerPolicy?:
     | 'same-origin'
     | 'same-origin-allow-popups'
     | 'unsafe-none'
     | null
+  
+  /**
+   * Set the `Cross-Origin-Resource-Policy` header.
+   * 
+   * @default
+   * 'same-origin'
+   */
   crossOriginResourcePolicy?:
     | 'same-origin'
     | 'same-site'
     | 'cross-origin'
     | null
+
+  /**
+   * Enable [DNS Prefetching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control) at the expense of your users' privacy.
+   * 
+   * @default
+   * false
+   */
   dnsPrefetching?: boolean
+
+  /**
+   * Set the `X-Frame-Options` header to mitigate Clickjacking.
+   * 
+   * @default
+   * 'sameorigin'
+   */
   noFraming?:
     | 'deny'
     | 'sameorigin'
     | null
+
+  /**
+   * Set the `Strict-Transport-Security` header, which indicates to browsers to prefer a secure HTTPS connection.
+   * 
+   * @default
+   * {
+   *   maxAge: 31536000, // a year
+   *   includeSubDomains: true
+   * }
+   */
   hsts?: {
     maxAge?: number
     preload?: boolean
     includeSubDomains?: boolean
   } | null
+
+  /**
+   * Set the `X-Content-Type-Options` header to `nosniff`. This mitigates Content Sniffing, which can cause security vulnerabilities.
+   * 
+   * @default
+   * true
+   */
   noSniffing?: boolean
+
+  /**
+   * Set the `Origin-Agent-Cluster` header, which provides a mechanism to allow web applications to isolate their origins.
+   * 
+   * @default
+   * true
+   */
   originAgentCluster?: boolean
+
+  /**
+   * Set the `X-Permitted-Cross-Domain-Policies` header, which tells some clients (mostly Adobe products) your domain's policy for loading cross-domain content.
+   * 
+   * @default
+   * 'none'
+   */
   crossDomainPolicy?:
     | 'none'
     | 'master-only'
     | 'by-content-type'
     | 'all'
     | null
+
+  /**
+   * Set the `Referrer-Policy` header to control what information is set in the `Referer` header.
+   * 
+   * @default
+   * 'no-referrer'
+   */
   referrerPolicy?:
     | 'no-referrer'
     | 'no-referrer-when-downgrade'
@@ -49,13 +128,13 @@ export type HelmetSettings = {
 
 export const helmet = createPlugin<HelmetSettings>(({
   contentSecurityPolicy = true,
-  crossOriginEmbedderPolicy = 'require-corp',
+  crossOriginEmbedderPolicy = null,
   crossOriginOpenerPolicy = 'same-origin',
   crossOriginResourcePolicy = 'same-origin',
   dnsPrefetching = false,
   noFraming = 'sameorigin',
   hsts = {
-    maxAge: 15552000,
+    maxAge: 31536000, // a year
     includeSubDomains: true
   },
   noSniffing = true,
