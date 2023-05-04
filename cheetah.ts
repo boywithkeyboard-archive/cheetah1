@@ -1,4 +1,4 @@
-import { IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230404.0/index.ts'
+import { IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230419.0/index.ts'
 import URLRouter from 'https://cdn.jsdelivr.net/npm/@medley/router@0.2.1/+esm'
 import { deadline, DeadlineError } from 'https://deno.land/std@v0.185.0/async/deadline.ts'
 import { brightBlue, brightGreen, brightRed, gray, white } from 'https://deno.land/std@v0.185.0/fmt/colors.ts'
