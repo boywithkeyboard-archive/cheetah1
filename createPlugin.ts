@@ -5,6 +5,6 @@ import { Plugin, PluginMethods } from './types.ts'
  * 
  * @experimental
  */
-export function createPlugin<Settings extends Record<string, unknown> | undefined = undefined>(settings: Settings extends undefined ? PluginMethods : ((settings: Settings) => PluginMethods)): Plugin<Settings> {
+export function createPlugin<Settings extends Record<string, unknown> | undefined = undefined>(settings: Settings extends undefined ? PluginMethods : ((settings?: Settings) => PluginMethods)): Plugin<Settings> {
   return settings
 }

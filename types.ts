@@ -287,4 +287,4 @@ export type PluginMethods = {
 }
 
 export type Plugin<Settings extends Record<string, unknown> | undefined = undefined> =
-  Settings extends undefined ? PluginMethods : ((settings: Settings) => PluginMethods)
+  Settings extends undefined ? PluginMethods : ((settings?: Settings) => PluginMethods)
