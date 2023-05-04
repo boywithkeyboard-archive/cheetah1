@@ -1,6 +1,38 @@
+## Upcoming
+
+- **New Features**
+
+  - Routes do now have a `transform` option. [#4](https://github.com/azurystudio/cheetah/issues/4)
+
+  - Plugins can now extend the context.
+
+- **Revisions**
+
+  - cheetah v0.4.? no longer uses [Medley](https://github.com/medleyjs/router) for routing.
+
+    Tens of hours have been invested to further optimize cheetah's performance. Part of this update is a built-in, better router. Medley is *really* fast, but cheetah needed a typesafe alternative to it.
+
+    The new router was written from scratch and outperforms the old one in most scenarios.
+
+## [v0.4.1](https://github.com/azurystudio/cheetah/releases/tag/v0.4.1)
+
+- **New Features**
+
+  - The [helmet plugin](https://github.com/azurystudio/cheetah/blob/dev/guide/plugins/helmet.md) is now available.
+
+    ```ts
+    import cheetah from 'https://deno.land/x/cheetah@v0.4.1/mod.ts'
+    import helmet from 'https://deno.land/x/cheetah@v0.4.1/plugins/helmet.ts'
+
+    const app = new cheetah()
+      .use(helmet())
+    ```
+
+    The plugin is based on [express.js' helmet](https://github.com/helmetjs/helmet).
+
 ## [v0.4.0](https://github.com/azurystudio/cheetah/releases/tag/v0.4.0)
 
-- #### New Features
+- **New Features**
 
   - cheetah has now support for [plugins](https://github.com/azurystudio/cheetah/blob/dev/guide/plugins/index.md).
 
@@ -8,27 +40,27 @@
 
 ## [v0.3.5](https://github.com/azurystudio/cheetah/releases/tag/v0.3.5)
 
-- #### New Features
+- **New Features**
 
   - There's now a [template for Deno and Cloudflare Workers](https://github.com/azurystudio/cheetah/blob/dev/guide/get_started.md) available, which you can use by running `deno run --allow-read=. --allow-write=. --allow-net https://deno.land/x/cheetah@v0.3.5/new.ts --template <template>`.
 
-- #### Revisions
+- **Revisions**
 
   - The whole guide was rewritten and restructured to make it easier to get started with cheetah.
 
 ## [v0.3.4](https://github.com/azurystudio/cheetah/releases/tag/v0.3.4)
 
-- #### Bug Fixes
+- **Bug Fixes**
 
   - Fixed a bug that caused an [illegal invocation](https://stackoverflow.com/questions/9677985/uncaught-typeerror-illegal-invocation-in-chrome) on Cloudflare Workers.
 
 ## [v0.3.3](https://github.com/azurystudio/cheetah/releases/tag/v0.3.3)
 
-- #### Bug Fixes
+- **Bug Fixes**
 
   - The parser ignored simple strings and should add them to the object instead. This issue is now solved.
 
-- #### Revisions
+- **Revisions**
 
   - Allow `/` as prefix for collections.
 
@@ -36,13 +68,13 @@
 
 ## [v0.3.2](https://github.com/azurystudio/cheetah/releases/tag/v0.3.2)
 
-- #### Bug Fixes
+- **Bug Fixes**
 
   - Fixed just a tiny issue with the global `Environment` type.
 
 ## [v0.3.1](https://github.com/azurystudio/cheetah/releases/tag/v0.3.1)
 
-- #### New Features
+- **New Features**
 
   - Introducing the `x` namespace.
 
@@ -64,7 +96,7 @@
     })
     ```
 
-- #### Revisions
+- **Revisions**
 
   - `c.req.geo` received a fallback for Deno.
 
@@ -74,7 +106,7 @@
 
 ## [v0.2.3](https://github.com/azurystudio/cheetah/releases/tag/v0.2.3)
 
-- #### New Features
+- **New Features**
 
   - We've ported cheetah to NPM.
 
@@ -95,17 +127,17 @@
 
 ## [v0.2.2](https://github.com/azurystudio/cheetah/releases/tag/v0.2.2)
 
-- #### Bug Fixes
+- **Bug Fixes**
 
   - Fixed a bug that lead to type `unknown` when defining a schema for validation.
 
-- #### Revisions
+- **Revisions**
 
   - `cheetah` and `Collection` classes no longer take the environment type as first argument. This type should now be defined globally.
 
 ## [v0.2.1](https://github.com/azurystudio/cheetah/releases/tag/v0.2.1)
 
-- #### Bug Fixes
+- **Bug Fixes**
 
   - Fixed a small type issue regarding the environment variables type.
 
@@ -121,13 +153,13 @@
     })
     ```
 
-- #### New Features
+- **New Features**
 
   - You can now get the **runtime** on which your code is running with the new `c.runtime` variable.
 
     The value of this variable will either be `deno` or `cloudflare` depending on where you deployed your app to.
 
-- #### Revisions
+- **Revisions**
 
   - Removed the validator types.
 
@@ -157,7 +189,7 @@
 
 ## [v0.1.1](https://github.com/azurystudio/cheetah/releases/tag/v0.1.1)
 
-- #### Bug Fixes
+- **Bug Fixes**
 
   - The `build.ts` script now uses [deno bundle](https://deno.land/manual@v1.32.5/tools/bundler) and [esbuild](https://github.com/evanw/esbuild) under the hood.
 

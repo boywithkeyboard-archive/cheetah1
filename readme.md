@@ -26,8 +26,8 @@
 ### Sneak Peek
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.4.0/mod.ts'
-import { serve } from 'https://deno.land/std@v0.185.0/http/server.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.4.1/mod.ts'
+import { serve } from 'https://deno.land/std@v0.186.0/http/server.ts'
 
 const app = new cheetah()
   .get('/', () => 'Hello World')

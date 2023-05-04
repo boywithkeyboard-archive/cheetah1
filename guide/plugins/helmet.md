@@ -6,7 +6,7 @@
 
 ```ts
 import cheetah from 'https://deno.land/x/cheetah@v0.4.1/mod.ts'
-import helmet from 'https://deno.land/x/cheetah@v0.4.1/plugin/helmet.ts'
+import helmet from 'https://deno.land/x/cheetah@v0.4.1/plugins/helmet.ts'
 
 const app = new cheetah()
   .use(helmet())

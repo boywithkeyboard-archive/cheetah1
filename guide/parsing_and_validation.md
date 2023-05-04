@@ -8,7 +8,7 @@
 
     ```ts
     import cheetah from 'https://deno.land/x/cheetah/mod.ts'
-    import typebox, { Type } from 'https://deno.land/x/cheetah@v0.4.0/validator/typebox.ts'
+    import typebox, { Type } from 'https://deno.land/x/cheetah@v0.4.1/validator/typebox.ts'
 
     const app = new cheetah({
       validator: typebox
@@ -80,8 +80,8 @@
 - #### Setup
 
     ```ts
-    import cheetah from 'https://deno.land/x/cheetah@v0.4.0/mod.ts'
-    import zod, { z } from 'https://deno.land/x/cheetah@v0.4.0/validator/zod.ts'
+    import cheetah from 'https://deno.land/x/cheetah@v0.4.1/mod.ts'
+    import zod, { z } from 'https://deno.land/x/cheetah@v0.4.1/validator/zod.ts'
 
     const app = new cheetah({
       validator: zod
