@@ -288,3 +288,16 @@ export type PluginMethods = {
 
 export type Plugin<Settings extends Record<string, unknown> | undefined = undefined> =
   Settings extends undefined ? PluginMethods : ((settings?: Settings) => PluginMethods)
+
+/* Route -------------------------------------------------------------------- */
+
+export type Route<V extends Validator | undefined> =
+  | {
+      body?: Schema<V>
+      cookies?: ObjectSchema<V>
+      headers?: ObjectSchema<V>
+      query?: ObjectSchema<V>
+      transform?: boolean
+    }
+  // deno-lint-ignore no-explicit-any
+  | Handler<any, any, any, any, any>
