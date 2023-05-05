@@ -169,7 +169,7 @@ export class cheetah<
       let res: Response
 
       if (err instanceof Exception)
-        res = err.response
+        res = err.response(request)
       else if (this.#error)
         res = await this.#error(err, request)
       else

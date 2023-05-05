@@ -44,20 +44,27 @@ export class Exception {
       ? 429
       : 500
 
-    const body = JSON.stringify({
-      message,
-      code
-    })
+    this.response = (request: Request) => {
+      const acceptHeader = request.headers.get('accept')
 
-    this.response = new Response(
-      body,
-      {
-        headers: {
-          'content-length': body.length.toString(),
-          'content-type': 'application/json; charset=utf-8;'
-        },
-        status: code
-      }
-    )
+      const json = acceptHeader
+        ? acceptHeader.includes('application/json') || acceptHeader.includes('*/*')
+        : false
+
+      const body = json
+        ? JSON.stringify({ message, code })
+        : message
+
+      return new Response(
+        body,
+        {
+          headers: {
+            'content-length': body.length.toString(),
+            'content-type': `${json ? 'application/json' : 'text/plain'}; charset=utf-8;`
+          },
+          status: code
+        }
+      )
+    }
   }
 }
