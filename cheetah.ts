@@ -6,7 +6,7 @@ import { ConnInfo } from 'https://deno.land/std@v0.186.0/http/server.ts'
 import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.9'
 import { Collection } from './Collection.ts'
 import { Exception } from './Exception.ts'
-import { Config, Context, Handler, ObjectSchema, PluginMethods, RequestContext, Schema, Validator } from './types.ts'
+import { Config, Context, Handler, ObjectSchema, PluginMethods, RequestContext, Route, Schema, Validator } from './types.ts'
 import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
 
@@ -118,7 +118,9 @@ export class cheetah<
   ): Promise<Response> => {
     let cache: Cache | undefined
 
-    const ip = env?.remoteAddr ? ((env as ConnInfo & { remoteAddr: { hostname: string }}).remoteAddr).hostname : request.headers.get('cf-connecting-ip') ?? undefined
+    const ip = env?.remoteAddr
+      ? ((env as ConnInfo & { remoteAddr: { hostname: string }}).remoteAddr).hostname
+      : request.headers.get('cf-connecting-ip') ?? undefined
 
     if (this.#cache && request.method === 'GET' && this.#runtime === 'cloudflare') {
       cache = await caches.open(this.#cache.name)
@@ -200,16 +202,7 @@ export class cheetah<
     ip: string | undefined,
     url: URL,
     params: Record<string, string>,
-    route: (
-      {
-        body?: Schema<V>,
-        cookies?: ObjectSchema<V>,
-        headers?: ObjectSchema<V>,
-        query?: ObjectSchema<V>
-      } |
-      // deno-lint-ignore no-explicit-any
-      Handler<any, any, any, any, any>
-    )[]
+    route: Route<V>[]
   ) {
     /* Preflight Request -------------------------------------------------------- */
 
@@ -341,14 +334,24 @@ export class cheetah<
             schema.body?._def?.typeName === 'ZodObject' ||
             // @ts-ignore: typescript bs
             schema.body[Object.getOwnPropertySymbols(schema.body)[0]] === 'Object'
-          )
-            body = await deadline(request.json(), 3000)
-          else if (
+          ) {
+            if (schema.transform === true && request.headers.get('content-type') === 'multipart/form-data') {
+              const formData = await deadline(request.formData(), 3000)
+
+              body = {} as Record<string, unknown>
+
+              for (const [key, value] of formData.entries())
+                body[key] = value
+            } else {
+              body = await deadline(request.json(), 3000)
+            }
+          } else if (
             schema.body._def?.typeName === 'ZodString' ||
             // @ts-ignore: typescript bs
             schema.body[Object.getOwnPropertySymbols(schema.body)[0]] === 'String'
-          )
+          ) {
             body = await deadline(request.text(), 3000)
+          }
         } catch (err) {
           throw new Exception(err instanceof DeadlineError ? 413 : 400)
         }
@@ -662,7 +665,12 @@ export class cheetah<
     if (event === 'error')
       console.error(gray(`${brightRed(statusCode.toString())} - ${method} ${pathname}`))
     else
-      console.log(gray(`${statusCode === 301 || statusCode === 307 ? brightBlue(statusCode.toString()) : brightGreen(statusCode.toString())} - ${method} ${white(pathname)}`))
+      console.log(
+        gray(`${statusCode === 301 || statusCode === 307
+          ? brightBlue(statusCode.toString())
+          : brightGreen(statusCode.toString())} - ${method} ${white(pathname)
+        }`)
+      )
   }
 
   /* -------------------------------------------------------------------------- */
@@ -761,6 +769,7 @@ export class cheetah<
       cookies?: ValidatedCookies
       headers?: ValidatedHeaders
       query?: ValidatedQuery
+      transform?: boolean
     },
     ...handler: Handler<
       RequestUrl,
@@ -785,6 +794,7 @@ export class cheetah<
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
+        transform?: boolean
       } |
       Handler<
         RequestUrl,
@@ -820,6 +830,7 @@ export class cheetah<
       cookies?: ValidatedCookies
       headers?: ValidatedHeaders
       query?: ValidatedQuery
+      transform?: boolean
     },
     ...handler: Handler<
       RequestUrl,
@@ -844,6 +855,7 @@ export class cheetah<
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
+        transform?: boolean
       } |
       Handler<
         RequestUrl,
@@ -879,6 +891,7 @@ export class cheetah<
       cookies?: ValidatedCookies
       headers?: ValidatedHeaders
       query?: ValidatedQuery
+      transform?: boolean
     },
     ...handler: Handler<
       RequestUrl,
@@ -903,6 +916,7 @@ export class cheetah<
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
+        transform?: boolean
       } |
       Handler<
         RequestUrl,
@@ -938,6 +952,7 @@ export class cheetah<
       cookies?: ValidatedCookies
       headers?: ValidatedHeaders
       query?: ValidatedQuery
+      transform?: boolean
     },
     ...handler: Handler<
       RequestUrl,
@@ -962,6 +977,7 @@ export class cheetah<
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
+        transform?: boolean
       } |
       Handler<
         RequestUrl,
