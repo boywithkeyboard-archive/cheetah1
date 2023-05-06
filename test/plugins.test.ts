@@ -1,5 +1,5 @@
 import { assertEquals, assertInstanceOf } from 'https://deno.land/std@v0.186.0/testing/asserts.ts'
-import cheetah, { Collection, createPlugin } from '../mod.ts'
+import cheetah, { createPlugin } from '../mod.ts'
 
 Deno.test('Plugins', async t => {
   await t.step('beforeParsing (global)', async () => {

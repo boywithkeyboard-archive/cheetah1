@@ -4,6 +4,29 @@ import typebox, { Type } from '../validator/typebox.ts'
 import zod, { z } from '../validator/zod.ts'
 
 Deno.test('Validation', async t => {
+  await t.step('transform', async () => {
+    const app = new cheetah({
+      validator: zod
+    })
+
+    app.post('/one', {
+      body: z.object({
+        message: z.string()
+      }),
+      transform: true
+    }, c => {
+      assertEquals(c.req.body, { message: 'Hello World' })
+
+      return 'test'
+    })
+
+    const form = new FormData()
+    form.append('message', 'Hello World')
+    await (await app.fetch(new Request('http://localhost:3000/one', { method: 'POST', body: form }))).text()
+
+    await (await app.fetch(new Request('http://localhost:3000/one', { method: 'POST', body: JSON.stringify({ message: 'Hello World' }) }))).text()
+  })
+
   await t.step('TypeBox', async t => {
     const app = new cheetah({
       validator: typebox
