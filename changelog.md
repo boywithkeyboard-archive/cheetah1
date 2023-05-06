@@ -2,17 +2,47 @@
 
 - **New Features**
 
-  - Routes do now have a `transform` option. [#4](https://github.com/azurystudio/cheetah/issues/4)
-
   - Plugins can now extend the context.
 
 - **Revisions**
 
-  - cheetah v0.4.? no longer uses [Medley](https://github.com/medleyjs/router) for routing.
+  - cheetah v0.?.? no longer uses [Medley](https://github.com/medleyjs/router) for routing.
 
     Tens of hours have been invested to further optimize cheetah's performance. Part of this update is a built-in, better router. Medley is *really* fast, but cheetah needed a typesafe alternative to it.
 
     The new router was written from scratch and outperforms the old one in most scenarios.
+
+  - Due to internal changes, plugins are now slightly faster.
+
+## [v0.5.0](https://github.com/azurystudio/cheetah/releases/tag/v0.5.0)
+
+- **New Features**
+
+  - Routes now have a `transform` option (as mentioned in [#4](https://github.com/azurystudio/cheetah/issues/4)).
+
+    ```ts
+    import cheetah from 'https://deno.land/x/cheetah@v0.5.0/mod.ts'
+
+    const app = new cheetah()
+    
+    app.get('/example', {
+      body: z.object({
+        message: z.string()
+      }),
+
+      transform: true
+    }, async c => {
+      console.log(body) // e.g. { message: 'Hello!' }
+    })
+    ```
+
+    This enables the conversion of a FormData request body into a JSON object *(if the request body has the MIME type `multipart/form-data`)*.
+
+- **Revisions**
+
+  - The `Exception` class now constructs a response based on the `Accept` header.
+
+    If the header contains the MIME type `application/json` or `*/*` (any MIME type), the response body will be a JSON object, otherwise it'll be plain text. This behavior also applies to the default ***error*** and ***not found*** responses.
 
 ## [v0.4.1](https://github.com/azurystudio/cheetah/releases/tag/v0.4.1)
 

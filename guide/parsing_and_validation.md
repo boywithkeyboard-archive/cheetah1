@@ -2,13 +2,33 @@
 
 ## Parsing & Validation
 
+### `transform`
+
+This enables the conversion of a FormData request body into a JSON object *(if the request body has the MIME type `multipart/form-data`)*.
+
+```ts
+import cheetah from 'https://deno.land/x/cheetah@v0.5.0/mod.ts'
+
+const app = new cheetah()
+    
+app.get('/example', {
+  body: z.object({
+    message: z.string()
+  }),
+
+  transform: true
+}, async c => {
+  console.log(body) // e.g. { message: 'Hello!' }
+})
+```
+
 ### TypeBox
 
 - #### Setup
 
     ```ts
-    import cheetah from 'https://deno.land/x/cheetah/mod.ts'
-    import typebox, { Type } from 'https://deno.land/x/cheetah@v0.4.1/validator/typebox.ts'
+    import cheetah from 'https://deno.land/x/cheetah@v0.5.0/mod.ts'
+    import typebox, { Type } from 'https://deno.land/x/cheetah@v0.5.0/validator/typebox.ts'
 
     const app = new cheetah({
       validator: typebox
@@ -80,8 +100,8 @@
 - #### Setup
 
     ```ts
-    import cheetah from 'https://deno.land/x/cheetah@v0.4.1/mod.ts'
-    import zod, { z } from 'https://deno.land/x/cheetah@v0.4.1/validator/zod.ts'
+    import cheetah from 'https://deno.land/x/cheetah@v0.5.0/mod.ts'
+    import zod, { z } from 'https://deno.land/x/cheetah@v0.5.0/validator/zod.ts'
 
     const app = new cheetah({
       validator: zod
