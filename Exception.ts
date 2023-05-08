@@ -1,3 +1,32 @@
+/**
+ * @example
+ * 
+ * ```js
+ * // Not Found
+ * throw new Exception('Not Found')
+ * throw new Exception(404)
+ * 
+ * // Access Denied
+ * throw new Exception('Access Denied')
+ * throw new Exception(403)
+ * 
+ * // Something Went Wrong
+ * throw new Exception('Something Went Wrong')
+ * throw new Exception(500)
+ * 
+ * // Bad Request
+ * throw new Exception('Bad Request')
+ * throw new Exception(400)
+ * 
+ * // Payload Too Large
+ * throw new Exception('Payload Too Large')
+ * throw new Exception(413)
+ * 
+ * // Too Many Requests
+ * throw new Exception('Too Many Requests')
+ * throw new Exception(429)
+ * ```
+ */
 export class Exception {
   public response
 
