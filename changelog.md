@@ -14,6 +14,14 @@
 
   - Due to internal changes, plugins are now slightly faster.
 
+## [v0.6.0](https://github.com/azurystudio/cheetah/releases/tag/v0.6.0)
+
+- **Revisions**
+
+  - The build script now automatically identifies the configuration file or import map and uses it for bundling. This allows you to use an inline import map or a import map file.
+
+  - The `Exception` class now has a better JSDoc description.
+
 ## [v0.5.0](https://github.com/azurystudio/cheetah/releases/tag/v0.5.0)
 
 - **New Features**

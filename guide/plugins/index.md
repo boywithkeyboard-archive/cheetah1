@@ -19,7 +19,7 @@ If you want to add additional functionality to your application on a global, per
 Plugins let you create and publish reusable functions for your own and open source purposes.
 
 ```ts
-import cheetah, { createPlugin } from 'https://deno.land/x/cheetah@v0.5.0/mod.ts'
+import cheetah, { createPlugin } from 'https://deno.land/x/cheetah@v0.6.0/mod.ts'
 
 export const myPlugin = createPlugin<{
   option: string // < settings the user can pass to the plugin
@@ -42,7 +42,7 @@ const app = new cheetah()
 Alternatively, you can create one without settings:
 
 ```ts
-import cheetah, { createPlugin } from 'https://deno.land/x/cheetah@v0.5.0/mod.ts'
+import cheetah, { createPlugin } from 'https://deno.land/x/cheetah@v0.6.0/mod.ts'
 
 export const myPlugin = createPlugin({
   beforeParsing(c) { // access context to modify request/response
