@@ -276,6 +276,8 @@ export type Context<
 
     text: (text: string, code?: number) => void
   }
+
+  [key: string]: unknown
 }
 
 /* Plugin ------------------------------------------------------------------- */
