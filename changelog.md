@@ -14,6 +14,12 @@
 
   - Due to internal changes, plugins are now slightly faster.
 
+## [v0.6.1](https://github.com/azurystudio/cheetah/releases/tag/v0.6.1)
+
+- **Revisions**
+
+  - Allow additional properties for the `Context` type.
+
 ## [v0.6.0](https://github.com/azurystudio/cheetah/releases/tag/v0.6.0)
 
 - **Revisions**
