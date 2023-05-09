@@ -1,4 +1,4 @@
-import * as OTP from 'https://deno.land/x/otpauth@v9.1.1/dist/otpauth.esm.js'
+import * as OTP from 'https://deno.land/x/otpauth@v9.1.2/dist/otpauth.esm.js'
 
 export const otp = {
   /**
