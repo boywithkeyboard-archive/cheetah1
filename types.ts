@@ -218,7 +218,7 @@ export type Context<
       city?: string
       region?: string
       country?: string
-      continent?: string
+      continent?: 'AF' | 'AN' | 'AS' | 'EU' | 'NA' | 'OC' | 'SA'
       regionCode?: string
       latitude?: string
       longitude?: string
