@@ -1,4 +1,4 @@
-import * as base64 from 'https://deno.land/std@v0.186.0/encoding/base64.ts'
+import * as base64 from 'https://deno.land/std@v0.187.0/encoding/base64.ts'
 import { VerifyOptions, verify as _verify, create, getNumericDate } from 'https://deno.land/x/djwt@v2.8/mod.ts'
 
 interface Payload {

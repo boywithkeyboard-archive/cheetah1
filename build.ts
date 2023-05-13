@@ -1,4 +1,4 @@
-import { build, stop } from 'https://deno.land/x/esbuild@v0.17.18/mod.js'
+import { build, stop } from 'https://deno.land/x/esbuild@v0.17.19/mod.js'
 
 async function isImportMap(path: string) {
   try {
