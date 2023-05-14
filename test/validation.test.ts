@@ -1,4 +1,4 @@
-import { assertEquals } from 'https://deno.land/std@v0.187.0/testing/asserts.ts'
+import { assertEquals } from 'https://deno.land/std@0.187.0/testing/asserts.ts'
 import cheetah from '../mod.ts'
 import typebox, { Type } from '../validator/typebox.ts'
 import zod, { z } from '../validator/zod.ts'
