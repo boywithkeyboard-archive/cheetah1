@@ -730,9 +730,9 @@ export class cheetah<
 
   /* Raw Method --------------------------------------------------------------- */
 
-  raw<RequestMethod extends 'get' | 'post' | 'put' | 'patch' | 'head' | 'delete' | 'options', RequestUrl extends `/${string}`>(method: RequestMethod, url: RequestUrl, handler: (request: Request) => Response | Promise<Response>) {
+  // raw<RequestMethod extends 'get' | 'post' | 'put' | 'patch' | 'head' | 'delete' | 'options', RequestUrl extends `/${string}`>(method: RequestMethod, url: RequestUrl, handler: (request: Request) => Response | Promise<Response>) {
     
-  }
+  // }
 
   /* Get Method --------------------------------------------------------------- */
 
