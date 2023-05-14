@@ -1,4 +1,5 @@
-import { walk } from 'https://deno.land/std@v0.187.0/fs/walk.ts'
+import { walk } from 'https://deno.land/std@0.187.0/fs/walk.ts'
+import byte from 'https://deno.land/x/byte@v3.3.0/byte.ts'
 import { build, stop } from 'https://deno.land/x/esbuild@v0.17.19/mod.js'
 
 // update module sizes
@@ -26,18 +27,11 @@ async function getMinifiedFileSize(path: string) {
     outfile: outpath
   })
 
-  const length = (await Deno.readTextFile(outpath)).length / 1000
+  const size = (await Deno.readTextFile(outpath)).length
 
   await Deno.remove(outpath)
   
-  return (
-    Number(
-      Math.round(
-        Number(length + 'e' + 2),
-      ) + 'e' + -2
-    )
-    + ' kB'
-  )
+  return byte(size)
 }
 
 const coreSize = await getMinifiedFileSize('mod')
