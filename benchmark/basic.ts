@@ -1,12 +1,12 @@
 import { Hono } from 'https://deno.land/x/hono@v3.1.8/mod.ts'
 import { Application, Router } from 'https://deno.land/x/oak@v12.4.0/mod.ts'
 import { Router as IttyRouter } from 'https://esm.sh/itty-router@3.0.12'
-import Cheetah from '../mod.ts'
+import cheetah from '../mod.ts'
 
 Deno.bench('noop', () => {})
 
 Deno.bench('cheetah', { group: 'timing', baseline: true }, async () => {
-  const app = new Cheetah()
+  const app = new cheetah()
 
   app.get('/user', () => 'User')
 
@@ -23,7 +23,7 @@ Deno.bench('cheetah', { group: 'timing', baseline: true }, async () => {
   app.get('/user/lookup/username/:username', c => ({ message: `Hello ${c.req.param('username')}` }))
 
   const r1 = new Request('http://localhost:3000/user')
-  await app.fetch(r1) // < second argument are environment variables (these would be determined automatically in production and be cached accordingly)
+  await app.fetch(r1)
 
   const r2 = new Request('http://localhost:3000/user/comments')
   await app.fetch(r2)
