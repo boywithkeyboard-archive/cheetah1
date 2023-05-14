@@ -1,10 +1,9 @@
 import { Route } from './Handler.d.ts'
-import { Validator } from './validator/Validator.d.ts'
 
-export class Router<V extends Validator | undefined> {
-  #routes: [string, RegExp, Route<V>[]][] = []
+export class Router {
+  #routes: [string, RegExp, Route[]][] = []
 
-  add(method: string, pathname: string, handler: Route<V>[]) {
+  add(method: string, pathname: string, handler: Route[]) {
     this.#routes.push([method, RegExp(`^${pathname
       .replace(/(\/?)\*/g, '($1.*)?')
       .replace(/(\/$)|((?<=\/)\/)/, '')

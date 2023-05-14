@@ -1,12 +1,12 @@
-import { ObjectSchema, Schema, Validator } from './validator/Validator.d.ts'
 import { Context } from './Context.d.ts'
+import { ObjectSchema, Schema } from './validator/Validator.d.ts'
 
-export type Route<V extends Validator | undefined> =
+export type Route =
   | {
-      body?: Schema<V>
-      cookies?: ObjectSchema<V>
-      headers?: ObjectSchema<V>
-      query?: ObjectSchema<V>
+      body?: Schema
+      cookies?: ObjectSchema
+      headers?: ObjectSchema
+      query?: ObjectSchema
       transform?: boolean
     }
   // deno-lint-ignore no-explicit-any

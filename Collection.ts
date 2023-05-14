@@ -1,13 +1,11 @@
-import { ObjectSchema, Schema, Validator } from './validator/Validator.d.ts'
 import { Handler, Route } from './Handler.d.ts'
+import { ObjectSchema, Schema } from './validator/Validator.d.ts'
 
-export class Collection<
-  V extends Validator | undefined = undefined
-> {
+export class Collection {
   routes: [
     string,
     string,
-    Route<V>[]
+    Route[]
   ][]
 
   constructor() {
@@ -23,9 +21,9 @@ export class Collection<
 
   get<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     schema: {
@@ -44,9 +42,9 @@ export class Collection<
 
   get<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     ...handler: (
@@ -78,10 +76,10 @@ export class Collection<
   
   delete<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<V>,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedBody extends Schema,
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     schema: {
@@ -102,10 +100,10 @@ export class Collection<
   
   delete<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<V>,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedBody extends Schema,
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     ...handler: (
@@ -139,10 +137,10 @@ export class Collection<
   
   post<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<V>,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedBody extends Schema,
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     schema: {
@@ -163,10 +161,10 @@ export class Collection<
   
   post<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<V>,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedBody extends Schema,
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     ...handler: (
@@ -200,10 +198,10 @@ export class Collection<
   
   put<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<V>,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedBody extends Schema,
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     schema: {
@@ -224,10 +222,10 @@ export class Collection<
   
   put<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<V>,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedBody extends Schema,
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     ...handler: (
@@ -261,10 +259,10 @@ export class Collection<
   
   patch<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<V>,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedBody extends Schema,
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     schema: {
@@ -285,10 +283,10 @@ export class Collection<
   
   patch<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema<V>,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedBody extends Schema,
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     ...handler: (
@@ -322,9 +320,9 @@ export class Collection<
 
   head<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     schema: {
@@ -343,9 +341,9 @@ export class Collection<
 
   head<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema<V>,
-    ValidatedHeaders extends ObjectSchema<V>,
-    ValidatedQuery extends ObjectSchema<V>
+    ValidatedCookies extends ObjectSchema,
+    ValidatedHeaders extends ObjectSchema,
+    ValidatedQuery extends ObjectSchema
   >(
     url: RequestUrl,
     ...handler: (

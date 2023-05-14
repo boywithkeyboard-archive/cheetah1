@@ -1,4 +1,4 @@
-type ZodValidator = {
+export type ZodValidator = {
   name: 'zod',
   check: undefined
 }
