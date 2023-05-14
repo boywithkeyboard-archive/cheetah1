@@ -1,4 +1,5 @@
-import { Handler, ObjectSchema, Route, Schema, Validator } from './types.ts'
+import { ObjectSchema, Schema, Validator } from './validator/Validator.d.ts'
+import { Handler, Route } from './Handler.d.ts'
 
 export class Collection<
   V extends Validator | undefined = undefined

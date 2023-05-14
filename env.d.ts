@@ -1,5 +1,5 @@
 declare global {
-  // @ts-ignore
+  // @ts-ignore:
   type Environment = Record<string, unknown>
 }
 

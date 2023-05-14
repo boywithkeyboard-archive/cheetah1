@@ -1,14 +1,66 @@
-import { IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230511.0/index.ts'
-import URLRouter from 'https://cdn.jsdelivr.net/npm/@medley/router@0.2.1/+esm'
-import { deadline, DeadlineError } from 'https://deno.land/std@v0.187.0/async/deadline.ts'
-import { brightBlue, brightGreen, brightRed, gray, white } from 'https://deno.land/std@v0.187.0/fmt/colors.ts'
-import { ConnInfo } from 'https://deno.land/std@v0.187.0/http/server.ts'
+import { ContinentCode, IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230419.0/index.ts'
+import { DeadlineError, deadline } from 'https://deno.land/std@0.186.0/async/deadline.ts'
+import { brightBlue, brightGreen, brightRed, gray, white } from 'https://deno.land/std@0.186.0/fmt/colors.ts'
+import { ConnInfo } from 'https://deno.land/std@0.186.0/http/server.ts'
 import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.9'
-import { Collection } from './Collection.ts'
-import { Exception } from './Exception.ts'
-import { Config, Context, Handler, ObjectSchema, PluginMethods, RequestContext, Route, Schema, Validator } from './types.ts'
+import { ObjectSchema, Schema, Validator } from './validator/Validator.d.ts'
 import typebox from './validator/typebox.ts'
 import zod from './validator/zod.ts'
+import { Collection } from './Collection.ts'
+import { Context } from './Context.d.ts'
+import { Exception } from './Exception.ts'
+import { Handler, Route } from './Handler.d.ts'
+import { Router } from './Router.ts'
+import { PluginMethods } from './createPlugin.ts'
+
+export type Config<
+  V extends Validator | unknown = unknown
+> = {
+  /**
+   * A prefix for all routes, e.g. `/api`.
+   */
+  base?: `/${string}`
+
+  /**
+   * Enable Cross-Origin Resource Sharing (CORS) for your app by setting a origin, e.g. `*`.
+   */
+  cors?: string
+
+  cache?: {
+    /**
+     * A unique name for your cache.
+     */
+    name: string
+    /**
+     * Duration in seconds for how long a cached response should be held in memory.
+     */
+    duration: number
+  }
+
+  /**
+   * Enable **Debug Mode**. As a result, every fetch and error event will be logged.
+   */
+  debug?: boolean
+
+  /**
+   * Set a validator to validate the body, cookies, headers, and query parameters of the incoming request.
+   */
+  validator?: V
+
+  /**
+   * Set a custom error handler.
+   */
+  error?: (error: unknown, request: Request) => Response | Promise<Response>
+
+  /**
+   * Set a custom 404 handler.
+   */
+  notFound?: (request: Request) => Response | Promise<Response>
+}
+
+type RequestContext = {
+  waitUntil: (promise: Promise<unknown>) => void
+}
 
 export class cheetah<
   V extends Validator | undefined = undefined
@@ -29,7 +81,7 @@ export class cheetah<
   }
   
   constructor(config: Config<V> = {}) {
-    this.#router = new URLRouter()
+    this.#router = new Router<V>()
 
     this.#base = config.base === '/' ? undefined : config.base
     this.#cors = config.cors
@@ -83,7 +135,7 @@ export class cheetah<
             // @ts-ignore: ok
             prefix = ''
 
-          this.#addRoute(
+          this.#router.add(
             item.routes[i][0],
             this.#base ? this.#base + prefix + url : prefix + url,
             item.routes[i][2]
@@ -134,9 +186,9 @@ export class cheetah<
     const url = new URL(request.url)
 
     try {
-      const route = this.#router.find(url.pathname)
+      const route = this.#router.match(request.method, url.pathname)
 
-      if (!route?.store?.[request.method]) {
+      if (!route) {
         if (this.#notFound)
           return this.#notFound(request)
 
@@ -155,7 +207,7 @@ export class cheetah<
         ip,
         url,
         route.params,
-        route.store[request.method]
+        route.handlers
       )
 
       if (cache && response.ok && this.#runtime === 'cloudflare' && context)
@@ -225,7 +277,7 @@ export class cheetah<
     /* beforeParsing Plugin ----------------------------------------------------- */
 
     for (const key in this.#plugins.beforeParsing) {
-      if (key !== '*' && !url.pathname.startsWith(key + '/') && url.pathname !== key)
+      if (key !== '*' && url.pathname[0] !== key + '/' && url.pathname !== key)
         continue
      
       const length = this.#plugins.beforeParsing[key].length
@@ -408,25 +460,24 @@ export class cheetah<
             return geo
 
           if (this.#runtime === 'cloudflare') {
-            const cf: IncomingRequestCfProperties | undefined
-              = (request as Request & { cf: IncomingRequestCfProperties }).cf
+            const { cf } = (request as Request & { cf: IncomingRequestCfProperties })
 
             geo = {
-              city: cf?.city,
-              region: cf?.region,
-              country: cf?.country,
-              continent: cf?.continent,
-              regionCode: cf?.regionCode,
-              latitude: cf?.latitude,
-              longitude: cf?.longitude,
-              timezone: cf?.timezone,
-              datacenter: cf?.colo
+              city: cf.city,
+              region: cf.region,
+              country: cf.country,
+              continent: cf.continent,
+              regionCode: cf.regionCode,
+              latitude: cf.latitude,
+              longitude: cf.longitude,
+              timezone: cf.timezone,
+              datacenter: cf.colo
             }
           } else {
             geo = {
               city: request.headers.get('cf-ipcity') ?? undefined,
               country: request.headers.get('cf-ipcountry') ?? undefined,
-              continent: request.headers.get('cf-ipcontinent') ?? undefined,
+              continent: request.headers.get('cf-ipcontinent') as ContinentCode ?? undefined,
               latitude: request.headers.get('cf-iplatitude') ?? undefined,
               longitude: request.headers.get('cf-iplongitude') ?? undefined
             }
@@ -571,7 +622,7 @@ export class cheetah<
     /* beforeHandling Plugin ---------------------------------------------------- */
 
     for (const key in this.#plugins.beforeHandling) {
-      if (key !== '*' && !url.pathname.startsWith(key + '/') && url.pathname !== key)
+      if (key !== '*' && url.pathname[0] !== key + '/' && url.pathname !== key)
         continue
      
       const length = this.#plugins.beforeHandling[key].length
@@ -602,7 +653,7 @@ export class cheetah<
     /* afterHandling Plugin ----------------------------------------------------- */
 
     for (const key in this.#plugins.beforeResponding) {
-      if (key !== '*' && !url.pathname.startsWith(key + '/') && url.pathname !== key)
+      if (key !== '*' && url.pathname[0] !== key + '/' && url.pathname !== key)
         continue
      
       const length = this.#plugins.beforeResponding[key].length
@@ -677,21 +728,10 @@ export class cheetah<
   /* Routes                                                                     */
   /* -------------------------------------------------------------------------- */
 
-  /* Add New Route ------------------------------------------------------------ */
+  /* Raw Method --------------------------------------------------------------- */
 
-  #addRoute(method: string, path: string, handler: (
-    {
-      body?: Schema<V>,
-      cookies?: ObjectSchema<V>,
-      headers?: ObjectSchema<V>,
-      query?: ObjectSchema<V>
-    } |
-    // deno-lint-ignore no-explicit-any
-    Handler<any, any, any, any, any>
-  )[]) {
-    const store = this.#router.register(path)
-
-    store[method] = handler
+  raw<RequestMethod extends 'get' | 'post' | 'put' | 'patch' | 'head' | 'delete' | 'options', RequestUrl extends `/${string}`>(method: RequestMethod, url: RequestUrl, handler: (request: Request) => Response | Promise<Response>) {
+    
   }
 
   /* Get Method --------------------------------------------------------------- */
@@ -744,7 +784,7 @@ export class cheetah<
       >
     )[]
   ) {
-    this.#addRoute('GET', this.#base ? this.#base + url : url, handler)
+    this.#router.add('GET', this.#base ? this.#base + url : url, handler)
 
     return this
   }
@@ -805,7 +845,7 @@ export class cheetah<
       >
     )[]
   ) {
-    this.#addRoute('DELETE', this.#base ? this.#base + url : url, handler)
+    this.#router.add('DELETE', this.#base ? this.#base + url : url, handler)
 
     return this
   }
@@ -866,7 +906,7 @@ export class cheetah<
       >
     )[]
   ) {
-    this.#addRoute('POST', this.#base ? this.#base + url : url, handler)
+    this.#router.add('POST', this.#base ? this.#base + url : url, handler)
   
     return this
   }
@@ -927,7 +967,7 @@ export class cheetah<
       >
     )[]
   ) {
-    this.#addRoute('PUT', this.#base ? this.#base + url : url, handler)
+    this.#router.add('PUT', this.#base ? this.#base + url : url, handler)
   
     return this
   }
@@ -988,7 +1028,7 @@ export class cheetah<
       >
     )[]
   ) {
-    this.#addRoute('PATCH', this.#base ? this.#base + url : url, handler)
+    this.#router.add('PATCH', this.#base ? this.#base + url : url, handler)
   
     return this
   }
@@ -1043,7 +1083,7 @@ export class cheetah<
       >
     )[]
   ) {
-    this.#addRoute('HEAD', this.#base ? this.#base + url : url, handler)
+    this.#router.add('HEAD', this.#base ? this.#base + url : url, handler)
 
     return this
   }
