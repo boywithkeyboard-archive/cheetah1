@@ -1,10 +1,10 @@
 {
   "tasks": {
-    "build": "deno run -A https://deno.land/x/cheetah@v0.6.1/build.ts",
+    "build": "deno run -A https://deno.land/x/cheetah@v0.7.0/build.ts",
     "publish": "npx wrangler publish mod.js"
   },
   "imports": {
-    "cheetah": "https://deno.land/x/cheetah@v0.6.1/mod.ts",
-    "zod": "https://deno.land/x/cheetah@v0.6.1/validator/zod.ts"
+    "cheetah": "https://deno.land/x/cheetah@v0.7.0/mod.ts",
+    "zod": "https://deno.land/x/cheetah@v0.7.0/validator/zod.ts"
   }
 }
