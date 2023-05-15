@@ -14,20 +14,20 @@
 
 | Benchmark | Time (avg) | min ... max | p75 | p99 | p995 | p999 |
 | --- | --- | --- | --- | --- | --- | --- |
-| **cheetah** | 53.91 µs/run | 41.7 µs ... 2.2 ms | 47.1 µs | 161.1 µs | 530.9 µs | 961.3 µs |
-| [hono](https://github.com/honojs/hono) | 68.63 µs/run | 49.1 µs ... 1.66 ms | 65.8 µs | 184.2 µs | 772 µs | 1.23 ms |
-| [itty-router](https://github.com/kwhitley/itty-router) | 63.39 µs/run | 53.2 µs ... 1.43 ms | 59.7 µs | 105.3 µs | 148.7 µs | 1.13 ms |
-| [oak](https://github.com/oakserver/oak) | 87.25 µs/run | 70.7 µs ... 2.85 ms | 79.6 µs | 209.8 µs | 579.8 µs | 807.9 µs |
+| **cheetah** | 54.97 µs/run | 43.8 µs ... 1.75 ms | 47.6 µs | 155.8 µs | 461.3 µs | 987.1 µs |
+| [hono](https://github.com/honojs/hono) | 66.85 µs/run | 48 µs ... 1.45 ms | 63.9 µs | 264 µs | 720.4 µs | 1.01 ms |
+| [itty-router](https://github.com/kwhitley/itty-router) | 62.24 µs/run | 51.6 µs ... 1.41 ms | 58.1 µs | 128.6 µs | 215 µs | 1.17 ms |
+| [oak](https://github.com/oakserver/oak) | 84.63 µs/run | 68.7 µs ... 2.53 ms | 76.6 µs | 280.2 µs | 587.8 µs | 775.5 µs |
 
-###### Benchmark: [basic.ts](https://github.com/azurystudio/cheetah/blob/dev/benchmark/basic.ts) — Runtime: Deno 1.33.1 (x86_64-pc-windows-msvc) — CPU: AMD Ryzen 9 5900X 12-Core
+###### Benchmark: [basic.ts](https://github.com/azurystudio/cheetah/blob/dev/benchmark/basic.ts) — Runtime: Deno 1.33.3 (x86_64-pc-windows-msvc) — CPU: AMD Ryzen 9 5900X 12-Core
 
 [//]: benchmarkend
 
 ### Sneak Peek
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.6.1/mod.ts'
-import { serve } from 'https://deno.land/std@v0.186.0/http/server.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.7.0/mod.ts'
+import { serve } from 'https://deno.land/std@0.187.0/http/server.ts'
 
 const app = new cheetah()
   .get('/', () => 'Hello World')
@@ -43,4 +43,4 @@ serve(app.fetch)
 - [x] 🧙‍♂️ `schema validation` - out-of-the-box support for schema validation via TypeBox or Zod. [*Show more!*](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/schema_validation.md)
 - [x] 💎 `simple` - built-in support for CORS, caching, schema validation, debugging and more! [*Show more!*](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/simple.md)
 - [x] 🪹 `chaining & nesting` - cheetah doesn't dictate you how to write your app. [*Show more!*](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/chaining_and_nesting.md)
-- [x] 🪶 `light` - all core functionality in **~14.5 kB**. [*Show more!*](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/light.md)
+- [x] 🪶 `light` - all core functionality in **~11 KB**. [*Show more!*](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/light.md)

@@ -5,8 +5,8 @@
 > This plugin is based on [express.js' helmet](https://github.com/helmetjs/helmet).
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.6.1/mod.ts'
-import helmet from 'https://deno.land/x/cheetah@v0.6.1/plugins/helmet.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.7.0/mod.ts'
+import helmet from 'https://deno.land/x/cheetah@v0.7.0/plugins/helmet.ts'
 
 const app = new cheetah()
   .use(helmet())

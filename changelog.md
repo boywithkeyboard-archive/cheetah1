@@ -1,18 +1,34 @@
 ## Upcoming
 
+- **v0.8.0**
+  - Significant performance improvement in serverless environments through precompilation
+
+## [v0.7.0](https://github.com/azurystudio/cheetah/releases/tag/v0.7.0)
+
 - **New Features**
 
-  - Plugins can now extend the context.
+  - The `schema.body` variable now accepts a `z.record` or `Type.Record` type, which allows you to accept a pair of strings as headers and do no further validation.
+
+    ```ts
+    import cheetah from 'https://deno.land/x/cheetah@v0.7.0/mod.ts'
+    import validator, { z } from 'https://deno.land/x/cheetah@v0.7.0/validator/zod.ts'
+
+    const app = new cheetah({ validator })
+
+    app.get('/', {
+      headers: z.record(z.string(), z.string())
+    }, c => {
+      const headers = c.req.headers // Record<string, string>
+    })
+    ```
 
 - **Revisions**
 
-  - cheetah v0.?.? no longer uses [Medley](https://github.com/medleyjs/router) for routing.
+  - cheetah v0.7.0 no longer uses [Medley](https://github.com/medleyjs/router) for routing.
 
-    Tens of hours have been invested to further optimize cheetah's performance. Part of this update is a built-in, better router. Medley is *really* fast, but cheetah needed a typesafe alternative to it.
+    The new router was written from scratch and is slightly faster in a req/s scenario. **If you value performance, skip this update and wait for v0.8.0** as this will make your application slightly slower (up to -20%).
 
-    The new router was written from scratch and outperforms the old one in most scenarios.
-
-  - Due to internal changes, plugins are now slightly faster.
+    This internal change reduces the size of the cheetah's core to barely 10.68 KB!
 
 ## [v0.6.1](https://github.com/azurystudio/cheetah/releases/tag/v0.6.1)
 
