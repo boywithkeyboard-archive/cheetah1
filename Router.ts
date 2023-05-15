@@ -21,7 +21,7 @@ export class Router {
 
       const matches = pathname.match(this.#routes[i][1])
 
-      if (matches === null)
+      if (!matches)
         continue
 
       return {
