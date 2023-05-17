@@ -1,4 +1,6 @@
 export { Collection } from './Collection.ts'
+export type { Context } from './Context.d.ts'
 export { Exception } from './Exception.ts'
 export { cheetah as default } from './cheetah.ts'
 export { createPlugin } from './createPlugin.ts'
+export type { Validator } from './validator/Validator.d.ts'
