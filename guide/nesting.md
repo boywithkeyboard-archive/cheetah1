@@ -5,7 +5,7 @@
 You can split your app into multiple files using **collections**. Creating a new collection is also quite simple:
 
 ```ts
-import cheetah, { Collection } from 'https://deno.land/x/cheetah@v0.7.0/mod.ts'
+import cheetah, { Collection } from 'https://deno.land/x/cheetah@v0.7.1/mod.ts'
 
 const collection = new Collection()
   .get('/example', () => 'Hello World')
@@ -18,12 +18,12 @@ If you're using a validator, make sure to define the validator type for the coll
 
 ```ts
 // typebox
-import typebox from 'https://deno.land/x/cheetah@v0.7.0/validator/typebox.ts'
+import typebox from 'https://deno.land/x/cheetah@v0.7.1/validator/typebox.ts'
 
 const collection = new Collection<typeof typebox>()
 
 // zod
-import zod from 'https://deno.land/x/cheetah@v0.7.0/validator/zod.ts'
+import zod from 'https://deno.land/x/cheetah@v0.7.1/validator/zod.ts'
 
 const collection = new Collection<typeof zod>()
 ```

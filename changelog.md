@@ -1,7 +1,21 @@
 ## Upcoming
 
+- **v0.9.0**
+
+  - Make `cache` option work with Deno.KV and Redis
+  - Implement `ratelimit` plugin
+
 - **v0.8.0**
-  - Significant performance improvement in serverless environments through precompilation
+  
+  - Add per-route `cors` option
+  - Improve performance through pre-compilation
+
+## [v0.7.1](https://github.com/azurystudio/cheetah/releases/tag/v0.7.1)
+
+- **Revisions**
+
+  - `Context` and `Validator` types get now re-exported in the main file.
+  - Removed the `credits` file.
 
 ## [v0.7.0](https://github.com/azurystudio/cheetah/releases/tag/v0.7.0)
 
