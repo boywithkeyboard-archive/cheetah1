@@ -546,7 +546,7 @@ export class cheetah<
         },
   
         header(name, value) {
-          responseHeaders[name] = value
+          responseHeaders[name.toLowerCase()] = value
         },
   
         redirect(destination, code) {
