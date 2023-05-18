@@ -10,6 +10,16 @@
   - Add per-route `cors` option
   - Improve performance through pre-compilation
 
+## [v0.7.2](https://github.com/azurystudio/cheetah/releases/tag/v0.7.2)
+
+- **Bug Fixes**
+
+  - Fixed a bug that led to duplicate `content-type` headers. https://github.com/azurystudio/cheetah/issues/31
+
+    If you weren't specifying your custom headers in lowercase, you ended up with multiple `content-type` headers in your response.
+
+@boywithkeyboard @not-ivy
+
 ## [v0.7.1](https://github.com/azurystudio/cheetah/releases/tag/v0.7.1)
 
 - **Revisions**

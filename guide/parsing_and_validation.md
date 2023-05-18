@@ -7,8 +7,8 @@
 This enables the conversion of a FormData request body into a JSON object *(if the request body has the MIME type `multipart/form-data`)*.
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.7.1/mod.ts'
-import zod, { z } from 'https://deno.land/x/cheetah@v0.7.1/validator/zod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.7.2/mod.ts'
+import zod, { z } from 'https://deno.land/x/cheetah@v0.7.2/validator/zod.ts'
 
 const app = new cheetah({
   validator: zod
@@ -30,8 +30,8 @@ app.get('/example', {
 - #### Setup
 
     ```ts
-    import cheetah from 'https://deno.land/x/cheetah@v0.7.1/mod.ts'
-    import typebox, { Type } from 'https://deno.land/x/cheetah@v0.7.1/validator/typebox.ts'
+    import cheetah from 'https://deno.land/x/cheetah@v0.7.2/mod.ts'
+    import typebox, { Type } from 'https://deno.land/x/cheetah@v0.7.2/validator/typebox.ts'
 
     const app = new cheetah({
       validator: typebox
@@ -103,8 +103,8 @@ app.get('/example', {
 - #### Setup
 
     ```ts
-    import cheetah from 'https://deno.land/x/cheetah@v0.7.1/mod.ts'
-    import zod, { z } from 'https://deno.land/x/cheetah@v0.7.1/validator/zod.ts'
+    import cheetah from 'https://deno.land/x/cheetah@v0.7.2/mod.ts'
+    import zod, { z } from 'https://deno.land/x/cheetah@v0.7.2/validator/zod.ts'
 
     const app = new cheetah({
       validator: zod

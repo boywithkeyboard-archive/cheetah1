@@ -5,7 +5,7 @@
 ### Suggested
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.7.1/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.7.2/mod.ts'
 
 // #1
 const app = new cheetah()
@@ -32,7 +32,7 @@ const app = new cheetah()
 [Express.js](https://github.com/expressjs/express)ish
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.7.1/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.7.2/mod.ts'
 
 const app = new cheetah()
 
@@ -48,7 +48,7 @@ app.get('/b', c => {
 [Hono](https://github.com/honojs/hono)ish
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.7.1/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.7.2/mod.ts'
 
 const app = new cheetah()
   .get('/a', c => c.text('Hello World'))
