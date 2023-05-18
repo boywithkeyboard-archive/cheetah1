@@ -2,7 +2,7 @@ import { ContinentCode, IncomingRequestCfProperties } from 'https://cdn.jsdelivr
 import { DeadlineError, deadline } from 'https://deno.land/std@v0.187.0/async/deadline.ts'
 import { brightBlue, brightGreen, brightRed, gray, white } from 'https://deno.land/std@v0.187.0/fmt/colors.ts'
 import { ConnInfo } from 'https://deno.land/std@v0.187.0/http/server.ts'
-import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.10'
+import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.11'
 import { Collection } from './Collection.ts'
 import { Context } from './Context.d.ts'
 import { Exception } from './Exception.ts'

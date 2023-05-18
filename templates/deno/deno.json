@@ -1,7 +1,7 @@
 {
   "imports": {
-    "cheetah": "https://deno.land/x/cheetah@v0.7.0/mod.ts",
+    "cheetah": "https://deno.land/x/cheetah@v0.7.1/mod.ts",
     "std/": "https://deno.land/std@v0.187.0/",
-    "zod": "https://deno.land/x/cheetah@v0.7.0/validator/zod.ts"
+    "zod": "https://deno.land/x/cheetah@v0.7.1/validator/zod.ts"
   }
 }
