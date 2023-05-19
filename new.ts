@@ -1,5 +1,5 @@
-import { parse } from 'https://deno.land/std@0.187.0/flags/mod.ts'
-import { brightRed } from 'https://deno.land/std@0.187.0/fmt/colors.ts'
+import { parse } from 'https://deno.land/std@0.188.0/flags/mod.ts'
+import { brightRed } from 'https://deno.land/std@0.188.0/fmt/colors.ts'
 
 const args = parse(Deno.args)
 
