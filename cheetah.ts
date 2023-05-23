@@ -1,4 +1,4 @@
-import { ContinentCode, IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230511.0/index.ts'
+import { ContinentCode, IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230518.0/index.ts'
 import { DeadlineError, deadline } from 'https://deno.land/std@0.188.0/async/deadline.ts'
 import { brightBlue, brightGreen, brightRed, gray, white } from 'https://deno.land/std@0.188.0/fmt/colors.ts'
 import { ConnInfo } from 'https://deno.land/std@0.188.0/http/server.ts'
