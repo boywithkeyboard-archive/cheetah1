@@ -1,5 +1,5 @@
 import { Hono } from 'https://deno.land/x/hono@v3.2.1/mod.ts'
-import { Application, Router } from 'https://deno.land/x/oak@v12.4.0/mod.ts'
+import { Application, Router } from 'https://deno.land/x/oak@v12.5.0/mod.ts'
 import { Router as IttyRouter } from 'https://esm.sh/itty-router@3.0.12'
 import cheetah from '../mod.ts'
 
