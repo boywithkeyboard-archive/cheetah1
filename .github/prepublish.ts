@@ -54,6 +54,15 @@ for await (const { path, isFile } of walk('guide')) {
   await Deno.writeTextFile(path, content.replaceAll(`https://deno.land/x/cheetah@${Deno.args[0]}`, `https://deno.land/x/cheetah@${Deno.args[1]}`))
 }
 
+for await (const { path, isFile } of walk('templates')) {
+  if (!isFile)
+    continue
+
+  const content = await Deno.readTextFile(path)
+
+  await Deno.writeTextFile(path, content.replaceAll(`https://deno.land/x/cheetah@${Deno.args[0]}`, `https://deno.land/x/cheetah@${Deno.args[1]}`))
+}
+
 const content = await Deno.readTextFile('readme.md')
 
 await Deno.writeTextFile('readme.md', content.replaceAll(`https://deno.land/x/cheetah@${Deno.args[0]}`, `https://deno.land/x/cheetah@${Deno.args[1]}`))
