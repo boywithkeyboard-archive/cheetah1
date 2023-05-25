@@ -8,9 +8,10 @@ export type Route =
       headers?: ObjectSchema
       query?: ObjectSchema
       transform?: boolean
+      cors?: string
     }
   // deno-lint-ignore no-explicit-any
-  | Handler<any, any, any, any, any>
+  | Handler<any, any, any, any, any> | DisembodiedHandler<any, any, any, any, any>
 
 type ExtractParam<Path, NextPart> = Path extends `:${infer Param}`
   ? Record<Param, string> & NextPart

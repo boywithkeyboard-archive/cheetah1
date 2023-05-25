@@ -30,6 +30,7 @@ export class Collection {
       cookies?: ValidatedCookies
       headers?: ValidatedHeaders
       query?: ValidatedQuery
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -52,6 +53,7 @@ export class Collection {
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
+        cors?: string
       } |
       Handler<
         RequestUrl,
@@ -88,6 +90,7 @@ export class Collection {
       headers?: ValidatedHeaders
       query?: ValidatedQuery
       transform?: boolean
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -113,6 +116,7 @@ export class Collection {
         headers?: ValidatedHeaders
         query?: ValidatedQuery
         transform?: boolean
+        cors?: string
       } |
       Handler<
         RequestUrl,
@@ -149,6 +153,7 @@ export class Collection {
       headers?: ValidatedHeaders
       query?: ValidatedQuery
       transform?: boolean
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -174,6 +179,7 @@ export class Collection {
         headers?: ValidatedHeaders
         query?: ValidatedQuery
         transform?: boolean
+        cors?: string
       } |
       Handler<
         RequestUrl,
@@ -210,6 +216,7 @@ export class Collection {
       headers?: ValidatedHeaders
       query?: ValidatedQuery
       transform?: boolean
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -235,6 +242,7 @@ export class Collection {
         headers?: ValidatedHeaders
         query?: ValidatedQuery
         transform?: boolean
+        cors?: string
       } |
       Handler<
         RequestUrl,
@@ -271,6 +279,7 @@ export class Collection {
       headers?: ValidatedHeaders
       query?: ValidatedQuery
       transform?: boolean
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -296,6 +305,7 @@ export class Collection {
         headers?: ValidatedHeaders
         query?: ValidatedQuery
         transform?: boolean
+        cors?: string
       } |
       Handler<
         RequestUrl,
@@ -329,6 +339,7 @@ export class Collection {
       cookies?: ValidatedCookies
       headers?: ValidatedHeaders
       query?: ValidatedQuery
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -351,6 +362,7 @@ export class Collection {
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
+        cors?: string
       } |
       Handler<
         RequestUrl,

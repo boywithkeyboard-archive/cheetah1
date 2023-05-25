@@ -254,6 +254,8 @@ export class cheetah<
     params: Record<string, string>,
     route: Route[]
   ) {
+    const options = typeof route[0] !== 'function' ? route[0] : null
+
     /* Preflight Request -------------------------------------------------------- */
 
     if (
@@ -264,7 +266,7 @@ export class cheetah<
       return new Response(null, {
         status: 204,
         headers: {
-          ...(this.#cors && { 'access-control-allow-origin': this.#cors }),
+          ...((this.#cors || options?.cors) && { 'access-control-allow-origin': options?.cors ?? this.#cors }),
           'access-control-allow-methods': '*',
           'access-control-allow-headers': request.headers.get('access-control-request-headers') ?? '*',
           'access-control-allow-credentials': 'false',
@@ -287,16 +289,15 @@ export class cheetah<
 
     /* Set Variables ------------------------------------------------------------ */
 
-    const schema = typeof route[0] !== 'function' ? route[0] : null
     const headers: Record<string, string> = {}
     const query: Record<string, unknown> = {}
     let cookies: Record<string, string> = {}
     let body
   
-    if (this.#validator && schema) {
+    if (this.#validator && options) {
       /* Parse Headers ------------------------------------------------------------ */
 
-      if (schema.headers) {
+      if (options.headers) {
         let num = 0
 
         for (const [key, value] of request.headers) {
@@ -310,8 +311,8 @@ export class cheetah<
         }
 
         const isValid = this.#validator.name === 'typebox' && this.#validator.check
-          ? this.#validator.check(schema.headers as TSchema, headers)
-          : schema.headers.safeParse(headers).success
+          ? this.#validator.check(options.headers as TSchema, headers)
+          : options.headers.safeParse(headers).success
 
         if (!isValid)
           throw new Exception(400)
@@ -319,7 +320,7 @@ export class cheetah<
     
       /* Parse Query Parameters --------------------------------------------------- */
     
-      if (schema.query) {
+      if (options.query) {
         for (const [key, value] of url.searchParams) {
           if (value === '' || value === 'true')
             query[key] = true
@@ -338,8 +339,8 @@ export class cheetah<
         }
 
         const isValid = this.#validator.name === 'typebox' && this.#validator.check
-          ? this.#validator.check(schema.query as TSchema, query)
-          : schema.query.safeParse(query).success
+          ? this.#validator.check(options.query as TSchema, query)
+          : options.query.safeParse(query).success
 
         if (!isValid)
           throw new Exception(400)
@@ -347,7 +348,7 @@ export class cheetah<
     
       /* Parse Cookies ------------------------------------------------------------ */
 
-      if (schema.cookies) {
+      if (options.cookies) {
         try {
           const cookiesHeader = request.headers.get('cookies') ?? ''
 
@@ -369,8 +370,8 @@ export class cheetah<
         }
 
         const isValid = this.#validator.name === 'typebox' && this.#validator.check
-          ? this.#validator.check(schema.cookies as TSchema, cookies)
-          : schema.cookies.safeParse(cookies).success
+          ? this.#validator.check(options.cookies as TSchema, cookies)
+          : options.cookies.safeParse(cookies).success
 
         if (!isValid)
           throw new Exception(400)
@@ -378,14 +379,14 @@ export class cheetah<
     
       /* Parse Body --------------------------------------------------------------- */
     
-      if (schema.body) {
+      if (options.body) {
         try {
           if (
-            schema.body?._def?.typeName === 'ZodObject' ||
+            options.body?._def?.typeName === 'ZodObject' ||
             // @ts-ignore: typescript bs
-            schema.body[Object.getOwnPropertySymbols(schema.body)[0]] === 'Object'
+            options.body[Object.getOwnPropertySymbols(options.body)[0]] === 'Object'
           ) {
-            if (schema.transform === true && request.headers.get('content-type') === 'multipart/form-data') {
+            if (options.transform === true && request.headers.get('content-type') === 'multipart/form-data') {
               const formData = await deadline(request.formData(), 3000)
 
               body = {} as Record<string, unknown>
@@ -396,9 +397,9 @@ export class cheetah<
               body = await deadline(request.json(), 3000)
             }
           } else if (
-            schema.body._def?.typeName === 'ZodString' ||
+            options.body._def?.typeName === 'ZodString' ||
             // @ts-ignore: typescript bs
-            schema.body[Object.getOwnPropertySymbols(schema.body)[0]] === 'String'
+            options.body[Object.getOwnPropertySymbols(options.body)[0]] === 'String'
           ) {
             body = await deadline(request.text(), 3000)
           }
@@ -407,8 +408,8 @@ export class cheetah<
         }
 
         const isValid = this.#validator.name === 'typebox' && this.#validator.check
-          ? this.#validator.check(schema.body as TSchema, body)
-          : schema.body.safeParse(body).success
+          ? this.#validator.check(options.body as TSchema, body)
+          : options.body.safeParse(body).success
 
         if (!isValid)
           throw new Exception(400)
@@ -751,6 +752,7 @@ export class cheetah<
       cookies?: ValidatedCookies
       headers?: ValidatedHeaders
       query?: ValidatedQuery
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -773,6 +775,7 @@ export class cheetah<
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
+        cors?: string
       } |
       Handler<
         RequestUrl,
@@ -809,6 +812,7 @@ export class cheetah<
       headers?: ValidatedHeaders
       query?: ValidatedQuery
       transform?: boolean
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -834,6 +838,7 @@ export class cheetah<
         headers?: ValidatedHeaders
         query?: ValidatedQuery
         transform?: boolean
+        cors?: string
       } |
       Handler<
         RequestUrl,
@@ -870,6 +875,7 @@ export class cheetah<
       headers?: ValidatedHeaders
       query?: ValidatedQuery
       transform?: boolean
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -895,6 +901,7 @@ export class cheetah<
         headers?: ValidatedHeaders
         query?: ValidatedQuery
         transform?: boolean
+        cors?: string
       } |
       Handler<
         RequestUrl,
@@ -931,6 +938,7 @@ export class cheetah<
       headers?: ValidatedHeaders
       query?: ValidatedQuery
       transform?: boolean
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -956,6 +964,7 @@ export class cheetah<
         headers?: ValidatedHeaders
         query?: ValidatedQuery
         transform?: boolean
+        cors?: string
       } |
       Handler<
         RequestUrl,
@@ -992,6 +1001,7 @@ export class cheetah<
       headers?: ValidatedHeaders
       query?: ValidatedQuery
       transform?: boolean
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -1017,6 +1027,7 @@ export class cheetah<
         headers?: ValidatedHeaders
         query?: ValidatedQuery
         transform?: boolean
+        cors?: string
       } |
       Handler<
         RequestUrl,
@@ -1050,6 +1061,7 @@ export class cheetah<
       cookies?: ValidatedCookies
       headers?: ValidatedHeaders
       query?: ValidatedQuery
+      cors?: string
     },
     ...handler: Handler<
       RequestUrl,
@@ -1072,6 +1084,7 @@ export class cheetah<
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
+        cors?: string
       } |
       Handler<
         RequestUrl,
