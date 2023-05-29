@@ -3,7 +3,7 @@
 ## jwt (JSON Web Token)
 
 ```ts
-import { jwt } from 'https://deno.land/x/cheetah@v0.7.2/x/mod.ts'
+import { jwt } from 'https://deno.land/x/cheetah@v0.8.0/x/mod.ts'
 ```
 
 #### Generating a Secret
@@ -13,7 +13,7 @@ You can parse either a [CryptoKey](https://developer.mozilla.org/en-US/docs/Web/
 This key can then be parsed to the functions.
 
 ```ts
-import { createKey } from 'https://deno.land/x/cheetah@v0.7.2/x/mod.ts'
+import { createKey } from 'https://deno.land/x/cheetah@v0.8.0/x/mod.ts'
 
 const key = await createKey()
 ```

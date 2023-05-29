@@ -1,24 +1,38 @@
 ## Upcoming
 
+- **v0.10.0**
+
+  - Implement compatibility layer for `Deno.connect`
+  - Implement pre-compilation
+
 - **v0.9.0**
 
-  - Make `cache` option work with Deno.KV and Redis
+  - Make `cache` option work with Redis
   - Implement `ratelimit` plugin
 
-- **v0.8.0**
-  
-  - Add per-route `cors` option
-  - Improve performance through pre-compilation
+## [v0.8.0](https://github.com/azurystudio/cheetah/releases/tag/v0.8.0)
+
+- **New Features**
+
+  - The `cors` option can now be overwritten for each individual route.
+
+    ```ts
+    app.get('/example', { cors: 'example.com' }, () => 'Hello World')
+    ```
+
+- **Revisions**
+
+  - Moved the templates to separate repositories. You can now find them [here](https://github.com/search?q=cheetah+topic%3Acheetah+topic%3Atemplate&type=repositories).
+
+  - Plugins should now perform better due to some internal non-breaking changes.
 
 ## [v0.7.2](https://github.com/azurystudio/cheetah/releases/tag/v0.7.2)
 
 - **Bug Fixes**
 
-  - Fixed a bug that led to duplicate `content-type` headers. https://github.com/azurystudio/cheetah/issues/31
+  - Fixed a bug that led to duplicate `content-type` headers. (https://github.com/azurystudio/cheetah/issues/31 by @not-ivy)
 
     If you weren't specifying your custom headers in lowercase, you ended up with multiple `content-type` headers in your response.
-
-@boywithkeyboard @not-ivy
 
 ## [v0.7.1](https://github.com/azurystudio/cheetah/releases/tag/v0.7.1)
 

@@ -4,7 +4,7 @@
 
 | Module | Size |
 | --- | --- |
-| Core | 10.69 KB |
+| Core | 10.61 KB |
 | Validator (TypeBox) | 120.41 KB |
 | Validator (Zod) | 52.91 KB |
 | Accessories | 36.04 KB |
