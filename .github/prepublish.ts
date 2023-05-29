@@ -1,4 +1,4 @@
-import { walk } from 'https://deno.land/std@0.188.0/fs/walk.ts'
+import { walk } from 'https://deno.land/std@0.189.0/fs/walk.ts'
 import byte from 'https://deno.land/x/byte@v3.3.0/byte.ts'
 import { build, stop } from 'https://deno.land/x/esbuild@v0.17.19/mod.js'
 
