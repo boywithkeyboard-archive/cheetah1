@@ -5,7 +5,7 @@ const args = parse(Deno.args)
 
 async function download(prefix: string, ...paths: string[]) {
   for (const path of paths) {
-    const response = await fetch(`https://raw.githubusercontent.com/azurystudio/cheetah/dev/templates/${prefix}/${path}`)
+    const response = await fetch(`https://raw.githubusercontent.com/boywithkeyboard/cheetah_${prefix}/dev/${path}`)
 
     if (path.includes('/'))
       await Deno.mkdir(path.substring(0, path.lastIndexOf('/')), { recursive: true })
@@ -17,8 +17,7 @@ async function download(prefix: string, ...paths: string[]) {
 if (args.template === 'deno') {
   await download(
     'deno',
-    
-    '.github/workflows/bump.yml',
+
     '.vscode/settings.json',
     'readme.md',
     'deno.json',
@@ -28,7 +27,6 @@ if (args.template === 'deno') {
   await download(
     'cloudflare',
 
-    '.github/workflows/bump.yml',
     '.vscode/settings.json',
     'readme.md',
     'deno.json',

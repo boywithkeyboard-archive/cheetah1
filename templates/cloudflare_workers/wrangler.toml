@@ -1,7 +1,0 @@
-name = "<name>"
-account_id = "<account_id>"
-route = "<route>"
-compatibility_date = "2023-03-24"
-
-[build]
-command = "deno task build"
