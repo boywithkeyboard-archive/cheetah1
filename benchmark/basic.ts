@@ -1,6 +1,6 @@
-import { Hono } from 'https://deno.land/x/hono@v3.2.2/mod.ts'
+import { Hono } from 'https://deno.land/x/hono@v3.2.3/mod.ts'
 import { Application, Router } from 'https://deno.land/x/oak@v12.5.0/mod.ts'
-import { Router as IttyRouter } from 'https://esm.sh/itty-router@3.0.12'
+import { Router as IttyRouter } from 'https://esm.sh/itty-router@4.0.6'
 import cheetah from '../mod.ts'
 
 Deno.bench('noop', () => {})

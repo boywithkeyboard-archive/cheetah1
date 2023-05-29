@@ -1,4 +1,4 @@
-import { assertEquals } from 'https://deno.land/std@0.188.0/testing/asserts.ts'
+import { assertEquals } from 'https://deno.land/std@0.189.0/testing/asserts.ts'
 import cheetah, { Exception } from '../mod.ts'
 
 Deno.test('Exception', async () => {

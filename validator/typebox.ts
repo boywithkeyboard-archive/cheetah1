@@ -1,5 +1,5 @@
-// @deno-types='https://esm.sh/@sinclair/typebox@0.28.11/value'
-import { Value } from 'https://cdn.jsdelivr.net/npm/@sinclair/typebox@0.28.11/value/value.js/+esm'
+// @deno-types='https://esm.sh/@sinclair/typebox@0.28.13/value'
+import { Value } from 'https://cdn.jsdelivr.net/npm/@sinclair/typebox@0.28.13/value/value.js/+esm'
 
 export type TypeBoxValidator = {
   name: 'typebox',
@@ -11,6 +11,6 @@ const typebox: TypeBoxValidator = {
   check: Value.Check
 }
 
-// @deno-types='https://esm.sh/@sinclair/typebox@0.28.11'
-export { Kind, Type } from 'https://cdn.jsdelivr.net/npm/@sinclair/typebox@0.28.11/typebox.js/+esm'
+// @deno-types='https://esm.sh/@sinclair/typebox@0.28.13'
+export { Kind, Type } from 'https://cdn.jsdelivr.net/npm/@sinclair/typebox@0.28.13/typebox.js/+esm'
 export default typebox
