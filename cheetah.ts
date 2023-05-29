@@ -6,7 +6,7 @@ import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.13'
 import { Collection } from './Collection.ts'
 import { Context } from './Context.d.ts'
 import { Exception } from './Exception.ts'
-import { Handler, Route } from './Handler.d.ts'
+import { Handler, ResponsePayload, Route } from './Handler.d.ts'
 import { Router } from './Router.ts'
 import { PluginMethods } from './createPlugin.ts'
 import { ObjectSchema, Schema, Validator } from './validator/Validator.d.ts'
@@ -73,9 +73,9 @@ export class cheetah<
   #notFound
   #error
   #plugins: {
-    beforeParsing: Record<string, PluginMethods['beforeParsing'][]>
-    beforeHandling: Record<string, PluginMethods['beforeHandling'][]>
-    beforeResponding: Record<string, PluginMethods['beforeResponding'][]>
+    beforeParsing: [string, ((request: Request) => void | Promise<void>)][]
+    beforeHandling: [string, ((c: Context<Record<string, never>, unknown, unknown, Record<string, string>, unknown>) => ResponsePayload | Promise<ResponsePayload>)][]
+    beforeResponding: [string, ((c: Context<Record<string, never>, unknown, unknown, Record<string, string>, unknown>) => ResponsePayload | Promise<ResponsePayload>)][]
   }
   
   constructor(config: Config<V> = {}) {
@@ -89,9 +89,9 @@ export class cheetah<
     this.#error = config.error
     this.#notFound = config.notFound
     this.#plugins = {
-      beforeParsing: {},
-      beforeHandling: {},
-      beforeResponding: {}
+      beforeParsing: [],
+      beforeHandling: [],
+      beforeResponding: []
     }
     
     const runtime = globalThis?.Deno
@@ -130,7 +130,7 @@ export class cheetah<
             url = ''
 
           if (prefix === '/')
-            // @ts-ignore: ok
+            // @ts-ignore:
             prefix = ''
 
           this.#router.add(
@@ -144,12 +144,8 @@ export class cheetah<
           prefix = '*'
 
         for (const key in item) {
-          if (this.#plugins[key as keyof PluginMethods][prefix])
-            // @ts-ignore:
-            this.#plugins[key as keyof PluginMethods][prefix].push(item[key])
-          else
-            // @ts-ignore:
-            this.#plugins[key as keyof PluginMethods][prefix] = [item[key]]
+          // @ts-ignore:
+          this.#plugins[key].push([prefix, item[key]])
         }
       }
     }
@@ -276,15 +272,13 @@ export class cheetah<
 
     /* beforeParsing Plugin ----------------------------------------------------- */
 
-    for (const key in this.#plugins.beforeParsing) {
+    for (let i = 0; i < this.#plugins.beforeParsing.length; ++i) {
+      const key = this.#plugins.beforeParsing[i][0]
+
       if (key !== '*' && url.pathname[0] !== key + '/' && url.pathname !== key)
         continue
-     
-      const length = this.#plugins.beforeParsing[key].length
 
-      for (let i = 0; i < length; ++i)
-        // @ts-ignore:
-        await this.#plugins.beforeParsing[key][i](request)
+      await this.#plugins.beforeParsing[i][1](request)
     }
 
     /* Set Variables ------------------------------------------------------------ */
@@ -621,15 +615,14 @@ export class cheetah<
 
     /* beforeHandling Plugin ---------------------------------------------------- */
 
-    for (const key in this.#plugins.beforeHandling) {
+    for (let i = 0; i < this.#plugins.beforeHandling.length; ++i) {
+      const key = this.#plugins.beforeHandling[i][0]
+
       if (key !== '*' && url.pathname[0] !== key + '/' && url.pathname !== key)
         continue
-     
-      const length = this.#plugins.beforeHandling[key].length
 
-      for (let i = 0; i < length; ++i)
-        // @ts-ignore:
-        await this.#plugins.beforeHandling[key][i](context)
+      // @ts-ignore:
+      await this.#plugins.beforeHandling[i][1](context)
     }
 
     /* Route Handling ----------------------------------------------------------- */
@@ -650,17 +643,16 @@ export class cheetah<
         break
     }
 
-    /* afterHandling Plugin ----------------------------------------------------- */
+    /* beforeResponding Plugin -------------------------------------------------- */
 
-    for (const key in this.#plugins.beforeResponding) {
+    for (let i = 0; i < this.#plugins.beforeResponding.length; ++i) {
+      const key = this.#plugins.beforeResponding[i][0]
+
       if (key !== '*' && url.pathname[0] !== key + '/' && url.pathname !== key)
         continue
-     
-      const length = this.#plugins.beforeResponding[key].length
 
-      for (let i = 0; i < length; ++i)
-        // @ts-ignore:
-        await this.#plugins.beforeResponding[key][i](context)
+      // @ts-ignore:
+      await this.#plugins.beforeResponding[i][1](context)
     }
 
     /* Construct Response ------------------------------------------------------- */
