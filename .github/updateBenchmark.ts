@@ -27,10 +27,11 @@ const frameworks: Record<string, string> = {
   'oak': 'https://github.com/oakserver/oak'
 }
 
-const encodedResult = await Deno.run({
-  cmd: ['deno', 'bench', 'benchmark/basic.ts', '--allow-env', '--json'],
-  stdout: 'piped'
-}).output()
+const cmd = new Deno.Command('deno', {
+  args: ['bench', 'benchmark/basic.ts', '--allow-env', '--json']
+})
+
+const { stdout: encodedResult } = await cmd.output()
 
 const result: BenchmarkResult = JSON.parse(new TextDecoder().decode(encodedResult))
 
