@@ -204,7 +204,7 @@ export class cheetah<
         route.handlers
       )
 
-      if (cache && response.ok && this.#runtime === 'cloudflare' && context)
+      if (cache && response.ok && context)
         context.waitUntil(cache.put(request, response.clone()))
 
       if (this.#debugging)
