@@ -1,5 +1,5 @@
-import { parse } from 'https://deno.land/std@0.189.0/flags/mod.ts'
-import { brightRed, gray } from 'https://deno.land/std@0.189.0/fmt/colors.ts'
+import { parse } from 'https://deno.land/std@0.190.0/flags/mod.ts'
+import { brightRed, gray } from 'https://deno.land/std@0.190.0/fmt/colors.ts'
 import { build, stop } from 'https://deno.land/x/esbuild@v0.17.19/mod.js'
 
 try {
