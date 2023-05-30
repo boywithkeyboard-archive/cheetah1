@@ -1,14 +1,51 @@
 ## Upcoming
 
-- **v0.10.0**
+- **v0.11.0**
 
   - Implement compatibility layer for `Deno.connect`
   - Implement pre-compilation
 
-- **v0.9.0**
+- **v0.10.0**
 
   - Make `cache` option work with Redis
   - Implement `ratelimit` plugin
+
+## [v0.9.0](https://github.com/azurystudio/cheetah/releases/tag/v0.9.0)
+
+- **New Features**
+
+  - You can now configure/overwrite the cache option per-route. This gives you much more flexibility, especially if you have a bunch of protected routes.
+
+    ```ts
+    import cheetah from 'https://deno.land/x/cheetah@v0.9.0/mod.ts'
+
+    const app = new cheetah({
+      cache: {
+        name: 'example'
+        maxAge: 600 // 10 minutes
+      }
+    })
+
+    // disable cache:
+
+    app.get('/me', {
+      cache: false
+    }, c => {
+      // ...
+    })
+
+    // adjust max age:
+
+    app.get('/statistics', {
+      cache: { maxAge: 3600 } // 1 hour
+    }, c => {
+      // ...
+    })
+    ```
+
+- **Bug Fixes**
+
+  - The `cache` option attached a invalid `cache-control` header to the response. This should now be fixed.
 
 ## [v0.8.0](https://github.com/azurystudio/cheetah/releases/tag/v0.8.0)
 
