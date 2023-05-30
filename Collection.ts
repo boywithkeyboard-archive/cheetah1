@@ -30,6 +30,7 @@ export class Collection {
       cookies?: ValidatedCookies
       headers?: ValidatedHeaders
       query?: ValidatedQuery
+      cache?: false | { maxAge: number }
       cors?: string
     },
     ...handler: Handler<
@@ -53,6 +54,7 @@ export class Collection {
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
+        cache?: false | { maxAge: number }
         cors?: string
       } |
       Handler<

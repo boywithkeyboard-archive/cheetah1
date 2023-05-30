@@ -419,8 +419,11 @@ export class cheetah<
 
     const responseHeaders: Record<string, string> = {
       ...(this.#cors && { 'access-control-allow-origin': this.#cors }),
-      ...(request.method === 'GET' && { 'cache-control': `max-age=${this.#cache ?? 0}` })
+      ...(request.method === 'GET' && { 'cache-control': this.#cache ? `max-age: ${this.#cache.duration}` : `max-age=0, private, must-revalidate` })
     }
+
+    if (options?.cache !== undefined)
+      responseHeaders['cache-control'] = options.cache === false ? `max-age=0, private, must-revalidate` : `max-age: ${options.cache.maxAge}`
 
     let responseBody:
       | string
@@ -744,6 +747,7 @@ export class cheetah<
       cookies?: ValidatedCookies
       headers?: ValidatedHeaders
       query?: ValidatedQuery
+      cache?: false | { maxAge: number }
       cors?: string
     },
     ...handler: Handler<
@@ -767,6 +771,7 @@ export class cheetah<
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
+        cache?: false | { maxAge: number }
         cors?: string
       } |
       Handler<

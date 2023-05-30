@@ -8,6 +8,7 @@ export type Route =
       headers?: ObjectSchema
       query?: ObjectSchema
       transform?: boolean
+      cache?: false | { maxAge: number }
       cors?: string
     }
   // deno-lint-ignore no-explicit-any
