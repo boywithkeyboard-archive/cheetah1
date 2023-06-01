@@ -4,6 +4,18 @@ import cheetah, { Exception } from '../mod.ts'
 Deno.test('Exception', async () => {
   const app = new cheetah()
 
+  // Custom
+  app.get('/custom1', () => {
+    throw new Exception('Custom')
+  })
+  app.get('/custom2', () => {
+    throw new Exception('Custom', 420)
+  })
+  assertEquals(await (await app.fetch(new Request('http://localhost:3000/custom1', { headers: { accept: 'application/json' } }))).json(), { code: 400, message: 'Custom' })
+  assertEquals(await (await app.fetch(new Request('http://localhost:3000/custom2', { headers: { accept: 'application/json' } }))).json(), { code: 420, message: 'Custom' })
+  assertEquals(await (await app.fetch(new Request('http://localhost:3000/custom1'))).text(), 'Custom')
+  assertEquals(await (await app.fetch(new Request('http://localhost:3000/custom2'))).text(), 'Custom')
+
   // Not Found
   app.get('/notfound1', () => {
     throw new Exception('Not Found')
