@@ -418,12 +418,20 @@ export class cheetah<
     let responseCode = 200
 
     const responseHeaders: Record<string, string> = {
-      ...(this.#cors && { 'access-control-allow-origin': this.#cors }),
-      ...(request.method === 'GET' && { 'cache-control': this.#cache ? `max-age: ${this.#cache.duration}` : `max-age=0, private, must-revalidate` })
+      ...(this.#cors && {
+        'access-control-allow-origin': this.#cors
+      }),
+      ...(request.method === 'GET' && {
+        'cache-control': !this.#cache || this.#cache.duration === 0
+          ? 'max-age=0, private, must-revalidate'
+          : `max-age: ${this.#cache.duration}`
+        })
     }
 
     if (options?.cache !== undefined)
-      responseHeaders['cache-control'] = options.cache === false ? `max-age=0, private, must-revalidate` : `max-age: ${options.cache.maxAge}`
+      responseHeaders['cache-control'] = options.cache === false || options.cache.maxAge === 0
+        ? `max-age=0, private, must-revalidate`
+        : `max-age: ${options.cache.maxAge}`
 
     let responseBody:
       | string
