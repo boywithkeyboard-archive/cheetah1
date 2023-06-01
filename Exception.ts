@@ -31,7 +31,7 @@ export class Exception {
   public response
 
   constructor(
-    error:
+    message:
       | 'Not Found'
       | 'Access Denied'
       | 'Something Went Wrong'
@@ -44,34 +44,48 @@ export class Exception {
       | 400
       | 413
       | 429
+  )
+
+  constructor(
+    message: string,
+    code?: number
+  )
+
+  constructor(
+    message: string | number,
+    code?: number
   ) {
-    const message = typeof error === 'string'
-      ? error
-      : error === 404
+    const _message = typeof message === 'string'
+      ? message
+      : message === 404
       ? 'Not Found'
-      : error === 400
+      : message === 400
       ? 'Bad Request'
-      : error === 403
+      : message === 403
       ? 'Access Denied'
-      : error === 413
+      : message === 413
       ? 'Payload Too Large'
-      : error === 429
+      : message === 429
       ? 'Too Many Requests'
       : 'Something Went Wrong'
 
-    const code = typeof error === 'number'
-      ? error
-      : error === 'Access Denied'
+    const _code = code
+      ? code
+      : typeof message === 'number'
+      ? message
+      : message === 'Access Denied'
       ? 403
-      : error === 'Bad Request'
+      : message === 'Bad Request'
       ? 400
-      : error === 'Not Found'
+      : message === 'Not Found'
       ? 404
-      : error === 'Payload Too Large'
+      : message === 'Payload Too Large'
       ? 413
-      : error === 'Too Many Requests'
+      : message === 'Too Many Requests'
       ? 429
-      : 500
+      : message === 'Something Went Wrong'
+      ? 500
+      : 400
 
     this.response = (request: Request) => {
       const acceptHeader = request.headers.get('accept')
@@ -81,8 +95,8 @@ export class Exception {
         : false
 
       const body = json
-        ? JSON.stringify({ message, code })
-        : message
+        ? JSON.stringify({ message: _message, code: _code })
+        : _message
 
       return new Response(
         body,
@@ -91,7 +105,7 @@ export class Exception {
             'content-length': body.length.toString(),
             'content-type': `${json ? 'application/json' : 'text/plain'}; charset=utf-8;`
           },
-          status: code
+          status: _code
         }
       )
     }
