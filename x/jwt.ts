@@ -1,4 +1,4 @@
-import * as base64 from 'https://deno.land/std@0.190.0/encoding/base64.ts'
+import { decode, encode } from 'https://deno.land/std@0.190.0/encoding/base64.ts'
 import { VerifyOptions, verify as _verify, create, getNumericDate } from 'https://deno.land/x/djwt@v2.8/mod.ts'
 
 interface Payload {
@@ -27,13 +27,13 @@ export async function createKey() {
 
   const exportedKey = await crypto.subtle.exportKey('raw', key)
 
-  return base64.encode(exportedKey)
+  return encode(exportedKey)
 }
 
 export function importKey(key: string) {
   return crypto.subtle.importKey(
     'raw',
-    base64.decode(key).buffer,
+    decode(key).buffer,
     { name: 'HMAC', hash: 'SHA-512' },
     true,
     ['sign', 'verify']
