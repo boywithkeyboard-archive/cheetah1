@@ -1,12 +1,15 @@
 import { parse } from 'https://deno.land/std@0.190.0/flags/mod.ts'
-import { brightRed, gray } from 'https://deno.land/std@0.190.0/fmt/colors.ts'
+import { brightGreen, brightRed, brightYellow, gray, white } from 'https://deno.land/std@0.190.0/fmt/colors.ts'
+import { join } from 'https://deno.land/std@0.190.0/path/mod.ts'
+import byte from 'https://deno.land/x/byte@v3.3.0/byte.ts'
 import * as esbuild from 'https://deno.land/x/esbuild@v0.17.19/mod.js'
 
 export async function build({
   input = './mod.ts',
   output = './mod.js',
   banner = '// deno-fmt-ignore-file\n// deno-lint-ignore-file',
-  target = 'es2022'
+  target = 'es2022',
+  cwd = Deno.cwd()
 }: {
   /**
    * @default './mod.ts'
@@ -32,10 +35,14 @@ export async function build({
     | 'es2020'
     | 'es2021'
     | 'es2022'
+  /**
+   * @default Deno.cwd()
+   */
+  cwd?: string
 }) {
   const hasImportMap = async (path: string) => {
     try {
-      const content = await Deno.readTextFile(path)
+      const content = await Deno.readTextFile(join(cwd, path))
   
       if (!content)
         return false
@@ -60,7 +67,8 @@ export async function build({
     options = ['--import-map', 'imports.json']
 
   const cmd = new Deno.Command('deno', {
-    args: ['bundle', '-q', ...options, input, output]
+    args: ['bundle', '-q', ...options, input, output],
+    cwd
   })
   
   await cmd.output()
@@ -75,20 +83,28 @@ export async function build({
     banner: {
       js: banner
     },
-    outfile: output
+    outfile: output,
+    absWorkingDir: cwd
   })
   
   esbuild.stop()
+
+  return {
+    outputSize: (await Deno.readTextFile(join(cwd, output))).length
+  }
 }
 
 if (import.meta.main) {
-  const { _ } = parse(Deno.args)
+  const { _, target } = parse(Deno.args)
 
   const input = _[0] && typeof _[0] === 'string' ? _[0] : undefined
   const output = _[1] && typeof _[1] === 'string' ? _[1] : undefined
 
   try {
-    build({ input, output })
+    // @ts-ignore:
+    const { outputSize } = await build({ input, output, target: typeof target === 'string' ? target : undefined })
+
+    console.log(gray(`file size - ${outputSize < 1_000_000 ? brightGreen(byte(outputSize)) : outputSize < 5_000_000 ? brightYellow(byte(outputSize)) : brightRed(byte(outputSize))}`))
   } catch (err) {
     if (err instanceof Error)
       console.error(gray(`${brightRed('error')} - ${err.message}`))
