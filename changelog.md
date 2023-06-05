@@ -1,14 +1,44 @@
 ## Upcoming
 
-- **v0.11.0**
+- **v0.12.0**
 
-  - Implement compatibility layer for `Deno.connect`
   - Implement pre-compilation
 
-- **v0.10.0**
-
+- **v0.11.0**
   - Make `cache` option work with Redis
   - Implement `ratelimit` plugin
+
+## [v0.10.0](https://github.com/azurystudio/cheetah/releases/tag/v0.10.0)
+
+- **New Features**
+
+  - You can now either import the build script as a module or use it from the command line.
+
+    ```bash
+    deno run -A https://deno.land/x/cheetah@v0.10.0/build.ts mod.ts --target es2022 mod.js
+    ```
+
+    ```ts
+    import { build } from 'https://deno.land/x/cheetah@v0.10.0/build.ts'
+
+    build({
+      input: './mod.ts',
+      output: './mod.js',
+      target: 'es2022'
+    })
+    ```
+
+- **Revisions**
+
+  - You can now pass custom error messages and codes to the `Exception` class.
+
+    ```ts
+    app.get('/', () => {
+      throw new Exception('No Weed', 420)
+    })
+    ```
+
+  - The value of the `cache-control` header will be `max-age=0, private, must-revalidate` if you've set the global `duration` or local `maxAge` option to `0`.
 
 ## [v0.9.0](https://github.com/azurystudio/cheetah/releases/tag/v0.9.0)
 
