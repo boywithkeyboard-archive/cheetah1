@@ -1,13 +1,3 @@
-## Upcoming
-
-- **v0.12.0**
-
-  - Implement pre-compilation
-
-- **v0.11.0**
-  - Make `cache` option work with Redis
-  - Implement `ratelimit` plugin
-
 ## [v0.10.0](https://github.com/azurystudio/cheetah/releases/tag/v0.10.0)
 
 - **New Features**
