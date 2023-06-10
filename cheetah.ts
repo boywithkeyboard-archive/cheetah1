@@ -30,9 +30,15 @@ export type Config<
      */
     name: string
     /**
-     * Duration in seconds for how long a cached response should be held in memory.
+     * Duration in seconds for how long a response should be cached.
+     * 
+     * @deprecated Use `maxAge` instead. This option will be removed in the near future.
      */
-    duration: number
+    duration?: number
+    /**
+     * Duration in seconds for how long a response should be cached.
+     */
+    maxAge?: number
   }
 
   /**
@@ -83,7 +89,10 @@ export class cheetah<
 
     this.#base = config.base === '/' ? undefined : config.base
     this.#cors = config.cors
-    this.#cache = config.cache
+    this.#cache = config.cache ? {
+      name: config.cache.name,
+      maxAge: config.cache.maxAge ?? config.cache.duration ?? 0
+    } : undefined
     this.#debugging = config.debug ?? false
     this.#validator = config.validator
     this.#error = config.error
@@ -422,9 +431,9 @@ export class cheetah<
         'access-control-allow-origin': this.#cors
       }),
       ...(request.method === 'GET' && {
-        'cache-control': !this.#cache || this.#cache.duration === 0
+        'cache-control': !this.#cache || this.#cache.maxAge === 0
           ? 'max-age=0, private, must-revalidate'
-          : `max-age: ${this.#cache.duration}`
+          : `max-age: ${this.#cache.maxAge}`
         })
     }
 
