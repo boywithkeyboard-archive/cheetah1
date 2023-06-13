@@ -9,6 +9,7 @@
     "bench:markdown": "deno run -A .github/updateBenchmark.ts",
     "bench": "deno bench benchmark/basic.ts --allow-env",
     "build": "deno run -A build.ts mod.ts index.js",
+    "upgrade": "deno run -A https://deno.land/x/upgrade@v0.3.0/mod.ts",
     "prepublish": "deno run -A .github/prepublish.ts",
     "test": "deno test -A"
   },
