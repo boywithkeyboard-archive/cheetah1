@@ -1,5 +1,5 @@
 import { parse } from 'https://deno.land/std@0.190.0/flags/mod.ts'
-import { brightGreen, brightRed, brightYellow, gray, white } from 'https://deno.land/std@0.190.0/fmt/colors.ts'
+import { brightGreen, brightRed, brightYellow, gray } from 'https://deno.land/std@0.190.0/fmt/colors.ts'
 import { join } from 'https://deno.land/std@0.190.0/path/mod.ts'
 import byte from 'https://deno.land/x/byte@v3.3.0/byte.ts'
 import * as esbuild from 'https://deno.land/x/esbuild@v0.17.19/mod.js'
@@ -9,7 +9,8 @@ export async function build({
   output = './mod.js',
   banner = '// deno-fmt-ignore-file\n// deno-lint-ignore-file',
   target = 'es2022',
-  cwd = Deno.cwd()
+  cwd = Deno.cwd(),
+  runtime: _ = 'deno'
 }: {
   /**
    * @default './mod.ts'
@@ -39,6 +40,12 @@ export async function build({
    * @default Deno.cwd()
    */
   cwd?: string
+  /**
+   * @default 'deno'
+   */
+  runtime?:
+    | 'cloudflare'
+    | 'deno'
 }) {
   const hasImportMap = async (path: string) => {
     try {
@@ -95,14 +102,20 @@ export async function build({
 }
 
 if (import.meta.main) {
-  const { _, target } = parse(Deno.args)
+  const { _, target, runtime } = parse(Deno.args)
 
   const input = _[0] && typeof _[0] === 'string' ? _[0] : undefined
   const output = _[1] && typeof _[1] === 'string' ? _[1] : undefined
 
   try {
-    // @ts-ignore:
-    const { outputSize } = await build({ input, output, target: typeof target === 'string' ? target : undefined })
+    const { outputSize } = await build({
+      input,
+      output,
+      // @ts-ignore:
+      target: typeof target === 'string' ? target : undefined,
+      // @ts-ignore:
+      runtime: typeof runtime === 'string' ? runtime : undefined
+    })
 
     console.log(gray(`file size - ${outputSize < 1_000_000 ? brightGreen(byte(outputSize)) : outputSize < 5_000_000 ? brightYellow(byte(outputSize)) : brightRed(byte(outputSize))}`))
   } catch (err) {
