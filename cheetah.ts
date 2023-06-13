@@ -16,6 +16,8 @@ export type Config<
 > = {
   /**
    * A prefix for all routes, e.g. `/api`.
+   * 
+   * @default '/'
    */
   base?: `/${string}`
 
@@ -37,12 +39,16 @@ export type Config<
     duration?: number
     /**
      * Duration in seconds for how long a response should be cached.
+     * 
+     * @since v0.11
      */
     maxAge?: number
   }
 
   /**
    * Enable **Debug Mode**. As a result, every fetch and error event will be logged.
+   * 
+   * @default false
    */
   debug?: boolean
 
@@ -50,6 +56,14 @@ export type Config<
    * Set a validator to validate the body, cookies, headers, and query parameters of the incoming request.
    */
   validator?: V
+
+  /**
+   * If enabled, cheetah will attempt to find the matching `.get()` handler for an incoming HEAD request. Your existing `.head()` handlers won't be impacted.
+   * 
+   * @default false
+   * @since v0.11
+   */
+  preflight?: boolean
 
   /**
    * Set a custom error handler.
@@ -78,25 +92,36 @@ export class cheetah<
   #validator: Validator | undefined
   #notFound
   #error
+  #preflight
   #plugins: {
     beforeParsing: [string, ((request: Request) => void | Promise<void>)][]
     beforeHandling: [string, ((c: Context<Record<string, never>, unknown, unknown, Record<string, string>, unknown>) => ResponsePayload | Promise<ResponsePayload>)][]
     beforeResponding: [string, ((c: Context<Record<string, never>, unknown, unknown, Record<string, string>, unknown>) => ResponsePayload | Promise<ResponsePayload>)][]
   }
   
-  constructor(config: Config<V> = {}) {
+  constructor({
+    base,
+    cors,
+    cache,
+    debug = false,
+    validator,
+    preflight = false,
+    error,
+    notFound
+  }: Config<V> = {}) {
     this.#router = new Router()
 
-    this.#base = config.base === '/' ? undefined : config.base
-    this.#cors = config.cors
-    this.#cache = config.cache ? {
-      name: config.cache.name,
-      maxAge: config.cache.maxAge ?? config.cache.duration ?? 0
+    this.#base = base === '/' ? undefined : base
+    this.#cors = cors
+    this.#cache = cache ? {
+      name: cache.name,
+      maxAge: cache.maxAge ?? cache.duration ?? 0
     } : undefined
-    this.#debugging = config.debug ?? false
-    this.#validator = config.validator
-    this.#error = config.error
-    this.#notFound = config.notFound
+    this.#debugging = debug
+    this.#validator = validator
+    this.#error = error
+    this.#notFound = notFound
+    this.#preflight = preflight
     this.#plugins = {
       beforeParsing: [],
       beforeHandling: [],
@@ -189,16 +214,26 @@ export class cheetah<
     const url = new URL(request.url)
 
     try {
-      const route = this.#router.match(request.method, url.pathname)
+      const route = this.#router.match(request.method, url.pathname, this.#preflight)
 
       if (!route) {
-        if (this.#notFound)
-          return this.#notFound(request)
+        if (this.#notFound) {
+          if (request.method !== 'HEAD')
+            return await this.#notFound(request)
+
+          const response = await this.#notFound(request)
+        
+          return new Response(null, {
+            headers: response.headers,
+            status: response.status,
+            statusText: response.statusText
+          })
+        }
 
         throw new Exception(404)
       }
 
-      const response = await this.#handle(
+      let response = await this.#handle(
         request,
         env,
         context?.waitUntil
@@ -212,6 +247,13 @@ export class cheetah<
         route.params,
         route.handlers
       )
+
+      if (request.method === 'HEAD')
+        response = new Response(null, {
+          headers: response.headers,
+          status: response.status,
+          statusText: response.statusText
+        })
 
       if (cache && response.ok && context)
         context.waitUntil(cache.put(request, response.clone()))
@@ -228,18 +270,17 @@ export class cheetah<
       else if (this.#error)
         res = await this.#error(err, request)
       else
-        res = new Response(JSON.stringify({
-          message: 'Something Went Wrong',
-          code: 500
-        }), {
-          status: 500,
-          headers: {
-            'content-type': 'application/json; charset=utf-8;'
-          }
-        })
+        res = new Exception('Something Went Wrong').response(request)
 
       if (this.#debugging)
         this.#log('error', request.method, url.pathname, res.status)
+
+      if (request.method === 'HEAD')
+        res = new Response(null, {
+          headers: res.headers,
+          status: res.status,
+          statusText: res.statusText
+        })
 
       return res
     }

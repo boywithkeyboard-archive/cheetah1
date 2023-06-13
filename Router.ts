@@ -14,19 +14,22 @@ export class Router {
     }/*$`), handler])
   }
 
-  match(method: string, pathname: string) {
+  match(method: string, pathname: string, preflight: boolean) {
     for (let i = 0; i < this.#routes.length; ++i) {
-      if (method !== 'OPTIONS' && this.#routes[i][0] !== method)
-        continue
+      if (
+        method === this.#routes[i][0] ||
+        method === 'OPTIONS' ||
+        preflight && method === 'HEAD' && this.#routes[i][0] === 'GET'
+      ) {
+        const matches = pathname.match(this.#routes[i][1])
 
-      const matches = pathname.match(this.#routes[i][1])
+        if (!matches)
+          continue
 
-      if (!matches)
-        continue
-
-      return {
-        handlers: this.#routes[i][2],
-        params: matches.groups ?? {}
+        return {
+          handlers: this.#routes[i][2],
+          params: matches.groups ?? {}
+        }
       }
     }
 
