@@ -2,14 +2,48 @@ import { Handler, Route } from './Handler.d.ts'
 import { ObjectSchema, Schema } from './validator/Validator.d.ts'
 
 export class Collection {
+  #cache: 
+    | false
+    | {
+        maxAge: number
+      }
+    | undefined
+
+  #cors:
+    | string
+    | undefined
+
   routes: [
     string,
     string,
     Route[]
   ][]
 
-  constructor() {
+  constructor({
+    cache,
+    cors
+  }: {
+    /**
+     * Duration in seconds for how long a response should be cached.
+     * 
+     * @since v0.11
+     */
+    cache?:
+      | false
+      | {
+          maxAge: number
+        }
+    /**
+     * Enable Cross-Origin Resource Sharing (CORS) for this collection by setting a origin, e.g. `*`.
+     * 
+     * @since v0.11
+     */
+    cors?: string
+  } = {}) {
     this.routes = []
+
+    this.#cache = cache
+    this.#cors = cors
   }
 
   /* Get Method --------------------------------------------------------------- */
@@ -66,6 +100,14 @@ export class Collection {
       >
     )[]
   ) {
+    if ((this.#cache || this.#cors) && typeof handler[0] !== 'function') {
+      if (handler[0].cache === undefined && this.#cache !== undefined)
+        handler[0].cache = this.#cache
+
+      if (!handler[0].cors)
+        handler[0].cors = this.#cors
+    }
+
     this.routes.push([ 'GET', url, handler ])
 
     return this
@@ -129,6 +171,9 @@ export class Collection {
       >
     )[]
   ) {
+    if (this.#cors && typeof handler[0] !== 'function' && !handler[0].cors)
+      handler[0].cors = this.#cors
+
     this.routes.push([ 'DELETE', url, handler ])
 
     return this
@@ -192,6 +237,9 @@ export class Collection {
       >
     )[]
   ) {
+    if (this.#cors && typeof handler[0] !== 'function' && !handler[0].cors)
+      handler[0].cors = this.#cors
+    
     this.routes.push([ 'POST', url, handler ])
   
     return this
@@ -255,6 +303,9 @@ export class Collection {
       >
     )[]
   ) {
+    if (this.#cors && typeof handler[0] !== 'function' && !handler[0].cors)
+      handler[0].cors = this.#cors
+    
     this.routes.push([ 'PUT', url, handler ])
   
     return this
@@ -318,6 +369,9 @@ export class Collection {
       >
     )[]
   ) {
+    if (this.#cors && typeof handler[0] !== 'function' && !handler[0].cors)
+      handler[0].cors = this.#cors
+    
     this.routes.push([ 'PATCH', url, handler ])
   
     return this
@@ -375,6 +429,9 @@ export class Collection {
       >
     )[]
   ) {
+    if (this.#cors && typeof handler[0] !== 'function' && !handler[0].cors)
+      handler[0].cors = this.#cors
+    
     this.routes.push([ 'HEAD', url, handler ])
 
     return this
