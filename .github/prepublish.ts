@@ -1,6 +1,6 @@
-import { walk } from 'https://deno.land/std@0.190.0/fs/walk.ts'
+import { walk } from 'https://deno.land/std@0.191.0/fs/walk.ts'
 import byte from 'https://deno.land/x/byte@v3.3.0/byte.ts'
-import { build, stop } from 'https://deno.land/x/esbuild@v0.17.19/mod.js'
+import { build, stop } from 'https://deno.land/x/esbuild@v0.18.2/mod.js'
 
 // update module sizes
 

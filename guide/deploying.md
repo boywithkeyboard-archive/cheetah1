@@ -30,7 +30,7 @@ deno run -A https://deno.land/x/cheetah@v0.10.0/build.ts mod.ts mod.js
 
 ```ts
 import cheetah from 'https://deno.land/x/cheetah@v0.10.0/mod.ts'
-import { serve } from 'https://deno.land/std@v0.185.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.191.0/http/server.ts'
 
 const app = new cheetah()
   .get('/', () => 'Hello World')
