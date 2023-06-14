@@ -370,7 +370,7 @@ export class cheetah<
             query[key] = true
           else if (value === 'false')
             query[key] = false
-          else if (value.includes(','))
+          else if (value.indexOf(',') < 0)
             query[key] = value.split(',')
           else if (!isNaN((value as unknown) as number) && !isNaN(parseFloat(value)))
             query[key] = parseInt(value)
@@ -379,7 +379,7 @@ export class cheetah<
           else if (value === 'null')
             query[key] = null
           else
-            query[key] = value
+            query[key] = decodeURIComponent(value)
         }
 
         const isValid = this.#validator.name === 'typebox' && this.#validator.check
