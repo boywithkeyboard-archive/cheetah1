@@ -91,7 +91,7 @@ export class Exception {
       const acceptHeader = request.headers.get('accept')
 
       const json = acceptHeader
-        ? acceptHeader.includes('application/json') || acceptHeader.includes('*/*')
+        ? acceptHeader.indexOf('application/json') > -1 || acceptHeader.indexOf('*/*') > -1
         : false
 
       const body = json
