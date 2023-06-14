@@ -3,7 +3,7 @@
 ## otp (One Time Password)
 
 ```ts
-import { otp } from 'https://deno.land/x/cheetah@v0.10.0/x/mod.ts'
+import { otp } from 'https://deno.land/x/cheetah@v0.11.0/x/mod.ts'
 ```
 
 ### Usage

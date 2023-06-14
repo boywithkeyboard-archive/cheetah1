@@ -9,13 +9,13 @@
     #### Deno
 
     ```bash
-    deno run --allow-read=. --allow-write=. --allow-net https://deno.land/x/cheetah@v0.10.0/new.ts --template deno
+    deno run --allow-read=. --allow-write=. --allow-net https://deno.land/x/cheetah@v0.11.0/new.ts --template deno
     ```
 
     #### Cloudflare
 
     ```bash
-    deno run --allow-read=. --allow-write=. --allow-net https://deno.land/x/cheetah@v0.10.0/new.ts --template cloudflare
+    deno run --allow-read=. --allow-write=. --allow-net https://deno.land/x/cheetah@v0.11.0/new.ts --template cloudflare
     ```
 
 - Now you should have a basic app with good default preferences. **Make sure to read the `readme.md` file in your project root to learn more.**

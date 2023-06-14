@@ -1,3 +1,36 @@
+## [v0.11.0](https://github.com/azurystudio/cheetah/releases/tag/v0.11.0)
+
+- **Bug Fixes**
+
+  - Decode query parameters.
+
+- **New Features**
+
+  - **Preflight Mode.**
+
+    If enabled, cheetah will attempt to find the matching `.get()` handler for an incoming HEAD request. Your existing `.head()` handlers won't be impacted.
+
+    ```ts
+    new cheetah({
+      preflight: true
+    })
+    ```
+
+  - You can now configure the `cache` or `cors` option for an entire collection of routes.
+
+    ```ts
+    new Collection({
+      cache: false,
+      cors: '*'
+    })
+    ```
+
+    *These won't overwrite the options set for individual routes.*
+
+- **Revisions**
+
+  - The `cache.duration` option has been deprecated. Please use the `cache.maxAge` option instead.
+
 ## [v0.10.0](https://github.com/azurystudio/cheetah/releases/tag/v0.10.0)
 
 - **New Features**
