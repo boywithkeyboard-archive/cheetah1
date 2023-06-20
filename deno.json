@@ -1,7 +1,10 @@
 {
   "fmt": {
     "semiColons": false,
-    "singleQuote": true
+    "singleQuote": true,
+    "exclude": [
+      "./changelog.md"
+    ]
   },
   "tasks": {
     "bench:markdown": "deno run -A .github/updateBenchmark.ts",
