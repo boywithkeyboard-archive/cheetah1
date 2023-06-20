@@ -1,17 +1,15 @@
 {
   "fmt": {
-    "options": {
-      "semiColons": false,
-      "singleQuote": true
-    }
+    "semiColons": false,
+    "singleQuote": true
   },
   "tasks": {
     "bench:markdown": "deno run -A .github/updateBenchmark.ts",
     "bench": "deno bench benchmark/basic.ts --allow-env",
     "build": "deno run -A build.ts mod.ts index.js",
-    "upgrade": "deno run -A https://deno.land/x/upgrade@v0.3.0/mod.ts",
-    "prepublish": "deno run -A .github/prepublish.ts",
+    "check": "deno fmt --check && deno lint",
+    "githooks": "deno run -A https://deno.land/x/githooks@0.1.0/githooks.ts",
+    "upgrade": "deno run -A https://deno.land/x/upgrade@v0.3.0/mod.ts -q",
     "test": "deno test -A"
-  },
-  "lock": false
+  }
 }
