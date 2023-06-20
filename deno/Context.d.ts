@@ -32,8 +32,8 @@ export type Context<
     /**
      * The method of the incoming request.
      *
-     * @since v0.12
      * @example 'GET'
+     * @since v0.12
      */
     method: string
 

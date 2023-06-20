@@ -5,16 +5,16 @@ import {
 import {
   deadline,
   DeadlineError,
-} from 'https://deno.land/std@0.191.0/async/deadline.ts'
+} from 'https://deno.land/std@0.192.0/async/deadline.ts'
 import {
   brightBlue,
   brightGreen,
   brightRed,
   gray,
   white,
-} from 'https://deno.land/std@0.191.0/fmt/colors.ts'
-import { ConnInfo } from 'https://deno.land/std@0.191.0/http/server.ts'
-import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.15'
+} from 'https://deno.land/std@0.192.0/fmt/colors.ts'
+import { ConnInfo } from 'https://deno.land/std@0.192.0/http/server.ts'
+import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.28.16'
 import { Collection } from './Collection.ts'
 import { Context } from './Context.d.ts'
 import { Exception } from './Exception.ts'
