@@ -597,6 +597,7 @@ export class cheetah<
 
       req: {
         ip,
+        method: request.method,
 
         raw: () => request.clone(),
 

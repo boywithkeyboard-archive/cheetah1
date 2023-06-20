@@ -30,6 +30,14 @@ export type Context<
     ip?: string
 
     /**
+     * The method of the incoming request.
+     *
+     * @since v0.12
+     * @example 'GET'
+     */
+    method: string
+
+    /**
      * Retrieve the unmodified request object with an unread stream of the body.
      */
     raw: () => Request
