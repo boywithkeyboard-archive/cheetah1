@@ -1,3 +1,11 @@
+## [v0.12.0](https://github.com/azurystudio/cheetah/releases/tag/v0.12.0)
+
+- **New Features**
+
+  - You can now retrieve the request method from the new `c.req.method` variable, this is especially useful for the new Preflight Mode.
+
+  - 🎉🥳🎊 **There's now a *dedicated guide* available at [cheetah.mod.land](https://cheetah.mod.land).** 🎉🥳🎊
+
 ## [v0.11.0](https://github.com/azurystudio/cheetah/releases/tag/v0.11.0)
 
 - **Bug Fixes**
