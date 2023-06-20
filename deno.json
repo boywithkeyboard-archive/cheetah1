@@ -9,9 +9,9 @@
   "tasks": {
     "check": "deno fmt --check && deno task lint && deno task test",
     "githooks": "deno run -A https://deno.land/x/githooks@0.1.0/githooks.ts",
-    "lint": "cd deno && deno lint",
-    "upgrade": "cd deno && deno run -A https://deno.land/x/upgrade@v1.0.0/mod.ts",
-    "test": "cd deno && deno test -A"
+    "lint": "deno lint",
+    "upgrade": "deno run -A https://deno.land/x/upgrade@v1.0.0/mod.ts",
+    "test": "deno test -A"
   },
   "lock": false
 }
