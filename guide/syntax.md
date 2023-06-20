@@ -14,13 +14,12 @@ const app = new cheetah()
 
 // #2
 const app = new cheetah()
-  .get('/a', c => {
+  .get('/a', (c) => {
     // some code
 
     return 'Hello World'
   })
-
-  .get('/b', c => {
+  .get('/b', (c) => {
     // some code
 
     return { message: 'Hello World' }
@@ -36,11 +35,11 @@ import cheetah from 'https://deno.land/x/cheetah@v0.11.0/mod.ts'
 
 const app = new cheetah()
 
-app.get('/a', c => {
+app.get('/a', (c) => {
   return c.text('Hello World')
 })
 
-app.get('/b', c => {
+app.get('/b', (c) => {
   return c.json({ message: 'Hello World' })
 })
 ```
@@ -51,6 +50,6 @@ app.get('/b', c => {
 import cheetah from 'https://deno.land/x/cheetah@v0.11.0/mod.ts'
 
 const app = new cheetah()
-  .get('/a', c => c.text('Hello World'))
-  .get('/b', c => c.json({ message: 'Hello World' }))
+  .get('/a', (c) => c.text('Hello World'))
+  .get('/b', (c) => c.json({ message: 'Hello World' }))
 ```

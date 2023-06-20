@@ -1,5 +1,9 @@
 {
   "deno.enable": true,
+  "deno.enablePaths": [
+    "./deno"
+  ],
+  "deno.config": "./deno.json",
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.formatOnSave": false,

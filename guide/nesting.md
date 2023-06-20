@@ -2,7 +2,8 @@
 
 ## Nesting
 
-You can split your app into multiple files using **collections**. Creating a new collection is also quite simple:
+You can split your app into multiple files using **collections**. Creating a new
+collection is also quite simple:
 
 ```ts
 import cheetah, { Collection } from 'https://deno.land/x/cheetah@v0.11.0/mod.ts'

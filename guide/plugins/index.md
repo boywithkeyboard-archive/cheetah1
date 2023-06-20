@@ -2,9 +2,11 @@
 
 ## Plugins
 
-> **Warning**: This feature is still in an early stage. It is stable, but may undergo minor syntactical changes before v1 is released.
+> **Warning**: This feature is still in an early stage. It is stable, but may
+> undergo minor syntactical changes before v1 is released.
 
-> **Note**: Currently there are no official plugins, but we are working on some, as you can see [here](https://github.com/azurystudio/cheetah/issues/20).
+> **Note**: Currently there are no official plugins, but we are working on some,
+> as you can see [here](https://github.com/azurystudio/cheetah/issues/20).
 
 ### Official Plugins
 
@@ -14,9 +16,11 @@ We provide a set of plugins that are guaranteed to work with cheetah.
 
 ### Introduction
 
-If you want to add additional functionality to your application on a global, per collection, or per path level, plugins suit your needs.
+If you want to add additional functionality to your application on a global, per
+collection, or per path level, plugins suit your needs.
 
-Plugins let you create and publish reusable functions for your own and open source purposes.
+Plugins let you create and publish reusable functions for your own and open
+source purposes.
 
 ```ts
 import cheetah, { createPlugin } from 'https://deno.land/x/cheetah@v0.11.0/mod.ts'
@@ -74,12 +78,15 @@ const app = new cheetah()
 
 ### Execution Order
 
-> **Note**: Plugins won't stop the execution. If you want to stop the execution and respond before the actual route handlers, you should throw a error and handle that error in your custom error handler.
+> **Note**: Plugins won't stop the execution. If you want to stop the execution
+> and respond before the actual route handlers, you should throw a error and
+> handle that error in your custom error handler.
 
-1. cache *(built-in)*
-2. preflight response *(built-in)*
+1. cache _(built-in)_
+2. preflight response _(built-in)_
 3. `beforeParsing`
-4. validation & advanced parsing *(built-in)*
-6. `beforeHandling`
-7. route handlers *(the methods you define inside a `.get`, `.post` etc. method)*
-8. `beforeResponding`
+4. validation & advanced parsing _(built-in)_
+5. `beforeHandling`
+6. route handlers _(the methods you define inside a `.get`, `.post` etc.
+   method)_
+7. `beforeResponding`
