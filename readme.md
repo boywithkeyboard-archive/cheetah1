@@ -6,10 +6,6 @@
 <br />
 <br />
 
-> 🙌 If you need help getting started, have ideas for new features or just want
-> to hang out, make sure to join our Discord server
-> [here](https://discord.gg/hrvetU2cJZ).
-
 **cheetah** is _**~30% faster**_ than hono, which is supposed to be the fastest
 JavaScript framework, and _**~70% faster**_ than oak, the Express.js of Deno.
 
@@ -20,15 +16,13 @@ JavaScript framework, and _**~70% faster**_ than oak, the Express.js of Deno.
 | [itty-router](https://github.com/kwhitley/itty-router) | 70.88 µs/run | 58.2 µs ... 2.27 ms | 64.8 µs | 197.7 µs | 286.2 µs | 1.33 ms |
 | [oak](https://github.com/oakserver/oak)                | 96.5 µs/run  | 70.1 µs ... 3.67 ms | 82.2 µs | 521.4 µs | 737.7 µs | 1.16 ms |
 
-###### Benchmark: [basic.ts](https://github.com/azurystudio/cheetah/blob/dev/benchmark/basic.ts) — Runtime: Deno 1.34.0 (x86_64-pc-windows-msvc) — CPU: AMD Ryzen 9 5900X 12-Core
-
 [//]: benchmarkend
 
 ### Sneak Peek
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.11.0/mod.ts'
-import { serve } from 'https://deno.land/std@0.191.0/http/server.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.12.0/mod.ts'
+import { serve } from 'https://deno.land/std@0.192.0/http/server.ts'
 
 const app = new cheetah()
   .get('/', () => 'Hello World')
@@ -36,9 +30,11 @@ const app = new cheetah()
 serve(app.fetch)
 ```
 
-> ❔ Read our
-> [Guide](https://github.com/azurystudio/cheetah/blob/dev/guide/index.md) to get
-> started.
+---
+
+**NEW:** Check out our new guide at [cheetah.mod.land](https://cheetah.mod.land)
+
+---
 
 ### Why cheetah?
 
@@ -46,12 +42,8 @@ serve(app.fetch)
       freeze.
 - [x] 🧙‍♂️ `schema validation` - out-of-the-box support for schema validation via
       TypeBox or Zod.
-      [_Show more!_](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/schema_validation.md)
 - [x] 💎 `simple` - built-in support for CORS, caching, schema validation,
       debugging and more!
-      [_Show more!_](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/simple.md)
 - [x] 🪹 `chaining & nesting` - cheetah doesn't dictate you how to write your
       app.
-      [_Show more!_](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/chaining_and_nesting.md)
 - [x] 🪶 `light` - all core functionality in **~11 KB**.
-      [_Show more!_](https://github.com/azurystudio/cheetah/blob/dev/guide/reasons/light.md)
