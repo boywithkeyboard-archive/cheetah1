@@ -10,9 +10,11 @@
     "bench:markdown": "deno run -A .github/updateBenchmark.ts",
     "bench": "deno bench benchmark/basic.ts --allow-env",
     "build": "deno run -A build.ts mod.ts index.js",
-    "check": "deno fmt --check && deno lint",
+    "check": "deno fmt --check && deno task lint && deno task test",
     "githooks": "deno run -A https://deno.land/x/githooks@0.1.0/githooks.ts",
+    "lint": "cd deno && deno lint",
     "upgrade": "deno run -A https://deno.land/x/upgrade@v0.3.0/mod.ts -q",
-    "test": "deno test -A"
-  }
+    "test": "cd deno && deno test -A"
+  },
+  "lock": false
 }

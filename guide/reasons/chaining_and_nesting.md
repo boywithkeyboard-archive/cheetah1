@@ -7,9 +7,7 @@ import cheetah from 'https://deno.land/x/cheetah@v0.11.0/mod.ts'
 
 const app = new cheetah()
   .get('/cake', () => '🎂') // GET '/cake'
-
   .patch('/cookie', () => '🍪') // PATCH '/cookie'
-
   .put('/donut', () => '🍩') // PUT '/donut'
 ```
 
@@ -23,6 +21,5 @@ const fastFood = new Collection()
 
 const app = new cheetah()
   .use('/fast-food', fastFood)
-
   .patch('/pancakes', () => '🥞') // PATCH '/pancakes'
 ```

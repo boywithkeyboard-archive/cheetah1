@@ -2,7 +2,10 @@
 
 ## sendMail
 
-> **Note**: This module is specifically designed for Cloudflare Workers as it uses [mailchannels](https://blog.cloudflare.com/sending-email-from-workers-with-mailchannels) under the hood, which is free if you deploy your app to Cloudflare Workers.
+> **Note**: This module is specifically designed for Cloudflare Workers as it
+> uses
+> [mailchannels](https://blog.cloudflare.com/sending-email-from-workers-with-mailchannels)
+> under the hood, which is free if you deploy your app to Cloudflare Workers.
 
 ```ts
 import { sendMail } from 'https://deno.land/x/cheetah@v0.11.0/x/mod.ts'
@@ -12,8 +15,8 @@ await sendMail({
   message: 'This is just an example.',
   from: {
     name: 'John Doe',
-    email: 'johndoe@custom.com'
+    email: 'johndoe@custom.com',
   },
-  to: 'janedoe@gmail.com'
+  to: 'janedoe@gmail.com',
 })
 ```
