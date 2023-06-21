@@ -21,7 +21,7 @@ JavaScript framework, and _**~70% faster**_ than oak, the Express.js of Deno.
 ### Sneak Peek
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.12.0/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@v0.12.1/mod.ts'
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts'
 
 const app = new cheetah()

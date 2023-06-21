@@ -1,3 +1,13 @@
+## [v0.13.0](https://github.com/azurystudio/cheetah/releases/tag/v0.13.0)
+
+- **Bug Fixes**
+
+  - The return type of the `jwt.verify` function has been corrected.
+
+- **Revisions**
+
+  - cheetah now parses the headers of the incoming request to a JSON object by default, even if you don't specify a validation scheme for it.
+
 ## [v0.12.0](https://github.com/azurystudio/cheetah/releases/tag/v0.12.0)
 
 - **New Features**
