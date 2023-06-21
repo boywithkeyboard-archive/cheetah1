@@ -412,24 +412,24 @@ export class cheetah<
     let cookies: Record<string, string> = {}
     let body
 
+    let num = 0
+
+    for (const [key, value] of request.headers) {
+      if (num === 50) {
+        break
+      }
+
+      if (!headers[key.toLowerCase()]) {
+        headers[key.toLowerCase()] = value
+      }
+
+      num++
+    }
+
     if (this.#validator && options) {
       /* Parse Headers ------------------------------------------------------------ */
 
       if (options.headers) {
-        let num = 0
-
-        for (const [key, value] of request.headers) {
-          if (num === 50) {
-            break
-          }
-
-          if (!headers[key.toLowerCase()]) {
-            headers[key.toLowerCase()] = value
-          }
-
-          num++
-        }
-
         const isValid =
           this.#validator.name === 'typebox' && this.#validator.check
             ? this.#validator.check(options.headers as TSchema, headers)
