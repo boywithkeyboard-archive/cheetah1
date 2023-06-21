@@ -5,6 +5,7 @@ import {
 import {
   create,
   getNumericDate,
+  Payload as JwtPayload,
   verify as _verify,
   VerifyOptions,
 } from 'https://deno.land/x/djwt@v2.8/mod.ts'
@@ -77,7 +78,7 @@ export async function verify<T extends Record<string, unknown> = Payload>(
   try {
     const key = typeof secret === 'string' ? await importKey(secret) : secret
 
-    return await _verify(token, key, options) as Payload & T
+    return await _verify(token, key, options) as JwtPayload & T
   } catch (_err) {
     return
   }
