@@ -6,6 +6,10 @@
 <br />
 <br />
 
+> **Note**: This is the codebase for the upcoming v1.0, the codebase for the
+> current v0 can be found
+> [here](https://github.com/azurystudio/cheetah/tree/v0).
+
 **cheetah** is _**~30% faster**_ than hono, which is supposed to be the fastest
 JavaScript framework, and _**~70% faster**_ than oak, the Express.js of Deno.
 
