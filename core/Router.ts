@@ -18,28 +18,23 @@ export class Router {
     ])
   }
 
-  match (method: string, pathname: string, preflight: boolean) {
- 
+  match(method: string, pathname: string, preflight: boolean) {
     return (
-       route => 
-         route !== null
-          ? {          
+      (route) =>
+        route !== null
+          ? {
             handlers: route[2],
-            params: pathname.match(route[1])?.groups as Record<string,string>,
-          
+            params: pathname.match(route[1])?.groups as Record<string, string>,
           }
           : null
-   
     )(
-     this.#routes.find ( (x) => 
-     (method === x[0] || 
-     method === 'OPTIONS' ||
-     preflight && 
-     method === 'HEAD' && 
-     x[0] === 'GET') && pathname.match(x[1])
-     ) ?? null
+      this.#routes.find((x) =>
+        (method === x[0] ||
+          method === 'OPTIONS' ||
+          preflight &&
+            method === 'HEAD' &&
+            x[0] === 'GET') && pathname.match(x[1])
+      ) ?? null,
     )
   }
-
-
 }
