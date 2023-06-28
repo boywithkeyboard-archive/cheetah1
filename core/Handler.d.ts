@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { Context } from './Context.d.ts'
-import { ObjectSchema, Schema } from './validator/Validator.d.ts'
+import { ObjectSchema, Schema } from '../validator/Validator.d.ts'
 
 export type Route =
   | {

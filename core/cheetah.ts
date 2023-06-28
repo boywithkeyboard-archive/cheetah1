@@ -21,7 +21,7 @@ import { Exception } from './Exception.ts'
 import { Handler, ResponsePayload, Route } from './Handler.d.ts'
 import { Router } from './Router.ts'
 import { PluginMethods } from './createPlugin.ts'
-import { ObjectSchema, Schema, Validator } from './validator/Validator.d.ts'
+import { ObjectSchema, Schema, Validator } from '../validator/Validator.d.ts'
 
 export type Config<
   V extends Validator = never,
@@ -197,7 +197,9 @@ export class cheetah<
         prefix = item
       } else if (item instanceof Collection) { // collection
         if (!prefix) {
-          throw new Error('Please define a prefix when attaching a collection!')
+          throw new Error(
+            'Please define a prefix when attaching a collection!',
+          )
         }
 
         const length = item.routes.length

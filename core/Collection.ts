@@ -1,5 +1,5 @@
 import { Handler, Route } from './Handler.d.ts'
-import { ObjectSchema, Schema } from './validator/Validator.d.ts'
+import { ObjectSchema, Schema } from '../validator/Validator.d.ts'
 
 export class Collection {
   #cache:

@@ -1,4 +1,4 @@
-import { createPlugin } from '../createPlugin.ts'
+import { createPlugin } from '../core/createPlugin.ts'
 
 export type HelmetSettings = {
   /**
