@@ -4,7 +4,7 @@
 </div>
 
 <div align='center'>
-  <p>🪖 <code>secure</code> × 💎 <code>simple</code> × 🪹 <code>nestable</code> × 🪶 <code>light</code></p>
+  <p>🪖 <code>secure</code> × 💎 <code>simple</code> × 🪶 <code>light</code></p>
 </div>
 
 <br />
