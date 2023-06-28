@@ -1,14 +1,14 @@
 {
   "fmt": {
     "semiColons": false,
-    "singleQuote": true,
-    "exclude": [
-      "./changelog.md"
-    ]
+    "singleQuote": true
+  },
+  "githooks": {
+    "pre-commit": "check"
   },
   "tasks": {
-    "check": "deno fmt --check && deno task lint && deno task test",
-    "githooks": "deno run -A https://deno.land/x/githooks@0.1.0/githooks.ts",
+    "check": "deno fmt && deno lint",
+    "githooks": "deno run -A https://deno.land/x/githooks@0.1.1/githooks.ts",
     "lint": "deno lint",
     "upgrade": "deno run -A https://deno.land/x/upgrade@v1.0.0/mod.ts",
     "test": "deno test -A"
