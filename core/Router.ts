@@ -19,25 +19,22 @@ export class Router {
   }
 
   match(method: string, pathname: string, preflight: boolean) {
-    for (let i = 0; i < this.#routes.length; ++i) {
-      if (
-        method === this.#routes[i][0] ||
-        method === 'OPTIONS' ||
-        preflight && method === 'HEAD' && this.#routes[i][0] === 'GET'
-      ) {
-        const matches = pathname.match(this.#routes[i][1])
-
-        if (!matches) {
-          continue
-        }
-
-        return {
-          handlers: this.#routes[i][2],
-          params: matches.groups ?? {},
-        }
-      }
-    }
-
-    return null
+    return (
+      (route) =>
+        route !== null
+          ? {
+            handlers: route[2],
+            params: pathname.match(route[1])?.groups as Record<string, string>,
+          }
+          : null
+    )(
+      this.#routes.find((x) =>
+        (method === x[0] ||
+          method === 'OPTIONS' ||
+          preflight &&
+            method === 'HEAD' &&
+            x[0] === 'GET') && pathname.match(x[1])
+      ) ?? null,
+    )
   }
 }
