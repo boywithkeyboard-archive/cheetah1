@@ -1,5 +1,5 @@
 <div align='center'>
-  <img src='https://raw.githubusercontent.com/azurystudio/cheetah/dev/.github/cat.png' width='64px' />
+  <img src='https://raw.githubusercontent.com/azurystudio/cheetah/dev/.github/cheetah.svg' width='64px' />
   <h1>cheetah</h1>
 </div>
 
