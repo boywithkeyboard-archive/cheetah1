@@ -40,6 +40,19 @@ serve(app.fetch)
 
 ---
 
+### Benchmark
+
+[//]: bstart
+
+| Channel | Avg | Max | p75 | p90 | p95 | p99 |
+| --- | --- | --- | --- | --- | --- | --- |
+| ◆ [**current**](https://deno.land/x/cheetah@v0.13.0) <sup>v0.13.0</sup> | 35998 | 39571 | 37750 | 38397 | 38651 | 39072 |
+| ◇ [**canary**](https://deno.land/x/cheetah) | 35657 | 39312 | 37523 | 38086 | 38472 | 38947 |
+
+[//]: bend
+
+###### A basic [RPS](https://www.google.com/search?q=requests+per+second) benchmark conducted with [oha](https://github.com/hatoo/oha).
+
 ### Contributing
 
 We appreciate your help! 💕
