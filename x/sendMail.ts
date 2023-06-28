@@ -59,7 +59,9 @@ export function sendMail(
     bcc.push({ email: options.bcc })
   } else if (options.bcc instanceof Array) {
     for (const recipient of options.bcc) {
-      bcc.push(typeof recipient === 'string' ? { email: recipient } : recipient)
+      bcc.push(
+        typeof recipient === 'string' ? { email: recipient } : recipient,
+      )
     }
   } else if (options.bcc) {
     bcc.push(options.bcc)
