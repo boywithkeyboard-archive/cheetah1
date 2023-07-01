@@ -1,5 +1,8 @@
 <div align='center'>
-  <img src='https://raw.githubusercontent.com/azurystudio/cheetah/dev/.github/cheetah.svg' width='64px' />
+  <img src='https://raw.githubusercontent.com/azurystudio/cheetah/dev/.github/cheetah_darkmode.svg#gh-dark-mode-only' width='256px' />
+  <img src='https://raw.githubusercontent.com/azurystudio/cheetah/dev/.github/cheetah_lightmode.svg#gh-light-mode-only' width='256px' />
+  <br>
+  <br>
   <h1>cheetah</h1>
 </div>
 
@@ -7,7 +10,7 @@
   <p>🪖 <code>secure</code> × 💎 <code>simple</code> × 🪶 <code>light</code></p>
 </div>
 
-<br />
+<br>
 
 ### Sneak Peek
 
@@ -46,8 +49,8 @@ serve(app.fetch)
 
 | Channel | Avg | Max | p75 | p90 | p95 | p99 |
 | --- | --- | --- | --- | --- | --- | --- |
-| ◆ [**current**](https://deno.land/x/cheetah@v0.13.0) <sup>v0.13.0</sup> | 35998 | 39571 | 37750 | 38397 | 38651 | 39072 |
-| ◇ [**canary**](https://deno.land/x/cheetah) | 35657 | 39312 | 37523 | 38086 | 38472 | 38947 |
+| ◆ [**current**](https://deno.land/x/cheetah@v0.13.0) <sup>v0.13.0</sup> | 36009 | 39086 | 37321 | 37842 | 38053 | 38529 |
+| ◇ [**canary**](https://deno.land/x/cheetah) | 42888 | 46763 | 45007 | 45625 | 46006 | 46431 |
 
 [//]: bend
 
