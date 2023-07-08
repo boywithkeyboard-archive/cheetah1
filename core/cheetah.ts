@@ -22,71 +22,7 @@ import { Handler, ResponsePayload, Route } from './Handler.d.ts'
 import { Router } from './Router.ts'
 import { PluginMethods } from './createPlugin.ts'
 import { ObjectSchema, Schema, Validator } from '../validator/Validator.d.ts'
-
-export type Config<
-  V extends Validator = never,
-> = {
-  /**
-   * A prefix for all routes, e.g. `/api`.
-   *
-   * @default '/'
-   */
-  base?: `/${string}`
-
-  /**
-   * Enable Cross-Origin Resource Sharing (CORS) for your app by setting a origin, e.g. `*`.
-   */
-  cors?: string
-
-  cache?: {
-    /**
-     * A unique name for your cache.
-     */
-    name: string
-    /**
-     * Duration in seconds for how long a response should be cached.
-     *
-     * @deprecated Use `maxAge` instead. This option will be removed in the near future.
-     */
-    duration?: number
-    /**
-     * Duration in seconds for how long a response should be cached.
-     *
-     * @since v0.11
-     */
-    maxAge?: number
-  }
-
-  /**
-   * Enable **Debug Mode**. As a result, every fetch and error event will be logged.
-   *
-   * @default false
-   */
-  debug?: boolean
-
-  /**
-   * Set a validator to validate the body, cookies, headers, and query parameters of the incoming request.
-   */
-  validator?: V
-
-  /**
-   * If enabled, cheetah will attempt to find the matching `.get()` handler for an incoming HEAD request. Your existing `.head()` handlers won't be impacted.
-   *
-   * @default false
-   * @since v0.11
-   */
-  preflight?: boolean
-
-  /**
-   * Set a custom error handler.
-   */
-  error?: (error: unknown, request: Request) => Response | Promise<Response>
-
-  /**
-   * Set a custom 404 handler.
-   */
-  notFound?: (request: Request) => Response | Promise<Response>
-}
+import { Preferences } from '../mod.ts'
 
 type RequestContext = {
   waitUntil: (promise: Promise<unknown>) => void
@@ -142,7 +78,7 @@ export class cheetah<
     preflight = false,
     error,
     notFound,
-  }: Config<V> = {}) {
+  }: Preferences<V> = {}) {
     this.#router = new Router()
 
     this.#base = base === '/' ? undefined : base
@@ -150,7 +86,7 @@ export class cheetah<
     this.#cache = cache
       ? {
         name: cache.name,
-        maxAge: cache.maxAge ?? cache.duration ?? 0,
+        maxAge: cache.maxAge ?? 0,
       }
       : undefined
     this.#debugging = debug
