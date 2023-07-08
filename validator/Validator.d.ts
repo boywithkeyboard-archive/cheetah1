@@ -5,7 +5,7 @@ import {
   TObject,
   TRecord,
   TSchema,
-} from 'https://esm.sh/@sinclair/typebox@0.28.16'
+} from 'https://esm.sh/@sinclair/typebox@0.29.4'
 import { TypeBoxValidator } from './typebox.ts'
 import { ZodValidator } from './zod.ts'
 

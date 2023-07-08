@@ -1,7 +1,7 @@
 import {
   assertEquals,
   assertInstanceOf,
-} from 'https://deno.land/std@0.192.0/testing/asserts.ts'
+} from 'https://deno.land/std@0.193.0/testing/asserts.ts'
 import { createKey, importKey, jwt } from './mod.ts'
 
 Deno.test('x/jwt', async (t) => {

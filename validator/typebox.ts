@@ -1,4 +1,4 @@
-// @deno-types='https://esm.sh/@sinclair/typebox@0.28.16/value'
+// @deno-types='https://esm.sh/@sinclair/typebox@0.29.4/value'
 import { Value } from 'https://cdn.jsdelivr.net/npm/@sinclair/typebox@0.28.16/value/value.js/+esm'
 
 export type TypeBoxValidator = {
@@ -11,7 +11,7 @@ const typebox: TypeBoxValidator = {
   check: Value.Check,
 }
 
-// @deno-types='https://esm.sh/@sinclair/typebox@0.28.16'
+// @deno-types='https://esm.sh/@sinclair/typebox@0.29.4'
 export {
   Kind,
   Type,
