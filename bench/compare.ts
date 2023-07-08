@@ -67,7 +67,7 @@ table +=
 
 table += `| ◇ [**canary**](https://deno.land/x/cheetah${
   Deno.args[0] ? `@${Deno.args[0]}` : ''
-})${Deno.args[0] ? `<sup>${Deno.args[0]}</sup>` : ''} | ${
+})${Deno.args[0] ? ` <sup>${Deno.args[0]}</sup>` : ''} | ${
   Math.round(canary.rps.mean)
 } | ${Math.round(canary.rps.max)} | ${
   Math.round(canary.rps.percentiles.p75)
