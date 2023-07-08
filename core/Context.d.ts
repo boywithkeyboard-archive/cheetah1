@@ -1,6 +1,6 @@
 /// <reference types='./env.d.ts' />
 
-import { ContinentCode } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230518.0/index.ts'
+import { ContinentCode } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230628.0/index.ts'
 import { ObjectSchema, Schema, Static } from '../validator/Validator.d.ts'
 
 /* Context ------------------------------------------------------------------ */
