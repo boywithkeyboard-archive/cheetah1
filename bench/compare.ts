@@ -2,6 +2,7 @@ import {
   prerelease,
   rcompare,
 } from 'https://deno.land/std@0.191.0/semver/mod.ts#pin'
+import { gray, white } from 'https://deno.land/std@0.193.0/fmt/colors.ts'
 
 async function bench(url: string) {
   const a = new Deno.Command('deno', {
@@ -11,7 +12,15 @@ async function bench(url: string) {
   const server = a.spawn()
 
   const b = new Deno.Command('oha', {
-    args: ['-z', '15s', '-c', '50', '-j', 'http://localhost:8000'],
+    args: [
+      '-n',
+      '25000',
+      '-c',
+      '50',
+      '-j',
+      '--no-tui',
+      'http://localhost:8000',
+    ],
     stdout: 'piped',
   })
 
@@ -40,7 +49,7 @@ const current = await bench(
   `https://deno.land/x/cheetah@${latestVersion}/mod.ts`,
 )
 
-const next = await bench('../mod.ts')
+const canary = await bench('../mod.ts')
 
 const readme = await Deno.readTextFile('./readme.md')
 
@@ -59,12 +68,12 @@ table +=
 table += `| ◇ [**canary**](https://deno.land/x/cheetah${
   Deno.args[0] ? `@${Deno.args[0]}` : ''
 })${Deno.args[0] ? `<sup>${Deno.args[0]}</sup>` : ''} | ${
-  Math.round(next.rps.mean)
-} | ${Math.round(next.rps.max)} | ${Math.round(next.rps.percentiles.p75)} | ${
-  Math.round(next.rps.percentiles.p90)
-} | ${Math.round(next.rps.percentiles.p95)} | ${
-  Math.round(next.rps.percentiles.p99)
-} |`
+  Math.round(canary.rps.mean)
+} | ${Math.round(canary.rps.max)} | ${
+  Math.round(canary.rps.percentiles.p75)
+} | ${Math.round(canary.rps.percentiles.p90)} | ${
+  Math.round(canary.rps.percentiles.p95)
+} | ${Math.round(canary.rps.percentiles.p99)} |`
 
 await Deno.writeTextFile(
   './readme.md',
@@ -74,5 +83,15 @@ await Deno.writeTextFile(
       readme.indexOf('\n\n[//]: bend'),
     ),
     table,
+  ),
+)
+
+console.clear()
+
+console.log(
+  gray(
+    `${white('◆ current')} ${Math.round(current.rps.mean)} rps\n${
+      white('◇ canary')
+    } ${Math.round(canary.rps.mean)} rps`,
   ),
 )
