@@ -1,4 +1,4 @@
-import { Route } from './Handler.d.ts'
+import { Route } from './_.ts'
 
 export class Router {
   #routes: [string, RegExp, Route[]][] = []

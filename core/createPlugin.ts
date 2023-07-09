@@ -1,5 +1,5 @@
 import { Context } from './Context.d.ts'
-import { ResponsePayload } from './Handler.d.ts'
+import { ResponsePayload } from './_.ts'
 
 export type PluginMethods = {
   beforeParsing?: (request: Request) => void | Promise<void>

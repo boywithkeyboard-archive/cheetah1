@@ -53,10 +53,12 @@ Deno.test('Response', async (t) => {
     assertEquals(response2.headers.get('location'), 'https://deno.com')
   })
 
-  await t.step('res.blob()', async () => {
+  await t.step('blob', async () => {
     const blob = new Blob([new TextEncoder().encode('test')])
 
-    app.get('/blob', (c) => c.res.blob(blob))
+    app.get('/blob', () => {
+      return blob
+    })
 
     assertEquals(
       new TextDecoder().decode(
@@ -68,8 +70,10 @@ Deno.test('Response', async (t) => {
     )
   })
 
-  await t.step('res.stream()', async () => {
-    app.get('/stream', (c) => c.res.stream(new ReadableStream()))
+  await t.step('stream', async () => {
+    app.get('/stream', () => {
+      return new ReadableStream()
+    })
 
     assertEquals(
       (await app.fetch(new Request('http://localhost:3000/stream'))).body !==
@@ -78,12 +82,12 @@ Deno.test('Response', async (t) => {
     )
   })
 
-  await t.step('res.formData()', async () => {
+  await t.step('formData', async () => {
     const formData = new FormData()
     formData.append('one', 'field')
 
-    app.get('/formData', (c) => {
-      c.res.formData(formData)
+    app.get('/formData', () => {
+      return formData
     })
 
     assertEquals(
@@ -93,12 +97,12 @@ Deno.test('Response', async (t) => {
     )
   })
 
-  await t.step('res.buffer()', async () => {
+  await t.step('buffer', async () => {
     const buffer = new TextEncoder().encode('test')
     const arrayBuffer = buffer.buffer
 
-    app.get('/buffer', (c) => {
-      c.res.buffer(buffer)
+    app.get('/buffer', () => {
+      return buffer
     })
 
     assertEquals(
@@ -108,37 +112,29 @@ Deno.test('Response', async (t) => {
     )
   })
 
-  await t.step('res.json()', async () => {
-    app.get('/json', (c) => c.res.json({ message: 'test' }))
-    assertEquals(
-      await (await app.fetch(new Request('http://localhost:3000/json'))).json(),
-      { message: 'test' },
-    )
-  })
+  await t.step('json', async () => {
+    app.get('/json', () => {
+      return {
+        message: 'test',
+      }
+    })
 
-  await t.step('res.text()', async () => {
-    app.get('/text', (c) => c.res.text('test'))
-    assertEquals(
-      await (await app.fetch(new Request('http://localhost:3000/text'))).text(),
-      'test',
-    )
-  })
-
-  await t.step('Implicit JSON', async () => {
-    app.get('/implicit-json', () => ({ message: 'test' }))
     assertEquals(
       await (await app.fetch(
-        new Request('http://localhost:3000/implicit-json'),
+        new Request('http://localhost:3000/json'),
       )).json(),
       { message: 'test' },
     )
   })
 
-  await t.step('Implicit Text', async () => {
-    app.get('/implicit-text', () => 'test')
+  await t.step('text', async () => {
+    app.get('/text', () => {
+      return 'test'
+    })
+
     assertEquals(
       await (await app.fetch(
-        new Request('http://localhost:3000/implicit-text'),
+        new Request('http://localhost:3000/text'),
       )).text(),
       'test',
     )
