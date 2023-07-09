@@ -3,8 +3,6 @@
 import { ContinentCode } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230628.0/index.ts'
 import { ObjectSchema, Schema, Static } from '../validator/Validator.d.ts'
 
-/* Context ------------------------------------------------------------------ */
-
 export type Context<
   Params extends Record<string, unknown> = Record<string, never>,
   ValidatedBody extends Schema | unknown = unknown,
@@ -22,7 +20,7 @@ export type Context<
     | 'deno'
 
   /**
-   * Wait until a response is sent to the client, then resolve the promise.
+   * Wait until the response is sent to the client, then resolve the promise.
    */
   waitUntil: (promise: Promise<unknown>) => void
 
@@ -35,7 +33,13 @@ export type Context<
      * @example 'GET'
      * @since v0.12
      */
-    method: string
+    method:
+      | 'DELETE'
+      | 'GET'
+      | 'HEAD'
+      | 'PATCH'
+      | 'POST'
+      | 'PUT'
 
     /**
      * Retrieve the unmodified request object with an unread stream of the body.
@@ -155,6 +159,4 @@ export type Context<
 
     text: (text: string, code?: number) => void
   }
-
-  [key: string]: unknown
 }
