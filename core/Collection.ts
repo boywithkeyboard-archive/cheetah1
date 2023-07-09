@@ -1,4 +1,4 @@
-import { Handler, Route } from './Handler.d.ts'
+import { Handler, Route } from './_.ts'
 import { ObjectSchema, Schema } from '../validator/Validator.d.ts'
 
 export class Collection {

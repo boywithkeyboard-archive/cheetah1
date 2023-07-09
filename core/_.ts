@@ -2,6 +2,14 @@
 import { Context } from './Context.d.ts'
 import { ObjectSchema, Schema } from '../validator/Validator.d.ts'
 
+export type RequestMethod =
+  | 'DELETE'
+  | 'GET'
+  | 'HEAD'
+  | 'PATCH'
+  | 'POST'
+  | 'PUT'
+
 export type Route =
   | {
     body?: Schema
@@ -25,10 +33,15 @@ type ExtractParams<Path> = Path extends `${infer Segment}/${infer Rest}`
   : ExtractParam<Path, {}>
 
 export type ResponsePayload =
-  | string
+  | ArrayBuffer
+  | Blob
+  | FormData
+  | ReadableStream<unknown>
   | Record<string, unknown>
-  | void
+  | Uint8Array
+  | string
   | undefined
+  | void
 
 export type Handler<
   Params = unknown,

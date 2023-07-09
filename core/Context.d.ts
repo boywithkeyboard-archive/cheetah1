@@ -2,6 +2,7 @@
 
 import { ContinentCode } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230628.0/index.ts'
 import { ObjectSchema, Schema, Static } from '../validator/Validator.d.ts'
+import { RequestMethod } from './_.ts'
 
 export type Context<
   Params extends Record<string, unknown> = Record<string, never>,
@@ -33,13 +34,7 @@ export type Context<
      * @example 'GET'
      * @since v0.12
      */
-    method:
-      | 'DELETE'
-      | 'GET'
-      | 'HEAD'
-      | 'PATCH'
-      | 'POST'
-      | 'PUT'
+    method: RequestMethod
 
     /**
      * Retrieve the unmodified request object with an unread stream of the body.
@@ -146,17 +141,5 @@ export type Context<
      * Redirect the incoming request. *(temporary redirect by default)*
      */
     redirect: (destination: string, code?: number) => void
-
-    blob: (blob: Blob | File, code?: number) => void
-
-    stream: (stream: ReadableStream<unknown>, code?: number) => void
-
-    formData: (formData: FormData, code?: number) => void
-
-    buffer: (buffer: Uint8Array | ArrayBuffer, code?: number) => void
-
-    json: (json: Record<string, unknown>, code?: number) => void
-
-    text: (text: string, code?: number) => void
   }
 }

@@ -15,14 +15,14 @@ import {
 } from 'https://deno.land/std@0.193.0/fmt/colors.ts'
 import { ConnInfo } from 'https://deno.land/std@0.193.0/http/server.ts'
 import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.29.4'
+import { Preferences } from '../mod.ts'
+import { ObjectSchema, Schema, Validator } from '../validator/Validator.d.ts'
 import { Collection } from './Collection.ts'
 import { Context } from './Context.d.ts'
 import { Exception } from './Exception.ts'
-import { Handler, ResponsePayload, Route } from './Handler.d.ts'
 import { Router } from './Router.ts'
+import { Handler, RequestMethod, ResponsePayload, Route } from './_.ts'
 import { PluginMethods } from './createPlugin.ts'
-import { ObjectSchema, Schema, Validator } from '../validator/Validator.d.ts'
-import { Preferences } from '../mod.ts'
 
 type RequestContext = {
   waitUntil: (promise: Promise<unknown>) => void
@@ -496,7 +496,7 @@ export class cheetah<
 
     // deno-lint-ignore no-explicit-any
     let geo: ReturnType<Context<any, Record<string, string>>['req']['geo']>
-    let requiresFormatting = true
+    const requiresFormatting = true
     let responseCode = 200
 
     const responseHeaders: Record<string, string> = {
@@ -535,7 +535,7 @@ export class cheetah<
 
       req: {
         ip,
-        method: request.method,
+        method: request.method as RequestMethod,
 
         raw: () => request.clone(),
 
@@ -650,76 +650,6 @@ export class cheetah<
           responseHeaders.location = destination
           responseCode = code ?? 307
         },
-
-        blob(blob, code) {
-          responseBody = blob
-          requiresFormatting = false
-
-          responseHeaders['content-length'] = blob.size.toString()
-
-          if (code) {
-            responseCode = code
-          }
-        },
-
-        stream(stream, code) {
-          responseBody = stream
-          requiresFormatting = false
-
-          if (code) {
-            responseCode = code
-          }
-        },
-
-        formData(formData, code) {
-          responseBody = formData
-          requiresFormatting = false
-
-          if (code) {
-            responseCode = code
-          }
-        },
-
-        buffer(buffer, code) {
-          responseBody = buffer
-          requiresFormatting = false
-
-          responseHeaders['content-length'] = buffer.byteLength.toString()
-
-          if (code) {
-            responseCode = code
-          }
-        },
-
-        json(json, code) {
-          responseBody = JSON.stringify(json)
-          requiresFormatting = false
-
-          if (!responseHeaders['content-type']) {
-            responseHeaders['content-type'] = 'application/json; charset=utf-8'
-          }
-
-          responseHeaders['content-length'] = responseBody.length.toString()
-
-          if (code) {
-            responseCode = code
-          }
-        },
-
-        text(text, code) {
-          responseBody = text
-          requiresFormatting = false
-
-          if (!responseHeaders['content-type']) {
-            responseHeaders['content-type'] = 'text/plain; charset=utf-8'
-          }
-
-          responseHeaders['content-length'] = text.length.toString()
-
-          if (code) {
-            responseCode = code
-          }
-        },
       },
     }
 
@@ -797,7 +727,7 @@ export class cheetah<
     }
 
     if (
-      requiresFormatting && responseBody !== null && responseBody !== undefined
+      responseBody !== null && responseBody !== undefined
     ) {
       if (typeof responseBody === 'string') {
         responseHeaders['content-length'] = responseBody.length.toString()
@@ -805,7 +735,16 @@ export class cheetah<
         if (!responseHeaders['content-type']) {
           responseHeaders['content-type'] = 'text/plain; charset=utf-8'
         }
-      } else {
+      } else if (
+        responseBody instanceof ArrayBuffer ||
+        responseBody instanceof Uint8Array
+      ) {
+        responseHeaders['content-length'] = responseBody.byteLength.toString()
+      } else if (responseBody instanceof Blob) {
+        responseHeaders['content-length'] = responseBody.size.toString()
+      } else if (responseBody instanceof FormData) {
+        // TODO: calculate content length
+      } else if (responseBody instanceof ReadableStream === false) {
         responseBody = JSON.stringify(responseBody)
 
         responseHeaders['content-length'] = responseBody.length.toString()
