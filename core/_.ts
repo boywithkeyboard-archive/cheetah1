@@ -1,10 +1,13 @@
-// deno-lint-ignore-file no-explicit-any
 import { Context } from './context/Context.ts'
-import { ZodObject, ZodRecord, ZodType } from './deps.ts'
+import { z, ZodObject, ZodRecord, ZodType } from './deps.ts'
 
 export type ObjectType =
+  // deno-lint-ignore no-explicit-any
   | ZodObject<any>
   | ZodRecord
+
+export type Static<T extends ZodType | unknown> = T extends ZodType ? z.infer<T>
+  : unknown
 
 export type RequestMethod =
   | 'DELETE'
@@ -24,8 +27,10 @@ export type Route =
     cache?: false | { maxAge: number }
     cors?: string
   }
-  | Handler<any>
-  | DisembodiedHandler<any>
+  // deno-lint-ignore no-explicit-any
+  | Handler<any, any, any, any, any>
+  // deno-lint-ignore no-explicit-any
+  | DisembodiedHandler<any, any, any, any, any>
 
 type ExtractParam<Path, NextPart> = Path extends `:${infer Param}`
   ? Record<Param, string> & NextPart
@@ -49,10 +54,10 @@ export type ResponsePayload =
 
 export type Handler<
   Params,
-  ParsedBody extends ZodType = never,
-  ParsedCookies extends ObjectType = never,
-  ParsedHeaders extends ObjectType = never,
-  ParsedQuery extends ObjectType = never,
+  ParsedBody = unknown,
+  ParsedCookies = unknown,
+  ParsedHeaders = unknown,
+  ParsedQuery = unknown,
 > = (
   c: Context<
     ExtractParams<Params>,
@@ -69,10 +74,10 @@ type DisembodiedResponsePayload =
 
 export type DisembodiedHandler<
   Params,
-  ParsedBody extends ZodType = never,
-  ParsedCookies extends ObjectType = never,
-  ParsedHeaders extends ObjectType = never,
-  ParsedQuery extends ObjectType = never,
+  ParsedBody = unknown,
+  ParsedCookies = unknown,
+  ParsedHeaders = unknown,
+  ParsedQuery = unknown,
 > = (
   c: Context<
     ExtractParams<Params>,

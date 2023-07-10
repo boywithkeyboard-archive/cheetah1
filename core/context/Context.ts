@@ -6,10 +6,10 @@ import { ObjectType } from '../_.ts'
 
 export class Context<
   Params extends Record<string, unknown> = Record<string, never>,
-  ValidatedBody extends ZodType = never,
-  ValidatedCookies extends ObjectType = never,
-  ValidatedHeaders extends ObjectType = never,
-  ValidatedQuery extends ObjectType = never,
+  ValidatedBody extends ZodType | unknown = unknown,
+  ValidatedCookies extends ObjectType | unknown = unknown,
+  ValidatedHeaders extends ObjectType | unknown = unknown,
+  ValidatedQuery extends ObjectType | unknown = unknown,
 > {
   #e
   #r

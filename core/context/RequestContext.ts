@@ -1,4 +1,4 @@
-import { ObjectType, RequestMethod } from '../_.ts'
+import { ObjectType, RequestMethod, Static } from '../_.ts'
 import { Exception } from '../../mod.ts'
 import {
   ContinentCode,
@@ -11,10 +11,10 @@ import {
 
 export class RequestContext<
   Params extends Record<string, unknown> = Record<string, never>,
-  ValidatedBody extends ZodType = never,
-  ValidatedCookies extends ObjectType = never,
-  ValidatedHeaders extends ObjectType = never,
-  ValidatedQuery extends ObjectType = never,
+  ValidatedBody extends ZodType | unknown = unknown,
+  ValidatedCookies extends ObjectType | unknown = unknown,
+  ValidatedHeaders extends ObjectType | unknown = unknown,
+  ValidatedQuery extends ObjectType | unknown = unknown,
 > {
   #c: Record<string, string | undefined> | undefined
   #h: Record<string, string | undefined> | undefined
@@ -126,7 +126,9 @@ export class RequestContext<
   /**
    * The validated body of the incoming request.
    */
-  async body(): Promise<z.infer<ValidatedBody>> {
+  async body(): Promise<
+    ValidatedBody extends ZodType ? Static<ValidatedBody> : unknown
+  > {
     if (!this.#s.body) {
       // @ts-ignore:
       return undefined
@@ -176,9 +178,9 @@ export class RequestContext<
   /**
    * The validated cookies of the incoming request.
    */
-  get cookies(): z.infer<ValidatedCookies> {
+  get cookies(): Static<ValidatedCookies> {
     if (this.#c || !this.#s.cookies) {
-      return this.#c as z.infer<ValidatedCookies>
+      return this.#c as Static<ValidatedCookies>
     }
 
     try {
@@ -208,15 +210,15 @@ export class RequestContext<
       throw new Exception(400)
     }
 
-    return this.#c as z.infer<ValidatedCookies>
+    return this.#c as Static<ValidatedCookies>
   }
 
   /**
    * The validated headers of the incoming request.
    */
-  get headers(): z.infer<ValidatedHeaders> {
+  get headers(): Static<ValidatedHeaders> {
     if (this.#h || !this.#s.headers) {
-      return this.#h as z.infer<ValidatedHeaders>
+      return this.#h as Static<ValidatedHeaders>
     }
 
     this.#h = {}
@@ -241,15 +243,15 @@ export class RequestContext<
       throw new Exception(400)
     }
 
-    return this.#h as z.infer<ValidatedHeaders>
+    return this.#h as Static<ValidatedHeaders>
   }
 
   /**
    * The validated query parameters of the incoming request.
    */
-  get query(): z.infer<ValidatedQuery> {
+  get query(): Static<ValidatedQuery> {
     if (this.#q || !this.#s.query) {
-      return this.#q as z.infer<ValidatedQuery>
+      return this.#q as Static<ValidatedQuery>
     }
 
     this.#q = {}
@@ -280,7 +282,7 @@ export class RequestContext<
       throw new Exception(400)
     }
 
-    return this.#q as z.infer<ValidatedQuery>
+    return this.#q as Static<ValidatedQuery>
   }
 
   /**

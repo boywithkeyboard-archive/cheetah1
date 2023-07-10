@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import { Preferences } from '../mod.ts'
 import { Handler, ObjectType, Route } from './_.ts'
 import { Collection } from './Collection.ts'
@@ -21,7 +22,11 @@ export class cheetah {
   #notFound
   #error
   #preflight
-  #plugins
+  #plugins: {
+    beforeParsing: any[]
+    beforeHandling: any[]
+    beforeResponding: any[]
+  }
   // #plugins: {
   //   beforeParsing: [string, ((request: Request) => void | Promise<void>)][]
   //   beforeHandling: [
@@ -81,7 +86,6 @@ export class cheetah {
 
     const runtime = globalThis?.Deno
       ? 'deno'
-      // deno-lint-ignore no-explicit-any
       : typeof (globalThis as any)?.WebSocketPair === 'function'
       ? 'cloudflare'
       : 'unknown'
@@ -392,7 +396,6 @@ export class cheetah {
         continue
       }
 
-      // deno-lint-ignore no-explicit-any
       const result = await (route[i] as Handler<any, any, any, any, any>)(
         context,
       )
