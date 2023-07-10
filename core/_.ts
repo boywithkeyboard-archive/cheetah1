@@ -1,6 +1,10 @@
 // deno-lint-ignore-file no-explicit-any
-import { Context } from './Context.d.ts'
-import { ObjectSchema, Schema } from '../validator/Validator.d.ts'
+import { Context } from './context/Context.ts'
+import { ZodObject, ZodRecord, ZodType } from './deps.ts'
+
+export type ObjectType =
+  | ZodObject<any>
+  | ZodRecord
 
 export type RequestMethod =
   | 'DELETE'
@@ -12,16 +16,16 @@ export type RequestMethod =
 
 export type Route =
   | {
-    body?: Schema
-    cookies?: ObjectSchema
-    headers?: ObjectSchema
-    query?: ObjectSchema
+    body?: ZodType
+    cookies?: ObjectType
+    headers?: ObjectType
+    query?: ObjectType
     transform?: boolean
     cache?: false | { maxAge: number }
     cors?: string
   }
-  | Handler<any, any, any, any, any>
-  | DisembodiedHandler<any, any, any, any, any>
+  | Handler<any>
+  | DisembodiedHandler<any>
 
 type ExtractParam<Path, NextPart> = Path extends `:${infer Param}`
   ? Record<Param, string> & NextPart
@@ -44,11 +48,11 @@ export type ResponsePayload =
   | void
 
 export type Handler<
-  Params = unknown,
-  ParsedBody = unknown,
-  ParsedCookies = unknown,
-  ParsedHeaders = unknown,
-  ParsedQuery = unknown,
+  Params,
+  ParsedBody extends ZodType = never,
+  ParsedCookies extends ObjectType = never,
+  ParsedHeaders extends ObjectType = never,
+  ParsedQuery extends ObjectType = never,
 > = (
   c: Context<
     ExtractParams<Params>,
@@ -64,11 +68,11 @@ type DisembodiedResponsePayload =
   | undefined
 
 export type DisembodiedHandler<
-  Params = unknown,
-  ParsedBody = unknown,
-  ParsedCookies = unknown,
-  ParsedHeaders = unknown,
-  ParsedQuery = unknown,
+  Params,
+  ParsedBody extends ZodType = never,
+  ParsedCookies extends ObjectType = never,
+  ParsedHeaders extends ObjectType = never,
+  ParsedQuery extends ObjectType = never,
 > = (
   c: Context<
     ExtractParams<Params>,

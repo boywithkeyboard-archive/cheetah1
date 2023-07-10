@@ -1,5 +1,5 @@
 export { Collection } from './core/Collection.ts'
-export type { Context } from './core/Context.d.ts'
+export type { Context } from './core/context/Context.ts'
 export { Exception } from './core/Exception.ts'
 export type { Preferences } from './core/Preferences.d.ts'
 export { cheetah as default } from './core/cheetah.ts'

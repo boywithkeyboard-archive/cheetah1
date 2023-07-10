@@ -14,8 +14,8 @@ Deno.test('Validation', async (t) => {
         message: z.string(),
       }),
       transform: true,
-    }, (c) => {
-      assertEquals(c.req.body, { message: 'Hello World' })
+    }, async (c) => {
+      assertEquals(await c.req.body(), { message: 'Hello World' })
 
       return 'test'
     })

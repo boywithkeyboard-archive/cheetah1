@@ -23,7 +23,7 @@ Deno.test('Request', async (t) => {
   })
 
   await t.step('req.raw()', async () => {
-    app.post('/raw', (c) => c.req.raw().method)
+    app.post('/raw', (c) => c.req.raw.method)
 
     assertEquals(
       await (await app.fetch(
@@ -99,7 +99,7 @@ Deno.test('Request', async (t) => {
 
   await t.step('req.stream()', async () => {
     app.post('/stream', async (c) => {
-      const stream = c.req.stream()
+      const stream = c.req.stream
 
       const text = stream !== null && stream instanceof ReadableStream
         ? 'ok'

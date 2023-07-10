@@ -1,5 +1,5 @@
-import { Handler, Route } from './_.ts'
-import { ObjectSchema, Schema } from '../validator/Validator.d.ts'
+import { Handler, ObjectType, Route } from './_.ts'
+import { ZodType } from './deps.ts'
 
 export class Collection {
   #cache:
@@ -50,14 +50,14 @@ export class Collection {
 
   get<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<RequestUrl, undefined>[]
+    ...handler: Handler<RequestUrl>[]
   ): this
 
   get<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -69,7 +69,7 @@ export class Collection {
     },
     ...handler: Handler<
       RequestUrl,
-      undefined,
+      never,
       ValidatedCookies,
       ValidatedHeaders,
       ValidatedQuery
@@ -78,9 +78,9 @@ export class Collection {
 
   get<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -93,7 +93,7 @@ export class Collection {
       }
       | Handler<
         RequestUrl,
-        undefined,
+        never,
         ValidatedCookies,
         ValidatedHeaders,
         ValidatedQuery
@@ -124,10 +124,10 @@ export class Collection {
 
   delete<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -149,10 +149,10 @@ export class Collection {
 
   delete<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -191,10 +191,10 @@ export class Collection {
 
   post<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -216,10 +216,10 @@ export class Collection {
 
   post<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -258,10 +258,10 @@ export class Collection {
 
   put<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -283,10 +283,10 @@ export class Collection {
 
   put<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -325,10 +325,10 @@ export class Collection {
 
   patch<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -350,10 +350,10 @@ export class Collection {
 
   patch<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -387,14 +387,14 @@ export class Collection {
 
   head<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<RequestUrl, undefined>[]
+    ...handler: Handler<RequestUrl>[]
   ): this
 
   head<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -405,7 +405,7 @@ export class Collection {
     },
     ...handler: Handler<
       RequestUrl,
-      undefined,
+      never,
       ValidatedCookies,
       ValidatedHeaders,
       ValidatedQuery
@@ -414,9 +414,9 @@ export class Collection {
 
   head<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -428,7 +428,7 @@ export class Collection {
       }
       | Handler<
         RequestUrl,
-        undefined,
+        never,
         ValidatedCookies,
         ValidatedHeaders,
         ValidatedQuery

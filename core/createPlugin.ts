@@ -1,25 +1,12 @@
-import { Context } from './Context.d.ts'
 import { ResponsePayload } from './_.ts'
 
 export type PluginMethods = {
   beforeParsing?: (request: Request) => void | Promise<void>
   beforeHandling?: (
-    c: Context<
-      Record<string, never>,
-      unknown,
-      unknown,
-      Record<string, string>,
-      unknown
-    >,
+    c: any,
   ) => ResponsePayload | Promise<ResponsePayload>
   beforeResponding?: (
-    c: Context<
-      Record<string, never>,
-      unknown,
-      unknown,
-      Record<string, string>,
-      unknown
-    >,
+    c: any,
   ) => ResponsePayload | Promise<ResponsePayload>
 }
 

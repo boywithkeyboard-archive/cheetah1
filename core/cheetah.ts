@@ -1,84 +1,64 @@
-import {
-  ContinentCode,
-  IncomingRequestCfProperties,
-} from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230628.0/index.ts'
-import {
-  deadline,
-  DeadlineError,
-} from 'https://deno.land/std@0.193.0/async/deadline.ts'
-import {
-  brightBlue,
-  brightGreen,
-  brightRed,
-  gray,
-  white,
-} from 'https://deno.land/std@0.193.0/fmt/colors.ts'
-import { ConnInfo } from 'https://deno.land/std@0.193.0/http/server.ts'
-import { TSchema } from 'https://esm.sh/@sinclair/typebox@0.29.4'
 import { Preferences } from '../mod.ts'
-import { ObjectSchema, Schema, Validator } from '../validator/Validator.d.ts'
+import { Handler, ObjectType, Route } from './_.ts'
 import { Collection } from './Collection.ts'
-import { Context } from './Context.d.ts'
+import { Context } from './context/Context.ts'
+import { PluginMethods } from './createPlugin.ts'
+import { colors, ConnInfo, ZodType } from './deps.ts'
 import { Exception } from './Exception.ts'
 import { Router } from './Router.ts'
-import { Handler, RequestMethod, ResponsePayload, Route } from './_.ts'
-import { PluginMethods } from './createPlugin.ts'
 
 type RequestContext = {
   waitUntil: (promise: Promise<unknown>) => void
 }
 
-export class cheetah<
-  V extends Validator = never,
-> {
+export class cheetah {
   #router
   #runtime: 'deno' | 'cloudflare'
   #base
   #cors
   #cache
   #debugging
-  #validator: Validator | undefined
   #notFound
   #error
   #preflight
-  #plugins: {
-    beforeParsing: [string, ((request: Request) => void | Promise<void>)][]
-    beforeHandling: [
-      string,
-      ((
-        c: Context<
-          Record<string, never>,
-          unknown,
-          unknown,
-          Record<string, string>,
-          unknown
-        >,
-      ) => ResponsePayload | Promise<ResponsePayload>),
-    ][]
-    beforeResponding: [
-      string,
-      ((
-        c: Context<
-          Record<string, never>,
-          unknown,
-          unknown,
-          Record<string, string>,
-          unknown
-        >,
-      ) => ResponsePayload | Promise<ResponsePayload>),
-    ][]
-  }
+  #plugins
+  // #plugins: {
+  //   beforeParsing: [string, ((request: Request) => void | Promise<void>)][]
+  //   beforeHandling: [
+  //     string,
+  //     ((
+  //       c: Context<
+  //         Record<string, never>,
+  //         unknown,
+  //         unknown,
+  //         Record<string, string>,
+  //         unknown
+  //       >,
+  //     ) => ResponsePayload | Promise<ResponsePayload>),
+  //   ][]
+  //   beforeResponding: [
+  //     string,
+  //     ((
+  //       c: Context<
+  //         Record<string, never>,
+  //         unknown,
+  //         unknown,
+  //         Record<string, string>,
+  //         unknown
+  //       >,
+  //     ) => ResponsePayload | Promise<ResponsePayload>),
+  //   ][]
+  // }
 
   constructor({
     base,
     cors,
     cache,
     debug = false,
-    validator,
     preflight = false,
     error,
     notFound,
-  }: Preferences<V> = {}) {
+  }: Preferences = {}) {
     this.#router = new Router()
 
     this.#base = base === '/' ? undefined : base
@@ -90,7 +70,6 @@ export class cheetah<
       }
       : undefined
     this.#debugging = debug
-    this.#validator = validator
     this.#error = error
     this.#notFound = notFound
     this.#preflight = preflight
@@ -345,158 +324,8 @@ export class cheetah<
 
     /* Set Variables ------------------------------------------------------------ */
 
-    const headers: Record<string, string> = {}
-    const query: Record<string, unknown> = {}
-    let cookies: Record<string, string> = {}
-    let body
-
-    let num = 0
-
-    for (const [key, value] of request.headers) {
-      if (num === 50) {
-        break
-      }
-
-      if (!headers[key.toLowerCase()]) {
-        headers[key.toLowerCase()] = value
-      }
-
-      num++
-    }
-
-    if (this.#validator && options) {
-      /* Parse Headers ------------------------------------------------------------ */
-
-      if (options.headers) {
-        const isValid =
-          this.#validator.name === 'typebox' && this.#validator.check
-            ? this.#validator.check(options.headers as TSchema, headers)
-            : options.headers.safeParse(headers).success
-
-        if (!isValid) {
-          throw new Exception(400)
-        }
-      }
-
-      /* Parse Query Parameters --------------------------------------------------- */
-
-      if (options.query) {
-        for (const [key, value] of url.searchParams) {
-          if (value === '' || value === 'true') {
-            query[key] = true
-          } else if (value === 'false') {
-            query[key] = false
-          } else if (value.indexOf(',') > -1) {
-            query[key] = value.split(',')
-          } else if (
-            !isNaN((value as unknown) as number) && !isNaN(parseFloat(value))
-          ) {
-            query[key] = parseInt(value)
-          } else if (value === 'undefined') {
-            query[key] = undefined
-          } else if (value === 'null') {
-            query[key] = null
-          } else {
-            query[key] = decodeURIComponent(value)
-          }
-        }
-
-        const isValid =
-          this.#validator.name === 'typebox' && this.#validator.check
-            ? this.#validator.check(options.query as TSchema, query)
-            : options.query.safeParse(query).success
-
-        if (!isValid) {
-          throw new Exception(400)
-        }
-      }
-
-      /* Parse Cookies ------------------------------------------------------------ */
-
-      if (options.cookies) {
-        try {
-          const cookiesHeader = request.headers.get('cookies') ?? ''
-
-          if (cookiesHeader.length > 1000) {
-            throw new Exception(413)
-          }
-
-          cookies = cookiesHeader
-            .split(/;\s*/)
-            .map((pair) => pair.split(/=(.+)/))
-            .reduce((acc: Record<string, string>, [key, value]) => {
-              acc[key] = value
-
-              return acc
-            }, {})
-
-          delete cookies['']
-        } catch (_err) {
-          cookies = {}
-        }
-
-        const isValid =
-          this.#validator.name === 'typebox' && this.#validator.check
-            ? this.#validator.check(options.cookies as TSchema, cookies)
-            : options.cookies.safeParse(cookies).success
-
-        if (!isValid) {
-          throw new Exception(400)
-        }
-      }
-
-      /* Parse Body --------------------------------------------------------------- */
-
-      if (options.body) {
-        try {
-          if (
-            options.body?._def?.typeName === 'ZodObject' ||
-            // @ts-ignore: typescript bs
-            options.body[Object.getOwnPropertySymbols(options.body)[0]] ===
-              'Object'
-          ) {
-            if (
-              options.transform === true &&
-              request.headers.get('content-type') === 'multipart/form-data'
-            ) {
-              const formData = await deadline(request.formData(), 3000)
-
-              body = {} as Record<string, unknown>
-
-              for (const [key, value] of formData.entries()) {
-                body[key] = value
-              }
-            } else {
-              body = await deadline(request.json(), 3000)
-            }
-          } else if (
-            options.body._def?.typeName === 'ZodString' ||
-            // @ts-ignore: typescript bs
-            options.body[Object.getOwnPropertySymbols(options.body)[0]] ===
-              'String'
-          ) {
-            body = await deadline(request.text(), 3000)
-          }
-        } catch (err) {
-          throw new Exception(err instanceof DeadlineError ? 413 : 400)
-        }
-
-        const isValid =
-          this.#validator.name === 'typebox' && this.#validator.check
-            ? this.#validator.check(options.body as TSchema, body)
-            : options.body.safeParse(body).success
-
-        if (!isValid) {
-          throw new Exception(400)
-        }
-      }
-    }
-
     /* Construct Context -------------------------------------------------------- */
 
-    // deno-lint-ignore no-explicit-any
-    let geo: ReturnType<Context<any, Record<string, string>>['req']['geo']>
-    const requiresFormatting = true
     let responseCode = 200
 
     const responseHeaders: Record<string, string> = {
@@ -528,130 +357,16 @@ export class cheetah<
       | ArrayBuffer
       | null = null
 
-    const context: Context<Record<string, string>> = {
+    const context = new Context(
       env,
+      ip,
+      params,
+      request,
+      this.#runtime,
+      // @ts-ignore:
+      options,
       waitUntil,
-      runtime: this.#runtime,
-
-      req: {
-        ip,
-        method: request.method as RequestMethod,
-
-        raw: () => request.clone(),
-
-        body,
-        cookies,
-        headers,
-        param: (key) => params[key],
-        query,
-        geo: () => {
-          if (geo) {
-            return geo
-          }
-
-          if (this.#runtime === 'cloudflare') {
-            const { cf } = request as Request & {
-              cf: IncomingRequestCfProperties
-            }
-
-            geo = {
-              city: cf.city,
-              region: cf.region,
-              country: cf.country,
-              continent: cf.continent,
-              regionCode: cf.regionCode,
-              latitude: cf.latitude,
-              longitude: cf.longitude,
-              timezone: cf.timezone,
-              datacenter: cf.colo,
-            }
-          } else {
-            geo = {
-              city: request.headers.get('cf-ipcity') ?? undefined,
-              country: request.headers.get('cf-ipcountry') ?? undefined,
-              continent:
-                request.headers.get('cf-ipcontinent') as ContinentCode ??
-                  undefined,
-              latitude: request.headers.get('cf-iplatitude') ?? undefined,
-              longitude: request.headers.get('cf-iplongitude') ?? undefined,
-            }
-          }
-
-          return geo
-        },
-        async buffer(d) {
-          try {
-            const promise = request.bodyUsed
-              ? request.clone().arrayBuffer()
-              : request.arrayBuffer()
-
-            return await deadline(promise, d ?? 3000)
-          } catch (_err) {
-            return null
-          }
-        },
-        async blob(d) {
-          try {
-            const promise = request.bodyUsed
-              ? request.clone().blob()
-              : request.blob()
-
-            return await deadline(promise, d ?? 3000)
-          } catch (_err) {
-            return null
-          }
-        },
-        async formData(d) {
-          try {
-            const promise = request.bodyUsed
-              ? request.clone().formData()
-              : request.formData()
-
-            return await deadline(promise, d ?? 3000)
-          } catch (_err) {
-            return null
-          }
-        },
-        stream() {
-          return request.bodyUsed ? request.clone().body : request.body
-        },
-      },
-
-      res: {
-        code(code) {
-          responseCode = code
-        },
-
-        cookie(name, value, options) {
-          let cookie = `${name}=${value};`
-
-          responseHeaders['set-cookie'] = (
-            options?.expiresAt &&
-            (cookie += ` expires=${options.expiresAt.toUTCString()};`),
-              options?.maxAge && (cookie += ` max-age=${options.maxAge};`),
-              options?.domain && (cookie += ` domain=${options.domain};`),
-              options?.path && (cookie += ` path=${options.path};`),
-              options?.secure && (cookie += ' secure;'),
-              options?.httpOnly && (cookie += ' httpOnly;'),
-              options?.sameSite &&
-              (cookie += ` sameSite=${
-                options.sameSite.charAt(0).toUpperCase() +
-                options.sameSite.slice(1)
-              };`),
-              cookie
-          )
-        },
-
-        header(name, value) {
-          responseHeaders[name.toLowerCase()] = value
-        },
-
-        redirect(destination, code) {
-          responseHeaders.location = destination
-          responseCode = code ?? 307
-        },
-      },
-    }
+    )
 
     /* beforeHandling Plugin ---------------------------------------------------- */
 
@@ -781,16 +496,18 @@ export class cheetah<
 
     if (event === 'error') {
       console.error(
-        gray(`${brightRed(statusCode.toString())} - ${method} ${pathname}`),
+        colors.gray(
+          `${colors.brightRed(statusCode.toString())} - ${method} ${pathname}`,
+        ),
       )
     } else {
       console.log(
-        gray(
+        colors.gray(
           `${
             statusCode === 301 || statusCode === 307
-              ? brightBlue(statusCode.toString())
-              : brightGreen(statusCode.toString())
-          } - ${method} ${white(pathname)}`,
+              ? colors.brightBlue(statusCode.toString())
+              : colors.brightGreen(statusCode.toString())
+          } - ${method} ${colors.white(pathname)}`,
         ),
       )
     }
@@ -815,9 +532,9 @@ export class cheetah<
 
   get<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -838,9 +555,9 @@ export class cheetah<
 
   get<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -853,7 +570,7 @@ export class cheetah<
       }
       | Handler<
         RequestUrl,
-        undefined,
+        never,
         ValidatedCookies,
         ValidatedHeaders,
         ValidatedQuery
@@ -874,10 +591,10 @@ export class cheetah<
 
   delete<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -899,10 +616,10 @@ export class cheetah<
 
   delete<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -937,10 +654,10 @@ export class cheetah<
 
   post<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -962,10 +679,10 @@ export class cheetah<
 
   post<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -1000,10 +717,10 @@ export class cheetah<
 
   put<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -1025,10 +742,10 @@ export class cheetah<
 
   put<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -1063,10 +780,10 @@ export class cheetah<
 
   patch<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -1088,10 +805,10 @@ export class cheetah<
 
   patch<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends Schema,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedBody extends ZodType,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -1121,14 +838,14 @@ export class cheetah<
 
   head<RequestUrl extends `/${string}`>(
     url: RequestUrl,
-    ...handler: Handler<RequestUrl, undefined>[]
+    ...handler: Handler<RequestUrl, never>[]
   ): this
 
   head<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     schema: {
@@ -1139,7 +856,7 @@ export class cheetah<
     },
     ...handler: Handler<
       RequestUrl,
-      undefined,
+      never,
       ValidatedCookies,
       ValidatedHeaders,
       ValidatedQuery
@@ -1148,9 +865,9 @@ export class cheetah<
 
   head<
     RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectSchema,
-    ValidatedHeaders extends ObjectSchema,
-    ValidatedQuery extends ObjectSchema,
+    ValidatedCookies extends ObjectType,
+    ValidatedHeaders extends ObjectType,
+    ValidatedQuery extends ObjectType,
   >(
     url: RequestUrl,
     ...handler: (
@@ -1162,7 +879,7 @@ export class cheetah<
       }
       | Handler<
         RequestUrl,
-        undefined,
+        never,
         ValidatedCookies,
         ValidatedHeaders,
         ValidatedQuery
