@@ -1,8 +1,8 @@
 /// <reference types='../env.d.ts' />
+import { ObjectType } from '../_.ts'
+import { ZodType } from '../deps.ts'
 import { RequestContext } from './RequestContext.ts'
 import { ResponseContext } from './ResponseContext.ts'
-import { ZodType } from '../deps.ts'
-import { ObjectType } from '../_.ts'
 
 export class Context<
   Params extends Record<string, unknown> = Record<string, never>,

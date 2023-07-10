@@ -59,20 +59,22 @@ Deno.test('Plugins', async (t) => {
 
     const plugin = createPlugin({
       beforeHandling(c) {
-        c.req.headers.custom = 'test'
+        c.test = 'test'
       },
     })
 
     app.use(plugin)
 
     app.get('/test', (c) => {
-      assertEquals((c.req.headers as Record<string, string>).custom, 'test')
+      // @ts-ignore:
+      assertEquals(c.test, 'test')
 
       return 'Hello World'
     })
 
     app.get('/another_test', (c) => {
-      assertEquals((c.req.headers as Record<string, string>).custom, 'test')
+      // @ts-ignore:
+      assertEquals(c.test, 'test')
 
       return 'Hello World'
     })

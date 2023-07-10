@@ -1,5 +1,5 @@
 import { Handler, ObjectType, Route } from './_.ts'
-import { ZodType } from './deps.ts'
+import { BaseType } from './_.ts'
 
 export class Collection {
   #cache:
@@ -124,7 +124,7 @@ export class Collection {
 
   delete<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
+    ValidatedBody extends BaseType,
     ValidatedCookies extends ObjectType,
     ValidatedHeaders extends ObjectType,
     ValidatedQuery extends ObjectType,
@@ -149,7 +149,7 @@ export class Collection {
 
   delete<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
+    ValidatedBody extends BaseType,
     ValidatedCookies extends ObjectType,
     ValidatedHeaders extends ObjectType,
     ValidatedQuery extends ObjectType,
@@ -191,7 +191,7 @@ export class Collection {
 
   post<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
+    ValidatedBody extends BaseType,
     ValidatedCookies extends ObjectType,
     ValidatedHeaders extends ObjectType,
     ValidatedQuery extends ObjectType,
@@ -216,7 +216,7 @@ export class Collection {
 
   post<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
+    ValidatedBody extends BaseType,
     ValidatedCookies extends ObjectType,
     ValidatedHeaders extends ObjectType,
     ValidatedQuery extends ObjectType,
@@ -258,7 +258,7 @@ export class Collection {
 
   put<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
+    ValidatedBody extends BaseType,
     ValidatedCookies extends ObjectType,
     ValidatedHeaders extends ObjectType,
     ValidatedQuery extends ObjectType,
@@ -283,7 +283,7 @@ export class Collection {
 
   put<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
+    ValidatedBody extends BaseType,
     ValidatedCookies extends ObjectType,
     ValidatedHeaders extends ObjectType,
     ValidatedQuery extends ObjectType,
@@ -325,7 +325,7 @@ export class Collection {
 
   patch<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
+    ValidatedBody extends BaseType,
     ValidatedCookies extends ObjectType,
     ValidatedHeaders extends ObjectType,
     ValidatedQuery extends ObjectType,
@@ -350,7 +350,7 @@ export class Collection {
 
   patch<
     RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
+    ValidatedBody extends BaseType,
     ValidatedCookies extends ObjectType,
     ValidatedHeaders extends ObjectType,
     ValidatedQuery extends ObjectType,

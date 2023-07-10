@@ -1,11 +1,10 @@
-import { ObjectType, RequestMethod, Static } from '../_.ts'
 import { Exception } from '../../mod.ts'
+import { BaseType, ObjectType, RequestMethod, Static } from '../_.ts'
 import {
   ContinentCode,
   DeadlineError,
   IncomingRequestCfProperties,
   resolveWithDeadline,
-  z,
   ZodType,
 } from '../deps.ts'
 
@@ -138,7 +137,7 @@ export class RequestContext<
 
     try {
       if (
-        this.#s.body._type === 'ZodObject'
+        (this.#s.body as BaseType)._def.typeName === 'ZodObject'
       ) {
         if (
           this.#s.transform === true &&
@@ -155,10 +154,7 @@ export class RequestContext<
           body = await resolveWithDeadline(this.#r.json(), 3000)
         }
       } else if (
-        this.#s.body._type === 'ZodString' ||
-        // @ts-ignore: typescript bs
-        options.body[Object.getOwnPropertySymbols(options.body)[0]] ===
-          'String'
+        (this.#s.body as BaseType)._def.typeName === 'ZodString'
       ) {
         body = await resolveWithDeadline(this.#r.text(), 3000)
       }
@@ -216,9 +212,13 @@ export class RequestContext<
   /**
    * The validated headers of the incoming request.
    */
-  get headers(): Static<ValidatedHeaders> {
-    if (this.#h || !this.#s.headers) {
-      return this.#h as Static<ValidatedHeaders>
+  get headers(): ValidatedHeaders extends unknown
+    ? Record<string, string | undefined>
+    : Static<ValidatedHeaders> {
+    if (this.#h) {
+      return this.#h as ValidatedHeaders extends unknown
+        ? Record<string, string | undefined>
+        : Static<ValidatedHeaders>
     }
 
     this.#h = {}
@@ -237,13 +237,17 @@ export class RequestContext<
       num++
     }
 
-    const isValid = this.#s.headers.safeParse(this.#s).success
+    if (this.#s.headers) {
+      const isValid = this.#s.headers.safeParse(this.#h).success
 
-    if (!isValid) {
-      throw new Exception(400)
+      if (!isValid) {
+        throw new Exception(400)
+      }
     }
 
-    return this.#h as Static<ValidatedHeaders>
+    return this.#h as ValidatedHeaders extends unknown
+      ? Record<string, string | undefined>
+      : Static<ValidatedHeaders>
   }
 
   /**

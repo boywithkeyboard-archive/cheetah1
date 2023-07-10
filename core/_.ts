@@ -1,3 +1,5 @@
+import { ZodStringDef } from 'https://deno.land/x/zod@v3.21.4/external.ts'
+import { ZodObjectDef } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { Context } from './context/Context.ts'
 import { z, ZodObject, ZodRecord, ZodType } from './deps.ts'
 
@@ -16,6 +18,12 @@ export type RequestMethod =
   | 'PATCH'
   | 'POST'
   | 'PUT'
+
+export type BaseType =
+  // deno-lint-ignore no-explicit-any
+  | ZodType<any, ZodObjectDef<any, any, any>, any>
+  // deno-lint-ignore no-explicit-any
+  | ZodType<any, ZodStringDef, any>
 
 export type Route =
   | {
