@@ -11,6 +11,8 @@ export type { ConnInfo } from 'https://deno.land/std@0.193.0/http/server.ts'
 export { default as z } from 'https://deno.land/x/zod@v3.21.4/index.ts'
 export type {
   ZodObject,
+  ZodObjectDef,
   ZodRecord,
+  ZodStringDef,
   ZodType,
 } from 'https://deno.land/x/zod@v3.21.4/types.ts'

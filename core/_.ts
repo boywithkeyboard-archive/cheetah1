@@ -1,7 +1,12 @@
-import { ZodStringDef } from 'https://deno.land/x/zod@v3.21.4/external.ts'
-import { ZodObjectDef } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { Context } from './context/Context.ts'
-import { z, ZodObject, ZodRecord, ZodType } from './deps.ts'
+import {
+  z,
+  ZodObject,
+  ZodObjectDef,
+  ZodRecord,
+  ZodStringDef,
+  ZodType,
+} from './deps.ts'
 
 export type ObjectType =
   // deno-lint-ignore no-explicit-any
