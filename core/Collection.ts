@@ -1,7 +1,7 @@
-import { Handler, ObjectType, Route } from './_.ts'
-import { BaseType } from './_.ts'
+import { Route } from './_handler.ts'
+import { base, Method, METHODS } from './_base.ts'
 
-export class Collection {
+export class Collection extends base<Collection>() {
   #cache:
     | false
     | {
@@ -14,7 +14,7 @@ export class Collection {
     | undefined
 
   routes: [
-    string,
+    Method,
     string,
     Route[],
   ][]
@@ -40,407 +40,30 @@ export class Collection {
      */
     cors?: string
   } = {}) {
+    super()
+
     this.routes = []
 
     this.#cache = cache
     this.#cors = cors
-  }
 
-  /* Get Method --------------------------------------------------------------- */
+    for (let i = 0; i < METHODS.length; i++) {
+      // @ts-ignore:
+      super[METHODS[i]] = (pathname, ...handler) => {
+        if ((this.#cache || this.#cors) && typeof handler[0] !== 'function') {
+          if (handler[0].cache === undefined && this.#cache !== undefined) {
+            handler[0].cache = this.#cache
+          }
 
-  get<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl>[]
-  ): this
+          if (!handler[0].cors) {
+            handler[0].cors = this.#cors
+          }
+        }
 
-  get<
-    RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      cache?: false | { maxAge: number }
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      never,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
+        this.routes.push([METHODS[i], pathname, handler])
 
-  get<
-    RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        cache?: false | { maxAge: number }
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        never,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    if ((this.#cache || this.#cors) && typeof handler[0] !== 'function') {
-      if (handler[0].cache === undefined && this.#cache !== undefined) {
-        handler[0].cache = this.#cache
-      }
-
-      if (!handler[0].cors) {
-        handler[0].cors = this.#cors
+        return this
       }
     }
-
-    this.routes.push(['GET', url, handler])
-
-    return this
-  }
-
-  /* Delete Method ------------------------------------------------------------ */
-
-  delete<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl>[]
-  ): this
-
-  delete<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends BaseType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      body?: ValidatedBody
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      transform?: boolean
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      ValidatedBody,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
-
-  delete<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends BaseType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        body?: ValidatedBody
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        transform?: boolean
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        ValidatedBody,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    if (this.#cors && typeof handler[0] !== 'function' && !handler[0].cors) {
-      handler[0].cors = this.#cors
-    }
-
-    this.routes.push(['DELETE', url, handler])
-
-    return this
-  }
-
-  /* Post Method -------------------------------------------------------------- */
-
-  post<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl>[]
-  ): this
-
-  post<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends BaseType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      body?: ValidatedBody
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      transform?: boolean
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      ValidatedBody,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
-
-  post<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends BaseType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        body?: ValidatedBody
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        transform?: boolean
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        ValidatedBody,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    if (this.#cors && typeof handler[0] !== 'function' && !handler[0].cors) {
-      handler[0].cors = this.#cors
-    }
-
-    this.routes.push(['POST', url, handler])
-
-    return this
-  }
-
-  /* Put Method --------------------------------------------------------------- */
-
-  put<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl>[]
-  ): this
-
-  put<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends BaseType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      body?: ValidatedBody
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      transform?: boolean
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      ValidatedBody,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
-
-  put<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends BaseType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        body?: ValidatedBody
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        transform?: boolean
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        ValidatedBody,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    if (this.#cors && typeof handler[0] !== 'function' && !handler[0].cors) {
-      handler[0].cors = this.#cors
-    }
-
-    this.routes.push(['PUT', url, handler])
-
-    return this
-  }
-
-  /* Patch Method ------------------------------------------------------------- */
-
-  patch<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl>[]
-  ): this
-
-  patch<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends BaseType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      body?: ValidatedBody
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      transform?: boolean
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      ValidatedBody,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
-
-  patch<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends BaseType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        body?: ValidatedBody
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        transform?: boolean
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        ValidatedBody,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    if (this.#cors && typeof handler[0] !== 'function' && !handler[0].cors) {
-      handler[0].cors = this.#cors
-    }
-
-    this.routes.push(['PATCH', url, handler])
-
-    return this
-  }
-
-  /* Head Method -------------------------------------------------------------- */
-
-  head<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl>[]
-  ): this
-
-  head<
-    RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      never,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
-
-  head<
-    RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        never,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    if (this.#cors && typeof handler[0] !== 'function' && !handler[0].cors) {
-      handler[0].cors = this.#cors
-    }
-
-    this.routes.push(['HEAD', url, handler])
-
-    return this
   }
 }

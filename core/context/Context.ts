@@ -1,5 +1,5 @@
 /// <reference types='../env.d.ts' />
-import { ObjectType } from '../_.ts'
+import { ObjectType } from '../_zod.ts'
 import { ZodType } from '../deps.ts'
 import { RequestContext } from './RequestContext.ts'
 import { ResponseContext } from './ResponseContext.ts'

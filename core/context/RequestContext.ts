@@ -1,5 +1,6 @@
 import { Exception } from '../../mod.ts'
-import { BaseType, ObjectType, RequestMethod, Static } from '../_.ts'
+import { Method } from '../_base.ts'
+import { BaseType, ObjectType, Static } from '../_zod.ts'
 import {
   ContinentCode,
   DeadlineError,
@@ -55,7 +56,7 @@ export class RequestContext<
    * @since v0.12
    */
   get method() {
-    return this.#r.method as RequestMethod
+    return this.#r.method as Uppercase<Method>
   }
 
   /**
