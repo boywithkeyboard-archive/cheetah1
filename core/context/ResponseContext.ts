@@ -10,7 +10,7 @@ export class ResponseContext {
   /**
    * Set the status code of the response.
    */
-  set code(code: number) {
+  code(code: number) {
     this.c = code
   }
 

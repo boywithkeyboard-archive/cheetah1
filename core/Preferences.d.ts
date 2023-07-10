@@ -1,8 +1,4 @@
-import { Validator } from '../mod.ts'
-
-export type Preferences<
-  V extends Validator = never,
-> = {
+export type Preferences = {
   /**
    * A prefix for all routes, e.g. `/api`.
    *
@@ -35,11 +31,6 @@ export type Preferences<
    * @default false
    */
   debug?: boolean
-
-  /**
-   * Set a validator to validate the body, cookies, headers, and query parameters of the incoming request.
-   */
-  validator?: V
 
   /**
    * If enabled, cheetah will attempt to find the matching `.get()` handler for an incoming HEAD request. Your existing `.head()` handlers won't be impacted.
