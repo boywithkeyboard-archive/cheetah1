@@ -1,6 +1,20 @@
-// deno-lint-ignore-file no-explicit-any
-import { Context } from './Context.d.ts'
-import { ObjectSchema, Schema } from '../validator/Validator.d.ts'
+import { Context } from './context/Context.ts'
+import {
+  z,
+  ZodObject,
+  ZodObjectDef,
+  ZodRecord,
+  ZodStringDef,
+  ZodType,
+} from './deps.ts'
+
+export type ObjectType =
+  // deno-lint-ignore no-explicit-any
+  | ZodObject<any>
+  | ZodRecord
+
+export type Static<T extends ZodType | unknown> = T extends ZodType ? z.infer<T>
+  : unknown
 
 export type RequestMethod =
   | 'DELETE'
@@ -10,17 +24,25 @@ export type RequestMethod =
   | 'POST'
   | 'PUT'
 
+export type BaseType =
+  // deno-lint-ignore no-explicit-any
+  | ZodType<any, ZodObjectDef<any, any, any>, any>
+  // deno-lint-ignore no-explicit-any
+  | ZodType<any, ZodStringDef, any>
+
 export type Route =
   | {
-    body?: Schema
-    cookies?: ObjectSchema
-    headers?: ObjectSchema
-    query?: ObjectSchema
+    body?: ZodType
+    cookies?: ObjectType
+    headers?: ObjectType
+    query?: ObjectType
     transform?: boolean
     cache?: false | { maxAge: number }
     cors?: string
   }
+  // deno-lint-ignore no-explicit-any
   | Handler<any, any, any, any, any>
+  // deno-lint-ignore no-explicit-any
   | DisembodiedHandler<any, any, any, any, any>
 
 type ExtractParam<Path, NextPart> = Path extends `:${infer Param}`
@@ -44,7 +66,7 @@ export type ResponsePayload =
   | void
 
 export type Handler<
-  Params = unknown,
+  Params,
   ParsedBody = unknown,
   ParsedCookies = unknown,
   ParsedHeaders = unknown,
@@ -64,7 +86,7 @@ type DisembodiedResponsePayload =
   | undefined
 
 export type DisembodiedHandler<
-  Params = unknown,
+  Params,
   ParsedBody = unknown,
   ParsedCookies = unknown,
   ParsedHeaders = unknown,

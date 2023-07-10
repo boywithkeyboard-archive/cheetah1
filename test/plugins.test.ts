@@ -1,7 +1,4 @@
-import {
-  assertEquals,
-  assertInstanceOf,
-} from 'https://deno.land/std@0.193.0/testing/asserts.ts'
+import { assertEquals, assertInstanceOf } from './deps.ts'
 import cheetah, { createPlugin } from '../mod.ts'
 
 Deno.test('Plugins', async (t) => {
@@ -62,20 +59,22 @@ Deno.test('Plugins', async (t) => {
 
     const plugin = createPlugin({
       beforeHandling(c) {
-        c.req.headers.custom = 'test'
+        c.test = 'test'
       },
     })
 
     app.use(plugin)
 
     app.get('/test', (c) => {
-      assertEquals((c.req.headers as Record<string, string>).custom, 'test')
+      // @ts-ignore:
+      assertEquals(c.test, 'test')
 
       return 'Hello World'
     })
 
     app.get('/another_test', (c) => {
-      assertEquals((c.req.headers as Record<string, string>).custom, 'test')
+      // @ts-ignore:
+      assertEquals(c.test, 'test')
 
       return 'Hello World'
     })
