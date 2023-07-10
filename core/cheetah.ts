@@ -281,12 +281,11 @@ export class cheetah {
 
   async #handle(
     request: Request,
-    // deno-lint-ignore no-explicit-any
     env: Record<string, any>,
     waitUntil: RequestContext['waitUntil'],
     ip: string | undefined,
     url: URL,
-    params: Record<string, string>,
+    params: Record<string, string | undefined>,
     route: Route[],
   ) {
     const options = typeof route[0] !== 'function' ? route[0] : null
@@ -330,25 +329,23 @@ export class cheetah {
 
     /* Construct Context -------------------------------------------------------- */
 
-    let responseCode = 200
+    // const responseHeaders: Record<string, string> = {
+    //   ...(this.#cors && {
+    //     'access-control-allow-origin': this.#cors,
+    //   }),
+    //   ...(request.method === 'GET' && {
+    //     'cache-control': !this.#cache || this.#cache.maxAge === 0
+    //       ? 'max-age=0, private, must-revalidate'
+    //       : `max-age: ${this.#cache.maxAge}`,
+    //   }),
+    // }
 
-    const responseHeaders: Record<string, string> = {
-      ...(this.#cors && {
-        'access-control-allow-origin': this.#cors,
-      }),
-      ...(request.method === 'GET' && {
-        'cache-control': !this.#cache || this.#cache.maxAge === 0
-          ? 'max-age=0, private, must-revalidate'
-          : `max-age: ${this.#cache.maxAge}`,
-      }),
-    }
-
-    if (options?.cache !== undefined) {
-      responseHeaders['cache-control'] =
-        options.cache === false || options.cache.maxAge === 0
-          ? `max-age=0, private, must-revalidate`
-          : `max-age: ${options.cache.maxAge}`
-    }
+    // if (options?.cache !== undefined) {
+    //   responseHeaders['cache-control'] =
+    //     options.cache === false || options.cache.maxAge === 0
+    //       ? `max-age=0, private, must-revalidate`
+    //       : `max-age: ${options.cache.maxAge}`
+    // }
 
     let responseBody:
       | string
@@ -361,7 +358,13 @@ export class cheetah {
       | ArrayBuffer
       | null = null
 
+    const __internal = {
+      c: 200,
+      h: new Headers(),
+    }
+
     const context = new Context(
+      __internal,
       env,
       ip,
       params,
@@ -396,7 +399,7 @@ export class cheetah {
         continue
       }
 
-      const result = await (route[i] as Handler<any, any, any, any, any>)(
+      const result = await (route[i] as Handler<unknown>)(
         context,
       )
 
@@ -424,23 +427,25 @@ export class cheetah {
       await this.#plugins.beforeResponding[i][1](context)
     }
 
+    let { c, h } = context.res.__export()
+
     /* Construct Response ------------------------------------------------------- */
 
-    if (responseCode !== 200 && responseCode !== 301) {
-      delete responseHeaders['cache-control']
+    if (c !== 200 && c !== 301) {
+      h.delete('cache-control')
     }
 
-    if (responseHeaders.location) {
+    if (h.has('location')) {
       return new Response(null, {
-        headers: responseHeaders,
-        status: responseCode,
+        headers: h,
+        status: c,
       })
     }
 
     if (!responseBody) {
       return new Response(null, {
-        headers: responseHeaders,
-        status: responseCode,
+        headers: h,
+        status: c,
       })
     }
 
@@ -448,38 +453,38 @@ export class cheetah {
       responseBody !== null && responseBody !== undefined
     ) {
       if (typeof responseBody === 'string') {
-        responseHeaders['content-length'] = responseBody.length.toString()
+        h.set('content-length', responseBody.length.toString())
 
-        if (!responseHeaders['content-type']) {
-          responseHeaders['content-type'] = 'text/plain; charset=utf-8'
+        if (!h.has('content-type')) {
+          h.set('content-type', 'text/plain; charset=utf-8')
         }
       } else if (
         responseBody instanceof ArrayBuffer ||
         responseBody instanceof Uint8Array
       ) {
-        responseHeaders['content-length'] = responseBody.byteLength.toString()
+        h.set('content-length', responseBody.byteLength.toString())
       } else if (responseBody instanceof Blob) {
-        responseHeaders['content-length'] = responseBody.size.toString()
+        h.set('content-length', responseBody.size.toString())
       } else if (responseBody instanceof FormData) {
         // TODO: calculate content length
       } else if (responseBody instanceof ReadableStream === false) {
         responseBody = JSON.stringify(responseBody)
 
-        responseHeaders['content-length'] = responseBody.length.toString()
+        h.set('content-length', responseBody.length.toString())
 
-        if (!responseHeaders['content-type']) {
-          responseHeaders['content-type'] = 'application/json; charset=utf-8'
+        if (!h.has('content-type')) {
+          h.set('content-type', 'application/json; charset=utf-8')
         }
 
         if (((responseBody as unknown) as { code: number }).code) {
-          responseCode = ((responseBody as unknown) as { code: number }).code
+          c = ((responseBody as unknown) as { code: number }).code
         }
       }
     }
 
     return new Response(responseBody as string, {
-      headers: responseHeaders,
-      status: responseCode,
+      headers: h,
+      status: c,
     })
   }
 

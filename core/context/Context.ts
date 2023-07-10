@@ -27,9 +27,13 @@ export class Context<
   waitUntil: (promise: Promise<unknown>) => void
 
   constructor(
+    __internal: {
+      c: number
+      h: Headers
+    },
     env: Environment | undefined,
     ip: string | undefined,
-    params: Record<string, string>,
+    params: Record<string, string | undefined>,
     request: Request,
     runtime:
       | 'cloudflare'
@@ -46,7 +50,7 @@ export class Context<
     this.#e = env
     this.#r = runtime
     this.req = new RequestContext(ip, params, request, runtime, schema)
-    this.res = new ResponseContext()
+    this.res = new ResponseContext(__internal)
     this.waitUntil = waitUntil
   }
 

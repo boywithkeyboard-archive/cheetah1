@@ -1,17 +1,25 @@
 export class ResponseContext {
-  c: number
-  h: Record<string, string | undefined>
+  #i
 
-  constructor() {
-    this.c = 200
-    this.h = {}
+  constructor(__internal: {
+    c: number
+    h: Headers
+  }) {
+    this.#i = __internal
+  }
+
+  __export() {
+    return {
+      c: this.#i.c,
+      h: this.#i.h,
+    }
   }
 
   /**
    * Set the status code of the response.
    */
   code(code: number) {
-    this.c = code
+    this.#i.c = code
   }
 
   /**
@@ -35,20 +43,23 @@ export class ResponseContext {
   ) {
     let cookie = `${name}=${value};`
 
-    this.h['set-cookie'] = (
-      options?.expiresAt &&
-      (cookie += ` expires=${options.expiresAt.toUTCString()};`),
-        options?.maxAge && (cookie += ` max-age=${options.maxAge};`),
-        options?.domain && (cookie += ` domain=${options.domain};`),
-        options?.path && (cookie += ` path=${options.path};`),
-        options?.secure && (cookie += ' secure;'),
-        options?.httpOnly && (cookie += ' httpOnly;'),
-        options?.sameSite &&
-        (cookie += ` sameSite=${
-          options.sameSite.charAt(0).toUpperCase() +
-          options.sameSite.slice(1)
-        };`),
-        cookie
+    this.#i.h.append(
+      'set-cookie',
+      (
+        options?.expiresAt &&
+        (cookie += ` expires=${options.expiresAt.toUTCString()};`),
+          options?.maxAge && (cookie += ` max-age=${options.maxAge};`),
+          options?.domain && (cookie += ` domain=${options.domain};`),
+          options?.path && (cookie += ` path=${options.path};`),
+          options?.secure && (cookie += ' secure;'),
+          options?.httpOnly && (cookie += ' httpOnly;'),
+          options?.sameSite &&
+          (cookie += ` sameSite=${
+            options.sameSite.charAt(0).toUpperCase() +
+            options.sameSite.slice(1)
+          };`),
+          cookie
+      ),
     )
   }
 
@@ -56,7 +67,11 @@ export class ResponseContext {
    * Attach a header to the response.
    */
   header(name: string, value: string | undefined) {
-    this.h[name.toLowerCase()] = value
+    if (value === undefined) {
+      this.#i.h.delete(name)
+    } else {
+      this.#i.h.set(name, value)
+    }
   }
 
   /**
@@ -66,7 +81,7 @@ export class ResponseContext {
    * @param code e.g. 301, default 307
    */
   redirect(destination: string, code = 307) {
-    this.h.location = destination
-    this.c = code
+    this.#i.c = code
+    this.#i.h.set('location', destination)
   }
 }

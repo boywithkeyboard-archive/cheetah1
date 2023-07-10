@@ -27,7 +27,7 @@ export class RequestContext<
 
   constructor(
     ip: string | undefined,
-    params: Record<string, string>,
+    params: Record<string, string | undefined>,
     request: Request,
     runtime: 'cloudflare' | 'deno',
     schema: {
