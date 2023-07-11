@@ -46,7 +46,9 @@ export function handler<T>() {
     ValidatedHeaders extends ObjectType,
     ValidatedQuery extends ObjectType,
   >(
+    // deno-lint-ignore no-unused-vars
     pathname: Pathname,
+    // deno-lint-ignore no-unused-vars
     ...handler: (
       | {
         body?: ValidatedBody
@@ -93,7 +95,9 @@ export function bodylessHandler<T>() {
     ValidatedHeaders extends ObjectType,
     ValidatedQuery extends ObjectType,
   >(
+    // deno-lint-ignore no-unused-vars
     pathname: Pathname,
+    // deno-lint-ignore no-unused-vars
     ...handler: (
       | {
         cookies?: ValidatedCookies
