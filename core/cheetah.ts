@@ -531,4 +531,20 @@ export class cheetah extends base<cheetah>() {
       )
     }
   }
+
+  /* serve -------------------------------------------------------------------- */
+
+  serve({
+    hostname,
+    port,
+  }: {
+    hostname?: string
+    port?: number
+  } = {}) {
+    return Deno.serve({
+      hostname,
+      port,
+      // @ts-ignore
+    }, this.fetch).finished
+  }
 }
