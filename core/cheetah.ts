@@ -1,12 +1,12 @@
-import { Preferences } from '../mod.ts'
-import { base } from './_base.ts'
-import { Handler, Route } from './_handler.ts'
+import { Extension, Preferences } from '../mod.ts'
 import { Collection } from './Collection.ts'
-import { Context } from './context/Context.ts'
-import { PluginMethods } from './createPlugin.ts'
-import { colors, ConnInfo } from './deps.ts'
 import { Exception } from './Exception.ts'
 import { Router } from './Router.ts'
+import { base } from './_base.ts'
+import { Handler, Payload, Route } from './_handler.ts'
+import { Context } from './context/Context.ts'
+import { colors, ConnInfo } from './deps.ts'
+import { isValidExtension } from './extensions.ts'
 
 type RequestContext = {
   waitUntil: (promise: Promise<unknown>) => void
@@ -22,11 +22,8 @@ export class cheetah extends base<cheetah>() {
   #notFound
   #error
   #preflight
-  #plugins: {
-    beforeParsing: any[]
-    beforeHandling: any[]
-    beforeResponding: any[]
-  }
+  #ext: [string, Extension][]
+
   // #plugins: {
   //   beforeParsing: [string, ((request: Request) => void | Promise<void>)][]
   //   beforeHandling: [
@@ -88,11 +85,7 @@ export class cheetah extends base<cheetah>() {
     this.#error = error
     this.#notFound = notFound
     this.#preflight = preflight
-    this.#plugins = {
-      beforeParsing: [],
-      beforeHandling: [],
-      beforeResponding: [],
-    }
+    this.#ext = []
 
     const runtime = globalThis?.Deno
       ? 'deno'
@@ -107,18 +100,18 @@ export class cheetah extends base<cheetah>() {
     this.#runtime = runtime
   }
 
-  use<T extends Collection>(...plugins: PluginMethods[]): this
+  use<T extends Collection>(...exts: Extension[]): this
   use<T extends Collection>(
     prefix: `/${string}`,
-    ...plugins: PluginMethods[]
+    ...exts: Extension[]
   ): this
   use<T extends Collection>(
     prefix: `/${string}`,
     collection: T,
-    ...plugins: PluginMethods[]
+    ...exts: Extension[]
   ): this
 
-  use<T extends Collection>(...items: (`/${string}` | T | PluginMethods)[]) {
+  use<T extends Collection>(...items: (`/${string}` | T | Extension)[]) {
     let prefix
 
     for (const item of items) {
@@ -151,15 +144,12 @@ export class cheetah extends base<cheetah>() {
             item.routes[i][2],
           )
         }
-      } else { // plugin
+      } else if (isValidExtension(item)) { // extension
         if (!prefix) {
           prefix = '*'
         }
 
-        for (const key in item) {
-          // @ts-ignore:
-          this.#plugins[key].push([prefix, item[key]])
-        }
+        this.#ext.push([prefix, item])
       }
     }
 
@@ -195,6 +185,30 @@ export class cheetah extends base<cheetah>() {
     }
 
     const url = new URL(request.url)
+
+    let body: Response | void = undefined
+
+    for (let i = 0; i < this.#ext.length; i++) {
+      if (
+        this.#ext[i][0] !== '*' && !url.pathname.startsWith(this.#ext[i][0])
+      ) {
+        continue
+      }
+
+      const { onRequest } = this.#ext[i][1]
+
+      if (onRequest !== undefined) {
+        const result = await onRequest(request, this.#ext[i][1].__config)
+
+        if (result !== undefined) {
+          body = result
+        }
+      }
+    }
+
+    if (body !== undefined) {
+      return body
+    }
 
     try {
       const route = this.#router.match(
@@ -259,6 +273,8 @@ export class cheetah extends base<cheetah>() {
 
       return response
     } catch (err) {
+      //console.log(err)
+
       let res: Response
 
       if (err instanceof Exception) {
@@ -321,20 +337,6 @@ export class cheetah extends base<cheetah>() {
       })
     }
 
-    /* beforeParsing Plugin ----------------------------------------------------- */
-
-    for (let i = 0; i < this.#plugins.beforeParsing.length; ++i) {
-      const key = this.#plugins.beforeParsing[i][0]
-
-      if (
-        key !== '*' && url.pathname[0] !== key + '/' && url.pathname !== key
-      ) {
-        continue
-      }
-
-      await this.#plugins.beforeParsing[i][1](request)
-    }
-
     /* Set Variables ------------------------------------------------------------ */
 
     /* Construct Context -------------------------------------------------------- */
@@ -357,18 +359,12 @@ export class cheetah extends base<cheetah>() {
     //       : `max-age: ${options.cache.maxAge}`
     // }
 
-    let responseBody:
-      | string
-      | Record<string, unknown>
-      | Blob
-      | File
-      | ReadableStream<unknown>
-      | FormData
-      | Uint8Array
-      | ArrayBuffer
-      | null = null
-
-    const __internal = {
+    const __internal: {
+      b: Exclude<Payload, void> | null
+      c: number
+      h: Headers
+    } = {
+      b: null,
       c: 200,
       h: new Headers(),
     }
@@ -385,56 +381,33 @@ export class cheetah extends base<cheetah>() {
       waitUntil,
     )
 
-    /* beforeHandling Plugin ---------------------------------------------------- */
-
-    for (let i = 0; i < this.#plugins.beforeHandling.length; ++i) {
-      const key = this.#plugins.beforeHandling[i][0]
-
-      if (
-        key !== '*' && url.pathname[0] !== key + '/' && url.pathname !== key
-      ) {
-        continue
-      }
-
-      // @ts-ignore:
-      await this.#plugins.beforeHandling[i][1](context)
-    }
-
     /* Route Handling ----------------------------------------------------------- */
 
     const length = route.length
+
+    let next = false
 
     for (let i = 0; i < length; ++i) {
       if (typeof route[i] !== 'function') {
         continue
       }
 
+      if (__internal.b && !next) {
+        break
+      }
+
+      next = false
+
       const result = await (route[i] as Handler<unknown>)(
         context,
+        () => {
+          next = true
+        },
       )
 
       if (result) {
-        responseBody = result
+        __internal.b = result
       }
-
-      if (responseBody) {
-        break
-      }
-    }
-
-    /* beforeResponding Plugin -------------------------------------------------- */
-
-    for (let i = 0; i < this.#plugins.beforeResponding.length; ++i) {
-      const key = this.#plugins.beforeResponding[i][0]
-
-      if (
-        key !== '*' && url.pathname[0] !== key + '/' && url.pathname !== key
-      ) {
-        continue
-      }
-
-      // @ts-ignore:
-      await this.#plugins.beforeResponding[i][1](context)
     }
 
     /* Construct Response ------------------------------------------------------- */
@@ -453,7 +426,7 @@ export class cheetah extends base<cheetah>() {
       })
     }
 
-    if (!responseBody) {
+    if (!__internal.b) {
       return new Response(null, {
         headers: h,
         status: c,
@@ -461,39 +434,56 @@ export class cheetah extends base<cheetah>() {
     }
 
     if (
-      responseBody !== null && responseBody !== undefined
+      __internal.b !== null && __internal.b !== undefined
     ) {
-      if (typeof responseBody === 'string') {
-        h.set('content-length', responseBody.length.toString())
+      if (typeof __internal.b === 'string') {
+        h.set('content-length', __internal.b.length.toString())
 
         if (!h.has('content-type')) {
           h.set('content-type', 'text/plain; charset=utf-8')
         }
       } else if (
-        responseBody instanceof ArrayBuffer ||
-        responseBody instanceof Uint8Array
+        __internal.b instanceof ArrayBuffer ||
+        __internal.b instanceof Uint8Array
       ) {
-        h.set('content-length', responseBody.byteLength.toString())
-      } else if (responseBody instanceof Blob) {
-        h.set('content-length', responseBody.size.toString())
-      } else if (responseBody instanceof FormData) {
+        h.set('content-length', __internal.b.byteLength.toString())
+      } else if (__internal.b instanceof Blob) {
+        h.set('content-length', __internal.b.size.toString())
+      } else if (
+        __internal.b instanceof FormData ||
+        __internal.b instanceof ReadableStream
+      ) {
         // TODO: calculate content length
-      } else if (responseBody instanceof ReadableStream === false) {
-        responseBody = JSON.stringify(responseBody)
+      } else {
+        __internal.b = JSON.stringify(__internal.b)
 
-        h.set('content-length', responseBody.length.toString())
+        h.set('content-length', __internal.b.length.toString())
 
         if (!h.has('content-type')) {
           h.set('content-type', 'application/json; charset=utf-8')
         }
 
-        if (((responseBody as unknown) as { code: number }).code) {
-          c = ((responseBody as unknown) as { code: number }).code
+        if (((__internal.b as unknown) as { code: number }).code) {
+          c = ((__internal.b as unknown) as { code: number }).code
         }
       }
     }
 
-    return new Response(responseBody as string, {
+    for (let i = 0; i < this.#ext.length; i++) {
+      if (
+        this.#ext[i][0] !== '*' && !url.pathname.startsWith(this.#ext[i][0])
+      ) {
+        continue
+      }
+
+      const { onResponse } = this.#ext[i][1]
+
+      if (onResponse !== undefined) {
+        onResponse(context, this.#ext[i][1].__config)
+      }
+    }
+
+    return new Response(__internal.b as BodyInit, {
       headers: h,
       status: c,
     })

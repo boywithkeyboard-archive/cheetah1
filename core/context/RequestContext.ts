@@ -238,7 +238,7 @@ export class RequestContext<
       num++
     }
 
-    if (this.#s.headers) {
+    if (this.#s?.headers) {
       const isValid = this.#s.headers.safeParse(this.#h).success
 
       if (!isValid) {

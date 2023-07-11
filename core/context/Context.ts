@@ -1,4 +1,5 @@
 /// <reference types='../env.d.ts' />
+import { Payload } from '../_handler.ts'
 import { ObjectType } from '../_zod.ts'
 import { ZodType } from '../deps.ts'
 import { RequestContext } from './RequestContext.ts'
@@ -28,6 +29,7 @@ export class Context<
 
   constructor(
     __internal: {
+      b: Exclude<Payload, void> | null
       c: number
       h: Headers
     },

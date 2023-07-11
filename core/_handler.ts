@@ -36,6 +36,7 @@ export type Handler<
     ParsedHeaders,
     ParsedQuery
   >,
+  next: () => void,
 ) => Payload | Promise<Payload>
 
 export function handler<T>() {
@@ -86,6 +87,7 @@ export type BodylessHandler<
     ParsedHeaders,
     ParsedQuery
   >,
+  next: () => void,
 ) => Payload | Promise<Payload>
 
 export function bodylessHandler<T>() {

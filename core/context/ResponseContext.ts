@@ -1,11 +1,22 @@
+import { Payload } from '../_handler.ts'
+
 export class ResponseContext {
   #i
 
   constructor(__internal: {
+    b: Exclude<Payload, void> | null
     c: number
     h: Headers
   }) {
     this.#i = __internal
+  }
+
+  get body(): Exclude<Payload, void> | null {
+    return this.#i.b
+  }
+
+  set body(data: Exclude<Payload, void> | null) {
+    this.#i.b = data
   }
 
   /**
