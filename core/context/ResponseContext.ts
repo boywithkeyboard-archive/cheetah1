@@ -20,9 +20,48 @@ export class ResponseContext {
   }
 
   /**
-   * Set the status code of the response.
+   * The size of the response body (`-1` if it cannot be calculated).
    */
-  code(code: number) {
+  get bodySize() {
+    if (
+      this.#i.b === null
+    ) {
+      return 0
+    }
+
+    if (
+      this.#i.b instanceof ReadableStream ||
+      this.#i.b instanceof FormData
+    ) {
+      return -1
+    }
+
+    let bodySize = -1
+
+    if (typeof this.#i.b === 'string') {
+      bodySize = this.#i.b.length
+    } else if (
+      this.#i.b instanceof ArrayBuffer ||
+      this.#i.b instanceof Uint8Array
+    ) {
+      bodySize = this.#i.b.byteLength
+    } else if (this.#i.b instanceof Blob) {
+      bodySize = this.#i.b.size
+    } else {
+      bodySize = JSON.stringify(this.#i.b).length
+    }
+
+    return bodySize
+  }
+
+  /**
+   * The status code of the response.
+   */
+  get code() {
+    return this.#i.c
+  }
+
+  set code(code: number) {
     this.#i.c = code
   }
 

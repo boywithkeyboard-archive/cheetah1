@@ -4,11 +4,30 @@ import cheetah from '../mod.ts'
 Deno.test('Response', async (t) => {
   const app = new cheetah()
 
-  await t.step('res.code()', async () => {
-    app.get('/code', (c) => c.res.code(101))
+  await t.step('res.code', async () => {
+    app.get('/code', (c) => {
+      c.res.code = 101
+    })
     assertEquals(
       (await app.fetch(new Request('http://localhost:3000/code'))).status,
       101,
+    )
+  })
+
+  await t.step('res.bodySize', async () => {
+    app.get('/body_size', (c) => {
+      c.res.body = 'hello world'
+
+      return c.res.bodySize.toString()
+    })
+
+    const result = await app.fetch(
+      new Request('http://localhost:3000/body_size'),
+    )
+
+    assertEquals(
+      await result.text(),
+      'hello world'.length.toString(),
     )
   })
 
