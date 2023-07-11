@@ -1,12 +1,12 @@
 import { Extension, Preferences } from '../mod.ts'
-import { base } from './_base.ts'
-import { Handler, Payload, Route } from './_handler.ts'
 import { Collection } from './Collection.ts'
-import { Context } from './context/Context.ts'
-import { isValidExtension } from './extensions.ts'
-import { colors, ConnInfo } from './deps.ts'
 import { Exception } from './Exception.ts'
 import { Router } from './Router.ts'
+import { base } from './_base.ts'
+import { Handler, Payload, Route } from './_handler.ts'
+import { Context } from './context/Context.ts'
+import { colors, ConnInfo } from './deps.ts'
+import { isValidExtension } from './extensions.ts'
 
 type RequestContext = {
   waitUntil: (promise: Promise<unknown>) => void
