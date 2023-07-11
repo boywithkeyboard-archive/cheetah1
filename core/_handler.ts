@@ -1,7 +1,6 @@
-import { ZodString } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { Context } from '../mod.ts'
 import { ObjectType } from './_zod.ts'
-import { ZodType } from './deps.ts'
+import { ZodString, ZodType } from './deps.ts'
 
 type ExtractParam<Path, NextPart> = Path extends `:${infer Param}`
   ? Record<Param, string> & NextPart

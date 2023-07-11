@@ -1,5 +1,5 @@
 import { Preferences } from '../mod.ts'
-import { base, METHODS } from './_base.ts'
+import { base } from './_base.ts'
 import { Handler, Route } from './_handler.ts'
 import { Collection } from './Collection.ts'
 import { Context } from './context/Context.ts'
@@ -64,7 +64,15 @@ export class cheetah extends base<cheetah>() {
     error,
     notFound,
   }: Preferences = {}) {
-    super()
+    super((method, pathname, handlers) => {
+      this.#router.add(
+        method,
+        this.#base ? this.#base + pathname : pathname,
+        handlers,
+      )
+
+      return this
+    })
 
     this.#router = new Router()
 
@@ -97,29 +105,6 @@ export class cheetah extends base<cheetah>() {
     }
 
     this.#runtime = runtime
-
-    for (let i = 0; i < METHODS.length; i++) {
-      // @ts-ignore:
-      super[METHODS[i]] = (pathname: string, ...handler: Route[]) => {
-        if ((this.#cache || this.#cors) && typeof handler[0] !== 'function') {
-          if (handler[0].cache === undefined && this.#cache !== undefined) {
-            handler[0].cache = this.#cache
-          }
-
-          if (!handler[0].cors) {
-            handler[0].cors = this.#cors
-          }
-        }
-
-        this.#router.add(
-          METHODS[i],
-          this.#base ? this.#base + pathname : pathname,
-          handler,
-        )
-
-        return this
-      }
-    }
   }
 
   use<T extends Collection>(...plugins: PluginMethods[]): this
@@ -452,9 +437,10 @@ export class cheetah extends base<cheetah>() {
       await this.#plugins.beforeResponding[i][1](context)
     }
 
-    let { c, h } = context.res.__export()
-
     /* Construct Response ------------------------------------------------------- */
+
+    let c = __internal.c
+    const h = __internal.h
 
     if (c !== 200 && c !== 301) {
       h.delete('cache-control')

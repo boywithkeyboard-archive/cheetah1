@@ -1,5 +1,5 @@
+import { base, Method } from './_base.ts'
 import { Route } from './_handler.ts'
-import { base, Method, METHODS } from './_base.ts'
 
 export class Collection extends base<Collection>() {
   #cache:
@@ -14,7 +14,7 @@ export class Collection extends base<Collection>() {
     | undefined
 
   routes: [
-    Method,
+    Uppercase<Method>,
     string,
     Route[],
   ][]
@@ -40,30 +40,25 @@ export class Collection extends base<Collection>() {
      */
     cors?: string
   } = {}) {
-    super()
+    super((method, pathname, handlers) => {
+      if ((this.#cache || this.#cors) && typeof handlers[0] !== 'function') {
+        if (handlers[0].cache === undefined && this.#cache !== undefined) {
+          handlers[0].cache = this.#cache
+        }
+
+        if (!handlers[0].cors) {
+          handlers[0].cors = this.#cors
+        }
+      }
+
+      this.routes.push([method, pathname, handlers])
+
+      return this
+    })
 
     this.routes = []
 
     this.#cache = cache
     this.#cors = cors
-
-    for (let i = 0; i < METHODS.length; i++) {
-      // @ts-ignore:
-      super[METHODS[i]] = (pathname, ...handler) => {
-        if ((this.#cache || this.#cors) && typeof handler[0] !== 'function') {
-          if (handler[0].cache === undefined && this.#cache !== undefined) {
-            handler[0].cache = this.#cache
-          }
-
-          if (!handler[0].cors) {
-            handler[0].cors = this.#cors
-          }
-        }
-
-        this.routes.push([METHODS[i], pathname, handler])
-
-        return this
-      }
-    }
   }
 }

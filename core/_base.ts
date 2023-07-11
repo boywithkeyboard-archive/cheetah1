@@ -1,4 +1,4 @@
-import { bodylessHandler, handler } from './_handler.ts'
+import { bodylessHandler, handler, Route } from './_handler.ts'
 
 export type Method =
   | 'delete'
@@ -18,7 +18,13 @@ export const METHODS: Method[] = [
 ]
 
 export function base<T>(): {
-  new ():
+  new (
+    addRoute: (
+      method: Uppercase<Method>,
+      pathname: string,
+      handlers: Route[],
+    ) => unknown,
+  ):
     & {
       [
         M in (
@@ -38,5 +44,37 @@ export function base<T>(): {
       ]: ReturnType<typeof bodylessHandler<T>>
     }
 } {
-  return class {} as never
+  return class {
+    #a
+
+    constructor(
+      addRoute: (
+        method: Uppercase<Method>,
+        pathname: string,
+        handlers: Route[],
+      ) => unknown,
+    ) {
+      this.#a = addRoute
+    }
+
+    delete(pathname: string, ...handlers: Route[]) {
+      return this.#a('DELETE', pathname, handlers)
+    }
+
+    get(pathname: string, ...handlers: Route[]) {
+      return this.#a('GET', pathname, handlers)
+    }
+
+    patch(pathname: string, ...handlers: Route[]) {
+      return this.#a('PATCH', pathname, handlers)
+    }
+
+    post(pathname: string, ...handlers: Route[]) {
+      return this.#a('POST', pathname, handlers)
+    }
+
+    put(pathname: string, ...handlers: Route[]) {
+      return this.#a('PUT', pathname, handlers)
+    }
+  } as never
 }
