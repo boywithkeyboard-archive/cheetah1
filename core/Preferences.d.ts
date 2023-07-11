@@ -26,13 +26,6 @@ export type Preferences = {
   }
 
   /**
-   * Enable **Debug Mode**. As a result, every fetch and error event will be logged.
-   *
-   * @default false
-   */
-  debug?: boolean
-
-  /**
    * If enabled, cheetah will attempt to find the matching `.get()` handler for an incoming HEAD request. Your existing `.head()` handlers won't be impacted.
    *
    * @default false

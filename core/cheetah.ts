@@ -18,7 +18,6 @@ export class cheetah extends base<cheetah>() {
   #base
   #cors
   #cache
-  #debugging
   #notFound
   #error
   #preflight
@@ -56,7 +55,6 @@ export class cheetah extends base<cheetah>() {
     base,
     cors,
     cache,
-    debug = false,
     preflight = false,
     error,
     notFound,
@@ -81,7 +79,6 @@ export class cheetah extends base<cheetah>() {
         maxAge: cache.maxAge ?? 0,
       }
       : undefined
-    this.#debugging = debug
     this.#error = error
     this.#notFound = notFound
     this.#preflight = preflight
@@ -262,15 +259,6 @@ export class cheetah extends base<cheetah>() {
         context.waitUntil(cache.put(request, response.clone()))
       }
 
-      if (this.#debugging) {
-        this.#log(
-          response.ok ? 'fetch' : 'error',
-          request.method,
-          url.pathname,
-          response.status,
-        )
-      }
-
       return response
     } catch (err) {
       //console.log(err)
@@ -283,10 +271,6 @@ export class cheetah extends base<cheetah>() {
         res = await this.#error(err, request)
       } else {
         res = new Exception('Something Went Wrong').response(request)
-      }
-
-      if (this.#debugging) {
-        this.#log('error', request.method, url.pathname, res.status)
       }
 
       if (request.method === 'HEAD') {
@@ -487,39 +471,6 @@ export class cheetah extends base<cheetah>() {
       headers: h,
       status: c,
     })
-  }
-
-  /* -------------------------------------------------------------------------- */
-  /* Logger                                                                     */
-  /* -------------------------------------------------------------------------- */
-
-  #log(
-    event: 'fetch' | 'error',
-    method: string,
-    pathname: string,
-    statusCode: number,
-  ) {
-    if (!this.#debugging) {
-      return
-    }
-
-    if (event === 'error') {
-      console.error(
-        colors.gray(
-          `${colors.brightRed(statusCode.toString())} - ${method} ${pathname}`,
-        ),
-      )
-    } else {
-      console.log(
-        colors.gray(
-          `${
-            statusCode === 301 || statusCode === 307
-              ? colors.brightBlue(statusCode.toString())
-              : colors.brightGreen(statusCode.toString())
-          } - ${method} ${colors.white(pathname)}`,
-        ),
-      )
-    }
   }
 
   /* serve -------------------------------------------------------------------- */
