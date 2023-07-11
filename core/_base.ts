@@ -65,6 +65,10 @@ export function base<T>(): {
       return this.#a('GET', pathname, handlers)
     }
 
+    head(pathname: string, ...handlers: Route[]) {
+      return this.#a('HEAD', pathname, handlers)
+    }
+
     patch(pathname: string, ...handlers: Route[]) {
       return this.#a('PATCH', pathname, handlers)
     }
