@@ -1,10 +1,10 @@
-// deno-lint-ignore-file no-explicit-any
 import { Preferences } from '../mod.ts'
-import { Handler, ObjectType, Route } from './_.ts'
+import { base } from './_base.ts'
+import { Handler, Route } from './_handler.ts'
 import { Collection } from './Collection.ts'
 import { Context } from './context/Context.ts'
 import { PluginMethods } from './createPlugin.ts'
-import { colors, ConnInfo, ZodType } from './deps.ts'
+import { colors, ConnInfo } from './deps.ts'
 import { Exception } from './Exception.ts'
 import { Router } from './Router.ts'
 
@@ -12,7 +12,7 @@ type RequestContext = {
   waitUntil: (promise: Promise<unknown>) => void
 }
 
-export class cheetah {
+export class cheetah extends base<cheetah>() {
   #router
   #runtime: 'deno' | 'cloudflare'
   #base
@@ -64,6 +64,16 @@ export class cheetah {
     error,
     notFound,
   }: Preferences = {}) {
+    super((method, pathname, handlers) => {
+      this.#router.add(
+        method,
+        this.#base ? this.#base + pathname : pathname,
+        handlers,
+      )
+
+      return this
+    })
+
     this.#router = new Router()
 
     this.#base = base === '/' ? undefined : base
@@ -427,9 +437,10 @@ export class cheetah {
       await this.#plugins.beforeResponding[i][1](context)
     }
 
-    let { c, h } = context.res.__export()
-
     /* Construct Response ------------------------------------------------------- */
+
+    let c = __internal.c
+    const h = __internal.h
 
     if (c !== 200 && c !== 301) {
       h.delete('cache-control')
@@ -519,383 +530,5 @@ export class cheetah {
         ),
       )
     }
-  }
-
-  /* -------------------------------------------------------------------------- */
-  /* Routes                                                                     */
-  /* -------------------------------------------------------------------------- */
-
-  /* Raw Method --------------------------------------------------------------- */
-
-  // raw<RequestMethod extends 'get' | 'post' | 'put' | 'patch' | 'head' | 'delete' | 'options', RequestUrl extends `/${string}`>(method: RequestMethod, url: RequestUrl, handler: (request: Request) => Response | Promise<Response>) {
-
-  // }
-
-  /* Get Method --------------------------------------------------------------- */
-
-  get<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl, undefined>[]
-  ): this
-
-  get<
-    RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      cache?: false | { maxAge: number }
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      undefined,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
-
-  get<
-    RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        cache?: false | { maxAge: number }
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        never,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    this.#router.add('GET', this.#base ? this.#base + url : url, handler)
-
-    return this
-  }
-
-  /* Delete Method ------------------------------------------------------------ */
-
-  delete<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl>[]
-  ): this
-
-  delete<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      body?: ValidatedBody
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      transform?: boolean
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      ValidatedBody,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
-
-  delete<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        body?: ValidatedBody
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        transform?: boolean
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        ValidatedBody,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    this.#router.add('DELETE', this.#base ? this.#base + url : url, handler)
-
-    return this
-  }
-
-  /* Post Method -------------------------------------------------------------- */
-
-  post<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl>[]
-  ): this
-
-  post<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      body?: ValidatedBody
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      transform?: boolean
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      ValidatedBody,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
-
-  post<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        body?: ValidatedBody
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        transform?: boolean
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        ValidatedBody,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    this.#router.add('POST', this.#base ? this.#base + url : url, handler)
-
-    return this
-  }
-
-  /* Put Method --------------------------------------------------------------- */
-
-  put<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl>[]
-  ): this
-
-  put<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      body?: ValidatedBody
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      transform?: boolean
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      ValidatedBody,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
-
-  put<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        body?: ValidatedBody
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        transform?: boolean
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        ValidatedBody,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    this.#router.add('PUT', this.#base ? this.#base + url : url, handler)
-
-    return this
-  }
-
-  /* Patch Method ------------------------------------------------------------- */
-
-  patch<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl>[]
-  ): this
-
-  patch<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      body?: ValidatedBody
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      transform?: boolean
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      ValidatedBody,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
-
-  patch<
-    RequestUrl extends `/${string}`,
-    ValidatedBody extends ZodType,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        body?: ValidatedBody
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        transform?: boolean
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        ValidatedBody,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    this.#router.add('PATCH', this.#base ? this.#base + url : url, handler)
-
-    return this
-  }
-
-  /* Head Method -------------------------------------------------------------- */
-
-  head<RequestUrl extends `/${string}`>(
-    url: RequestUrl,
-    ...handler: Handler<RequestUrl, never>[]
-  ): this
-
-  head<
-    RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    schema: {
-      cookies?: ValidatedCookies
-      headers?: ValidatedHeaders
-      query?: ValidatedQuery
-      cors?: string
-    },
-    ...handler: Handler<
-      RequestUrl,
-      never,
-      ValidatedCookies,
-      ValidatedHeaders,
-      ValidatedQuery
-    >[]
-  ): this
-
-  head<
-    RequestUrl extends `/${string}`,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
-  >(
-    url: RequestUrl,
-    ...handler: (
-      | {
-        cookies?: ValidatedCookies
-        headers?: ValidatedHeaders
-        query?: ValidatedQuery
-        cors?: string
-      }
-      | Handler<
-        RequestUrl,
-        never,
-        ValidatedCookies,
-        ValidatedHeaders,
-        ValidatedQuery
-      >
-    )[]
-  ) {
-    this.#router.add('HEAD', this.#base ? this.#base + url : url, handler)
-
-    return this
   }
 }

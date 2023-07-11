@@ -1,13 +1,11 @@
-import { ResponsePayload } from './_.ts'
-
 export type PluginMethods = {
   beforeParsing?: (request: Request) => void | Promise<void>
   beforeHandling?: (
     c: any,
-  ) => ResponsePayload | Promise<ResponsePayload>
+  ) => any | Promise<any>
   beforeResponding?: (
     c: any,
-  ) => ResponsePayload | Promise<ResponsePayload>
+  ) => any | Promise<any>
 }
 
 export type Plugin<

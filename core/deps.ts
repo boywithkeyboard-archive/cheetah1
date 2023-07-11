@@ -13,6 +13,7 @@ export type {
   ZodObject,
   ZodObjectDef,
   ZodRecord,
+  ZodString,
   ZodStringDef,
   ZodType,
 } from 'https://deno.land/x/zod@v3.21.4/types.ts'

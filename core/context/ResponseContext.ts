@@ -8,13 +8,6 @@ export class ResponseContext {
     this.#i = __internal
   }
 
-  __export() {
-    return {
-      c: this.#i.c,
-      h: this.#i.h,
-    }
-  }
-
   /**
    * Set the status code of the response.
    */
