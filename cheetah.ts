@@ -4,7 +4,7 @@ import { Collection } from './Collection.ts'
 import { Context } from './Context.ts'
 import { Exception } from './Exception.ts'
 import { Extension, isValidExtension } from './extensions.ts'
-import { Handler, Payload, HandlerOrSchema } from './handler.ts'
+import { Handler, HandlerOrSchema, Payload } from './handler.ts'
 
 export type AppContext = {
   proxy: 'cloudflare' | 'none'
@@ -48,7 +48,7 @@ export type AppConfig = {
 
   /**
    * If you're using Cloudflare as a proxy, you should confirm it with this setting in order to unleash the full potential of cheetah.
-   * 
+   *
    * @default 'none'
    */
   proxy?:
@@ -142,7 +142,8 @@ export class cheetah extends base<cheetah>() {
 
     const runtime = globalThis?.Deno
       ? 'deno'
-      : typeof (globalThis as Record<string, unknown>)?.WebSocketPair === 'function'
+      : typeof (globalThis as Record<string, unknown>)?.WebSocketPair ===
+          'function'
       ? 'cloudflare'
       : null
 
@@ -209,7 +210,11 @@ export class cheetah extends base<cheetah>() {
     return this
   }
 
-  #add(method: Uppercase<Method>, pathname: string, handlers: HandlerOrSchema[]) {
+  #add(
+    method: Uppercase<Method>,
+    pathname: string,
+    handlers: HandlerOrSchema[],
+  ) {
     this.#r.push([
       method,
       RegExp(`^${
@@ -264,8 +269,6 @@ export class cheetah extends base<cheetah>() {
       ? ((env as ConnInfo & { remoteAddr: { hostname: string } }).remoteAddr)
         .hostname
       : request.headers.get('cf-connecting-ip') ?? undefined
-
-    
 
     const url = new URL(request.url)
 
@@ -442,7 +445,7 @@ export class cheetah extends base<cheetah>() {
     const context = new Context(
       {
         proxy: this.#p,
-        routes: this.#r
+        routes: this.#r,
       },
       __internal,
       env,
