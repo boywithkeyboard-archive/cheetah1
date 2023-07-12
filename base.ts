@@ -1,4 +1,4 @@
-import { bodylessHandler, handler, Route } from './_handler.ts'
+import { bodylessHandler, handler, HandlerOrSchema } from './handler.ts'
 
 export type Method =
   | 'delete'
@@ -22,7 +22,7 @@ export function base<T>(): {
     addRoute: (
       method: Uppercase<Method>,
       pathname: string,
-      handlers: Route[],
+      handlers: HandlerOrSchema[],
     ) => unknown,
   ):
     & {
@@ -51,33 +51,33 @@ export function base<T>(): {
       addRoute: (
         method: Uppercase<Method>,
         pathname: string,
-        handlers: Route[],
+        handlers: HandlerOrSchema[],
       ) => unknown,
     ) {
       this.#a = addRoute
     }
 
-    delete(pathname: string, ...handlers: Route[]) {
+    delete(pathname: string, ...handlers: HandlerOrSchema[]) {
       return this.#a('DELETE', pathname, handlers)
     }
 
-    get(pathname: string, ...handlers: Route[]) {
+    get(pathname: string, ...handlers: HandlerOrSchema[]) {
       return this.#a('GET', pathname, handlers)
     }
 
-    head(pathname: string, ...handlers: Route[]) {
+    head(pathname: string, ...handlers: HandlerOrSchema[]) {
       return this.#a('HEAD', pathname, handlers)
     }
 
-    patch(pathname: string, ...handlers: Route[]) {
+    patch(pathname: string, ...handlers: HandlerOrSchema[]) {
       return this.#a('PATCH', pathname, handlers)
     }
 
-    post(pathname: string, ...handlers: Route[]) {
+    post(pathname: string, ...handlers: HandlerOrSchema[]) {
       return this.#a('POST', pathname, handlers)
     }
 
-    put(pathname: string, ...handlers: Route[]) {
+    put(pathname: string, ...handlers: HandlerOrSchema[]) {
       return this.#a('PUT', pathname, handlers)
     }
   } as never

@@ -1,4 +1,4 @@
-import { Context } from '../mod.ts'
+import { Context } from './mod.ts'
 
 type HasRequired<T> = Partial<T> extends T ? false : true
 

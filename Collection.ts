@@ -1,5 +1,5 @@
-import { base, Method } from './_base.ts'
-import { Route } from './_handler.ts'
+import { base, Method } from './base.ts'
+import { HandlerOrSchema } from './handler.ts'
 
 export class Collection extends base<Collection>() {
   #cache:
@@ -16,7 +16,7 @@ export class Collection extends base<Collection>() {
   routes: [
     Uppercase<Method>,
     string,
-    Route[],
+    HandlerOrSchema[],
   ][]
 
   constructor({
