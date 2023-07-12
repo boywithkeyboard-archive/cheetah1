@@ -1,3 +1,6 @@
+## [v1.0.0-canary.1](https://github.com/azurystudio/cheetah/releases/tag/v1.0.0-canary.1)
+
+
 ## [v1.0.0-canary.0](https://github.com/azurystudio/cheetah/releases/tag/v1.0.0-canary.0)
 
 * perf: enhance routing ([#58](https://github.com/azurystudio/cheetah/pull/58))
