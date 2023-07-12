@@ -409,8 +409,8 @@ export class cheetah extends base<cheetah>() {
       params,
       req,
       this.#runtime,
-      // @ts-ignore:
-      options,
+      // @ts-ignore
+      opts,
       waitUntil,
     )
 
