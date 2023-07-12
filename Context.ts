@@ -4,8 +4,6 @@ import { ResponseContext } from './ResponseContext.ts'
 import { AppContext } from './cheetah.ts'
 import { ObjectType, Payload } from './handler.ts'
 
-type Environment = {}
-
 export class Context<
   Params extends Record<string, unknown> = Record<string, never>,
   ValidatedBody extends ZodType | unknown = unknown,
@@ -14,7 +12,6 @@ export class Context<
   ValidatedQuery extends ObjectType | unknown = unknown,
 > {
   #a
-  #e
   #r
   req: RequestContext<
     Params,
@@ -36,7 +33,6 @@ export class Context<
       c: number
       h: Headers
     },
-    env: Environment | undefined,
     ip: string | undefined,
     params: Record<string, string | undefined>,
     request: Request,
@@ -53,7 +49,6 @@ export class Context<
     waitUntil: (promise: Promise<unknown>) => void,
   ) {
     this.#a = __app
-    this.#e = env
     this.#r = runtime
     this.req = new RequestContext(ip, params, request, runtime, schema)
     this.res = new ResponseContext(__internal)
@@ -62,14 +57,6 @@ export class Context<
 
   get __app(): AppContext {
     return this.#a
-  }
-
-  get env() {
-    if (!this.#e) {
-      this.#e = Deno.env.toObject()
-    }
-
-    return this.#e
   }
 
   get runtime() {
