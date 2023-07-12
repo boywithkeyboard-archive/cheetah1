@@ -61,8 +61,8 @@ We strictly follow [SemVer](https://semver.org) and release updates in two chann
 
 | Channel | Avg | Max | p75 | p90 | p95 | p99 |
 | --- | --- | --- | --- | --- | --- | --- |
-| ◆ [**current**](https://deno.land/x/cheetah@v0.13.0) <sup>v0.13.0</sup> | 29769 | 34458 | 33115 | 33720 | 34076 | 34458 |
-| ◇ [**canary**](https://deno.land/x/cheetah@v1.0.0-canary.0)<sup>v1.0.0-canary.0</sup> | 31246 | 35226 | 34351 | 34643 | 34824 | 35226 |
+| ◆ [**current**](https://deno.land/x/cheetah@v0.13.0) <sup>v0.13.0</sup> | 29749 | 33993 | 32603 | 33287 | 33561 | 33993 |
+| ◇ [**canary**](https://deno.land/x/cheetah@v1.0.0-canary.1) <sup>v1.0.0-canary.1</sup> | 30683 | 34999 | 33449 | 33818 | 34039 | 34999 |
 
 [//]: bend
 
