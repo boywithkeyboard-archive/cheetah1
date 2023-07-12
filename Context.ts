@@ -13,7 +13,6 @@ export class Context<
   ValidatedQuery extends ObjectType | unknown = unknown,
 > {
   #a
-  #r
   req: RequestContext<
     Params,
     ValidatedBody,
@@ -34,24 +33,19 @@ export class Context<
       c: number
       h: Headers
     },
-    ip: string | undefined,
-    params: Record<string, string | undefined>,
-    request: Request,
-    runtime:
-      | 'cloudflare'
-      | 'deno',
-    schema: {
+    p: Record<string, string | undefined>,
+    r: Request,
+    s: {
       body?: ZodType | undefined
       cookies?: ObjectType | undefined
       headers?: ObjectType | undefined
       query?: ObjectType | undefined
       [key: string]: unknown
-    },
+    } | null,
     waitUntil: (promise: Promise<unknown>) => void,
   ) {
     this.#a = __app
-    this.#r = runtime
-    this.req = new RequestContext(ip, params, request, runtime, schema)
+    this.req = new RequestContext(__app, p, r, s)
     this.res = new ResponseContext(__internal)
     this.waitUntil = waitUntil
   }
@@ -61,6 +55,6 @@ export class Context<
   }
 
   get runtime() {
-    return this.#r
+    return this.#a.runtime
   }
 }

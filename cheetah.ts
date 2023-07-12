@@ -8,8 +8,12 @@ import { Handler, HandlerOrSchema, Payload } from './handler.ts'
 
 export type AppContext = {
   env: Record<string, unknown> | undefined
+  ip: string | undefined
   proxy: 'cloudflare' | 'none'
   routes: [Uppercase<Method>, RegExp, HandlerOrSchema[]][]
+  runtime:
+    | 'cloudflare'
+    | 'deno'
 }
 
 export type AppConfig = {
@@ -281,16 +285,23 @@ export class cheetah extends base<cheetah>() {
 
       const { _, ...rest } = route
 
+      const __app: AppContext = {
+        env: data as Record<string, unknown>,
+        ip,
+        proxy: this.#proxy,
+        routes: this.#routes,
+        runtime: this.#runtime,
+      }
+
       let response = await this.#handle(
+        __app,
         req,
-        data as Record<string, unknown>,
         context?.waitUntil ??
           ((promise: Promise<unknown>) => {
             setTimeout(async () => {
               await promise
             }, 0)
           }),
-        ip,
         url,
         rest,
         _,
@@ -332,43 +343,40 @@ export class cheetah extends base<cheetah>() {
     }
   }
 
-  /* handler ------------------------------------------------------------------ */
+  /* handle ------------------------------------------------------------------- */
 
   async #handle(
-    req: Request,
-    env: Record<string, unknown>,
+    __app: AppContext,
+    r: Request,
     waitUntil: (promise: Promise<unknown>) => void,
-    ip: string | undefined,
     url: URL,
-    params: Record<string, string | undefined>,
+    p: Record<string, string | undefined>,
     route: HandlerOrSchema[],
   ) {
-    const opts = typeof route[0] !== 'function' ? route[0] : null
+    const o = typeof route[0] !== 'function' ? route[0] : null
 
     // preflight cors request
 
     if (
-      req.method === 'OPTIONS' &&
-      req.headers.has('origin') &&
-      req.headers.has('access-control-request-method')
+      r.method === 'OPTIONS' &&
+      r.headers.has('origin') &&
+      r.headers.has('access-control-request-method')
     ) {
       return new Response(null, {
         status: 204,
         headers: {
-          ...((this.#cors || opts?.cors) &&
-            { 'access-control-allow-origin': opts?.cors ?? this.#cors }),
+          ...((this.#cors || o?.cors) &&
+            { 'access-control-allow-origin': o?.cors ?? this.#cors }),
           'access-control-allow-methods': '*',
           'access-control-allow-headers':
-            req.headers.get('access-control-request-headers') ?? '*',
+            r.headers.get('access-control-request-headers') ?? '*',
           'access-control-allow-credentials': 'false',
           'access-control-max-age': '600',
         },
       })
     }
 
-    /* Set Variables ------------------------------------------------------------ */
-
-    /* Construct Context -------------------------------------------------------- */
+    // construct context
 
     const $: {
       b: Exclude<Payload, void> | null
@@ -381,7 +389,7 @@ export class cheetah extends base<cheetah>() {
         ...(this.#cors && {
           'access-control-allow-origin': this.#cors,
         }),
-        ...(req.method === 'GET' && {
+        ...(r.method === 'GET' && {
           'cache-control': !this.#cache || this.#cache.maxAge === 0
             ? 'max-age=0, private, must-revalidate'
             : `max-age: ${this.#cache.maxAge}`,
@@ -389,32 +397,25 @@ export class cheetah extends base<cheetah>() {
       }),
     }
 
-    if (opts?.cache !== undefined) {
+    if (o?.cache !== undefined) {
       $.h.set(
         'cache-control',
-        opts.cache === false || opts.cache.maxAge === 0
+        o.cache === false || o.cache.maxAge === 0
           ? `max-age=0, private, must-revalidate`
-          : `max-age: ${opts.cache.maxAge}`,
+          : `max-age: ${o.cache.maxAge}`,
       )
     }
 
     const context = new Context(
-      {
-        env,
-        proxy: this.#proxy,
-        routes: this.#routes,
-      },
+      __app,
       $,
-      ip,
-      params,
-      req,
-      this.#runtime,
-      // @ts-ignore
-      opts,
+      p,
+      r,
+      o,
       waitUntil,
     )
 
-    /* Route Handling ----------------------------------------------------------- */
+    // handle request
 
     const length = route.length
 
@@ -443,7 +444,7 @@ export class cheetah extends base<cheetah>() {
       }
     }
 
-    /* Construct Response ------------------------------------------------------- */
+    // construct response
 
     if ($.c !== 200 && $.c !== 301) {
       $.h.delete('cache-control')

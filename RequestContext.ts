@@ -11,7 +11,7 @@ import z from 'https://deno.land/x/zod@v3.21.4/index.ts'
 import { ZodType } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { Method } from './base.ts'
 import { BaseType, ObjectType } from './handler.ts'
-import { Exception } from './mod.ts'
+import { AppContext, Exception } from './mod.ts'
 
 type Static<T extends ZodType | unknown> = T extends ZodType ? z.infer<T>
   : unknown
@@ -23,33 +23,31 @@ export class RequestContext<
   ValidatedHeaders extends ObjectType | unknown = unknown,
   ValidatedQuery extends ObjectType | unknown = unknown,
 > {
+  #a
   #c: Record<string, string | undefined> | undefined
   #h: Record<string, string | undefined> | undefined
   #i: string | undefined
   #p
   #q: Record<string, unknown> | undefined
   #r
-  #ru
   #s
 
   constructor(
-    ip: string | undefined,
-    params: Record<string, string | undefined>,
-    request: Request,
-    runtime: 'cloudflare' | 'deno',
-    schema: {
+    __app: AppContext,
+    p: Record<string, string | undefined>,
+    r: Request,
+    s: {
       body?: ZodType | undefined
       cookies?: ObjectType | undefined
       headers?: ObjectType | undefined
       query?: ObjectType | undefined
       [key: string]: unknown
-    },
+    } | null,
   ) {
-    this.#i = ip
-    this.#p = params
-    this.#r = request
-    this.#ru = runtime
-    this.#s = schema
+    this.#a = __app
+    this.#p = p
+    this.#r = r
+    this.#s = s
   }
 
   get ip() {
@@ -100,7 +98,7 @@ export class RequestContext<
   } {
     let geo
 
-    if (this.#ru === 'cloudflare') {
+    if (this.#a.runtime === 'cloudflare') {
       const { cf } = this.#r as Request & {
         cf: IncomingRequestCfProperties
       }
@@ -136,7 +134,7 @@ export class RequestContext<
   async body(): Promise<
     ValidatedBody extends ZodType ? Static<ValidatedBody> : unknown
   > {
-    if (!this.#s.body) {
+    if (!this.#s?.body) {
       // @ts-ignore:
       return undefined
     }
@@ -183,7 +181,7 @@ export class RequestContext<
    * The validated cookies of the incoming request.
    */
   get cookies(): Static<ValidatedCookies> {
-    if (this.#c || !this.#s.cookies) {
+    if (this.#c || !this.#s?.cookies) {
       return this.#c as Static<ValidatedCookies>
     }
 
@@ -262,7 +260,7 @@ export class RequestContext<
    * The validated query parameters of the incoming request.
    */
   get query(): Static<ValidatedQuery> {
-    if (this.#q || !this.#s.query) {
+    if (this.#q || !this.#s?.query) {
       return this.#q as Static<ValidatedQuery>
     }
 
