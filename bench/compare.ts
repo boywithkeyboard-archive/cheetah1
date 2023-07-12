@@ -1,3 +1,4 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import {
   prerelease,
   rcompare,
@@ -19,7 +20,7 @@ async function bench(url: string) {
       '50',
       '-j',
       '--no-tui',
-      'http://localhost:8000',
+      'http://127.0.0.1:8000',
     ],
     stdout: 'piped',
   })

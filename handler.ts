@@ -1,5 +1,5 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { ZodStringDef } from 'https://deno.land/x/zod@v3.21.4/external.ts'
-import { Context } from './mod.ts'
 import {
   ZodObject,
   ZodObjectDef,
@@ -7,6 +7,7 @@ import {
   ZodString,
   ZodType,
 } from 'https://deno.land/x/zod@v3.21.4/types.ts'
+import { Context } from './mod.ts'
 
 export type ObjectType =
   // deno-lint-ignore no-explicit-any
