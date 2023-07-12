@@ -1,4 +1,4 @@
-import { Payload } from '../_handler.ts'
+import { Payload } from './handler.ts'
 
 export class ResponseContext {
   #i

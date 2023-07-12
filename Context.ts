@@ -1,9 +1,10 @@
-/// <reference types='../env.d.ts' />
-import { Payload } from '../_handler.ts'
-import { ObjectType } from '../_zod.ts'
-import { ZodType } from '../deps.ts'
+import { ZodType } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { RequestContext } from './RequestContext.ts'
 import { ResponseContext } from './ResponseContext.ts'
+import { AppContext } from './cheetah.ts'
+import { ObjectType, Payload } from './handler.ts'
+
+type Environment = {}
 
 export class Context<
   Params extends Record<string, unknown> = Record<string, never>,
@@ -12,6 +13,7 @@ export class Context<
   ValidatedHeaders extends ObjectType | unknown = unknown,
   ValidatedQuery extends ObjectType | unknown = unknown,
 > {
+  #a
   #e
   #r
   req: RequestContext<
@@ -28,6 +30,7 @@ export class Context<
   waitUntil: (promise: Promise<unknown>) => void
 
   constructor(
+    __app: AppContext,
     __internal: {
       b: Exclude<Payload, void> | null
       c: number
@@ -49,11 +52,16 @@ export class Context<
     },
     waitUntil: (promise: Promise<unknown>) => void,
   ) {
+    this.#a = __app
     this.#e = env
     this.#r = runtime
     this.req = new RequestContext(ip, params, request, runtime, schema)
     this.res = new ResponseContext(__internal)
     this.waitUntil = waitUntil
+  }
+
+  get __app(): AppContext {
+    return this.#a
   }
 
   get env() {

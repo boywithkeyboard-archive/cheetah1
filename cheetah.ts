@@ -1,19 +1,74 @@
-import { Extension, Preferences } from '../mod.ts'
+import { ConnInfo } from 'https://deno.land/std@0.193.0/http/server.ts'
+import { base, Method } from './base.ts'
 import { Collection } from './Collection.ts'
+import { Context } from './Context.ts'
 import { Exception } from './Exception.ts'
-import { Router } from './Router.ts'
-import { base } from './_base.ts'
-import { Handler, Payload, Route } from './_handler.ts'
-import { Context } from './context/Context.ts'
-import { colors, ConnInfo } from './deps.ts'
-import { isValidExtension } from './extensions.ts'
+import { Extension, isValidExtension } from './extensions.ts'
+import { Handler, HandlerOrSchema, Payload } from './handler.ts'
 
-type RequestContext = {
-  waitUntil: (promise: Promise<unknown>) => void
+export type AppContext = {
+  proxy: 'cloudflare' | 'none'
+  routes: [Uppercase<Method>, RegExp, HandlerOrSchema[]][]
+}
+
+export type AppConfig = {
+  /**
+   * A prefix for all routes, e.g. `/api`.
+   *
+   * @default '/'
+   */
+  base?: `/${string}`
+
+  /**
+   * Enable Cross-Origin Resource Sharing (CORS) for your app by setting a origin, e.g. `*`.
+   */
+  cors?: string
+
+  cache?: {
+    /**
+     * A unique name for your cache.
+     */
+    name: string
+
+    /**
+     * Duration in seconds for how long a response should be cached.
+     *
+     * @since v0.11
+     */
+    maxAge?: number
+  }
+
+  /**
+   * If enabled, cheetah will attempt to find the matching `.get()` handler for an incoming HEAD request. Your existing `.head()` handlers won't be impacted.
+   *
+   * @default false
+   * @since v0.11
+   */
+  preflight?: boolean
+
+  /**
+   * If you're using Cloudflare as a proxy, you should confirm it with this setting in order to unleash the full potential of cheetah.
+   *
+   * @default 'none'
+   */
+  proxy?:
+    | 'cloudflare'
+    | 'none'
+
+  /**
+   * Set a custom error handler.
+   */
+  error?: (error: unknown, request: Request) => Response | Promise<Response>
+
+  /**
+   * Set a custom 404 handler.
+   */
+  notFound?: (request: Request) => Response | Promise<Response>
 }
 
 export class cheetah extends base<cheetah>() {
-  #router
+  #p: Exclude<AppConfig['proxy'], undefined>
+  #r: [Uppercase<Method>, RegExp, HandlerOrSchema[]][] = []
   #runtime: 'deno' | 'cloudflare'
   #base
   #cors
@@ -56,11 +111,12 @@ export class cheetah extends base<cheetah>() {
     cors,
     cache,
     preflight = false,
+    proxy = 'none',
     error,
     notFound,
-  }: Preferences = {}) {
+  }: AppConfig = {}) {
     super((method, pathname, handlers) => {
-      this.#router.add(
+      this.#add(
         method,
         this.#base ? this.#base + pathname : pathname,
         handlers,
@@ -69,7 +125,7 @@ export class cheetah extends base<cheetah>() {
       return this
     })
 
-    this.#router = new Router()
+    this.#p = proxy
 
     this.#base = base === '/' ? undefined : base
     this.#cors = cors
@@ -86,11 +142,12 @@ export class cheetah extends base<cheetah>() {
 
     const runtime = globalThis?.Deno
       ? 'deno'
-      : typeof (globalThis as any)?.WebSocketPair === 'function'
+      : typeof (globalThis as Record<string, unknown>)?.WebSocketPair ===
+          'function'
       ? 'cloudflare'
-      : 'unknown'
+      : null
 
-    if (runtime === 'unknown') {
+    if (!runtime) {
       throw new Error('Unknown Runtime')
     }
 
@@ -135,7 +192,7 @@ export class cheetah extends base<cheetah>() {
             prefix = ''
           }
 
-          this.#router.add(
+          this.#add(
             item.routes[i][0],
             this.#base ? this.#base + prefix + url : prefix + url,
             item.routes[i][2],
@@ -153,6 +210,48 @@ export class cheetah extends base<cheetah>() {
     return this
   }
 
+  #add(
+    method: Uppercase<Method>,
+    pathname: string,
+    handlers: HandlerOrSchema[],
+  ) {
+    this.#r.push([
+      method,
+      RegExp(`^${
+        (pathname
+          .replace(/\/+(\/|$)/g, '$1'))
+          .replace(/(\/?\.?):(\w+)\+/g, '($1(?<$2>*))')
+          .replace(/(\/?\.?):(\w+)/g, '($1(?<$2>[^$1/]+?))')
+          .replace(/\./g, '\\.')
+          .replace(/(\/?)\*/g, '($1.*)?')
+      }/*$`),
+      handlers,
+    ])
+  }
+
+  #match(method: string, pathname: string, preflight: boolean) {
+    for (let i = 0; i < this.#r.length; ++i) {
+      if (
+        method === this.#r[i][0] ||
+        method === 'OPTIONS' ||
+        preflight && method === 'HEAD' && this.#r[i][0] === 'GET'
+      ) {
+        const result = pathname.match(this.#r[i][1])
+
+        if (!result) {
+          continue
+        }
+
+        return {
+          handlers: this.#r[i][2],
+          params: result.groups ?? {},
+        }
+      }
+    }
+
+    return null
+  }
+
   /* -------------------------------------------------------------------------- */
   /* Fetch Handler                                                              */
   /* -------------------------------------------------------------------------- */
@@ -160,7 +259,9 @@ export class cheetah extends base<cheetah>() {
   fetch = async (
     request: Request,
     env: Record<string, unknown> | ConnInfo = {},
-    context?: RequestContext,
+    context?: {
+      waitUntil: (promise: Promise<unknown>) => void
+    },
   ): Promise<Response> => {
     let cache: Cache | undefined
 
@@ -168,18 +269,6 @@ export class cheetah extends base<cheetah>() {
       ? ((env as ConnInfo & { remoteAddr: { hostname: string } }).remoteAddr)
         .hostname
       : request.headers.get('cf-connecting-ip') ?? undefined
-
-    if (
-      this.#cache && request.method === 'GET' && this.#runtime === 'cloudflare'
-    ) {
-      cache = await caches.open(this.#cache.name)
-
-      const cachedResponse = await cache.match(request)
-
-      if (cachedResponse) {
-        return cachedResponse
-      }
-    }
 
     const url = new URL(request.url)
 
@@ -208,7 +297,7 @@ export class cheetah extends base<cheetah>() {
     }
 
     try {
-      const route = this.#router.match(
+      const route = this.#match(
         request.method,
         url.pathname,
         this.#preflight,
@@ -292,11 +381,11 @@ export class cheetah extends base<cheetah>() {
   async #handle(
     request: Request,
     env: Record<string, any>,
-    waitUntil: RequestContext['waitUntil'],
+    waitUntil: (promise: Promise<unknown>) => void,
     ip: string | undefined,
     url: URL,
     params: Record<string, string | undefined>,
-    route: Route[],
+    route: HandlerOrSchema[],
   ) {
     const options = typeof route[0] !== 'function' ? route[0] : null
 
@@ -354,6 +443,10 @@ export class cheetah extends base<cheetah>() {
     }
 
     const context = new Context(
+      {
+        proxy: this.#p,
+        routes: this.#r,
+      },
       __internal,
       env,
       ip,

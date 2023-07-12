@@ -1,13 +1,19 @@
-import { Exception } from '../../mod.ts'
-import { Method } from '../_base.ts'
-import { BaseType, ObjectType, Static } from '../_zod.ts'
 import {
   ContinentCode,
-  DeadlineError,
   IncomingRequestCfProperties,
-  resolveWithDeadline,
-  ZodType,
-} from '../deps.ts'
+} from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230628.0/index.ts'
+import {
+  deadline as resolveWithDeadline,
+  DeadlineError,
+} from 'https://deno.land/std@0.193.0/async/deadline.ts'
+import z from 'https://deno.land/x/zod@v3.21.4/index.ts'
+import { ZodType } from 'https://deno.land/x/zod@v3.21.4/types.ts'
+import { Method } from './base.ts'
+import { BaseType, ObjectType } from './handler.ts'
+import { Exception } from './mod.ts'
+
+type Static<T extends ZodType | unknown> = T extends ZodType ? z.infer<T>
+  : unknown
 
 export class RequestContext<
   Params extends Record<string, unknown> = Record<string, never>,

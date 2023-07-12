@@ -1,6 +1,23 @@
-import { Context } from '../mod.ts'
-import { ObjectType } from './_zod.ts'
-import { ZodString, ZodType } from './deps.ts'
+import { ZodStringDef } from 'https://deno.land/x/zod@v3.21.4/external.ts'
+import { Context } from './mod.ts'
+import {
+  ZodObject,
+  ZodObjectDef,
+  ZodRecord,
+  ZodString,
+  ZodType,
+} from 'https://deno.land/x/zod@v3.21.4/types.ts'
+
+export type ObjectType =
+  // deno-lint-ignore no-explicit-any
+  | ZodObject<any>
+  | ZodRecord
+
+export type BaseType =
+  // deno-lint-ignore no-explicit-any
+  | ZodType<any, ZodObjectDef<any, any, any>, any>
+  // deno-lint-ignore no-explicit-any
+  | ZodType<any, ZodStringDef, any>
 
 type ExtractParam<Path, NextPart> = Path extends `:${infer Param}`
   ? Record<Param, string> & NextPart
@@ -121,7 +138,7 @@ export function bodylessHandler<T>() {
   }
 }
 
-export type Route =
+export type HandlerOrSchema =
   | {
     body?: ZodType
     cookies?: ObjectType
