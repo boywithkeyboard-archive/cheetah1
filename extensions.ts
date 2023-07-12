@@ -1,3 +1,4 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { Context } from './mod.ts'
 
 type HasRequired<T> = Partial<T> extends T ? false : true
@@ -25,7 +26,7 @@ type ReturnFunction<
   : HasRequired<Config> extends true ? ((config: Config) => Extension<Config>)
   : ((config?: Config) => Extension<Config>)
 
-export function isValidExtension(ext: Record<string, unknown>) {
+export function validExtension(ext: Record<string, unknown>) {
   const symbol = Object.getOwnPropertySymbols(ext).find((s) =>
     s.description === 'cheetah.extension'
   )

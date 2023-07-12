@@ -1,3 +1,4 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import * as brotli from 'https://deno.land/x/brotli@0.1.7/mod.ts'
 import { deflate, gzip } from 'https://deno.land/x/foras@2.0.8/src/deno/mod.ts'
 import { createExtension } from '../mod.ts'

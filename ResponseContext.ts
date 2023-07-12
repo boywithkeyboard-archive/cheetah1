@@ -1,3 +1,4 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { Payload } from './handler.ts'
 
 export class ResponseContext {

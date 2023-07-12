@@ -1,3 +1,4 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import * as OTP from 'https://deno.land/x/otpauth@v9.1.3/dist/otpauth.esm.js'
 
 export const otp = {

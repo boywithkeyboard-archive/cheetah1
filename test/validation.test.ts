@@ -1,5 +1,7 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import cheetah from '../mod.ts'
-import { assertEquals, z } from './deps.ts'
+import { assertEquals } from 'https://deno.land/std@0.193.0/testing/asserts.ts'
+import z from 'https://deno.land/x/zod@v3.21.4/index.ts'
 
 Deno.test('Validation', async (t) => {
   await t.step('transform', async () => {

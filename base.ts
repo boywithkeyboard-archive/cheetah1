@@ -1,3 +1,4 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { bodylessHandler, handler, HandlerOrSchema } from './handler.ts'
 
 export type Method =

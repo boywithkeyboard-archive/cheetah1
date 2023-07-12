@@ -1,3 +1,4 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 type MailContact =
   | { name?: string; email: string }
   | { name?: string; email: string }[]

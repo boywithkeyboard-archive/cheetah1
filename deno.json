@@ -1,16 +1,22 @@
 {
+  "compilerOptions": {
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
+  },
   "fmt": {
     "semiColons": false,
     "singleQuote": true,
     "exclude": [
+      "./changelog.md",
       "./readme.md"
     ]
   },
   "tasks": {
     "check": "deno fmt && deno lint && deno task test",
     "compare": "deno run -A bench/compare.ts",
+    "license_year": "deno run -A .github/update_license_year.ts",
     "test": "deno test -A",
-    "upgrade": "deno run -A https://deno.land/x/upgrade@v1.0.0/mod.ts"
+    "upgrade": "deno run -A https://deno.land/x/upgrade@v1.0.1/mod.ts"
   },
   "lock": false
 }

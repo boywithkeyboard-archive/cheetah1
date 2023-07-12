@@ -1,3 +1,4 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 export { Collection } from './Collection.ts'
 export type { Context } from './Context.ts'
 export { Exception } from './Exception.ts'

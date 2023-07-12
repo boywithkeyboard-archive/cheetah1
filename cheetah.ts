@@ -1,12 +1,13 @@
-import { ConnInfo } from 'https://deno.land/std@0.193.0/http/server.ts'
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { base, Method } from './base.ts'
 import { Collection } from './Collection.ts'
 import { Context } from './Context.ts'
 import { Exception } from './Exception.ts'
-import { Extension, isValidExtension } from './extensions.ts'
+import { Extension, validExtension } from './extensions.ts'
 import { Handler, HandlerOrSchema, Payload } from './handler.ts'
 
 export type AppContext = {
+  env: Record<string, unknown> | undefined
   proxy: 'cloudflare' | 'none'
   routes: [Uppercase<Method>, RegExp, HandlerOrSchema[]][]
 }
@@ -18,11 +19,6 @@ export type AppConfig = {
    * @default '/'
    */
   base?: `/${string}`
-
-  /**
-   * Enable Cross-Origin Resource Sharing (CORS) for your app by setting a origin, e.g. `*`.
-   */
-  cors?: string
 
   cache?: {
     /**
@@ -37,6 +33,11 @@ export type AppConfig = {
      */
     maxAge?: number
   }
+
+  /**
+   * Enable Cross-Origin Resource Sharing (CORS) for your app by setting a origin, e.g. `*`.
+   */
+  cors?: string
 
   /**
    * If enabled, cheetah will attempt to find the matching `.get()` handler for an incoming HEAD request. Your existing `.head()` handlers won't be impacted.
@@ -67,49 +68,21 @@ export type AppConfig = {
 }
 
 export class cheetah extends base<cheetah>() {
-  #p: Exclude<AppConfig['proxy'], undefined>
-  #r: [Uppercase<Method>, RegExp, HandlerOrSchema[]][] = []
-  #runtime: 'deno' | 'cloudflare'
   #base
-  #cors
   #cache
-  #notFound
+  #cors
   #error
+  #extensions: [string, Extension][]
+  #notFound
   #preflight
-  #ext: [string, Extension][]
-
-  // #plugins: {
-  //   beforeParsing: [string, ((request: Request) => void | Promise<void>)][]
-  //   beforeHandling: [
-  //     string,
-  //     ((
-  //       c: Context<
-  //         Record<string, never>,
-  //         unknown,
-  //         unknown,
-  //         Record<string, string>,
-  //         unknown
-  //       >,
-  //     ) => ResponsePayload | Promise<ResponsePayload>),
-  //   ][]
-  //   beforeResponding: [
-  //     string,
-  //     ((
-  //       c: Context<
-  //         Record<string, never>,
-  //         unknown,
-  //         unknown,
-  //         Record<string, string>,
-  //         unknown
-  //       >,
-  //     ) => ResponsePayload | Promise<ResponsePayload>),
-  //   ][]
-  // }
+  #proxy: Exclude<AppConfig['proxy'], undefined>
+  #routes: [Uppercase<Method>, RegExp, HandlerOrSchema[]][] = []
+  #runtime: 'deno' | 'cloudflare'
 
   constructor({
     base,
-    cors,
     cache,
+    cors,
     preflight = false,
     proxy = 'none',
     error,
@@ -125,97 +98,83 @@ export class cheetah extends base<cheetah>() {
       return this
     })
 
-    this.#p = proxy
-
     this.#base = base === '/' ? undefined : base
-    this.#cors = cors
     this.#cache = cache
       ? {
         name: cache.name,
         maxAge: cache.maxAge ?? 0,
       }
       : undefined
+    this.#cors = cors
     this.#error = error
+    this.#extensions = []
     this.#notFound = notFound
     this.#preflight = preflight
-    this.#ext = []
-
-    const runtime = globalThis?.Deno
-      ? 'deno'
-      : typeof (globalThis as Record<string, unknown>)?.WebSocketPair ===
-          'function'
+    this.#proxy = proxy
+    this.#runtime = typeof globalThis?.Deno?.serve !== 'function'
       ? 'cloudflare'
-      : null
-
-    if (!runtime) {
-      throw new Error('Unknown Runtime')
-    }
-
-    this.#runtime = runtime
+      : 'deno'
   }
 
-  use<T extends Collection>(...exts: Extension[]): this
+  /* use ---------------------------------------------------------------------- */
+
+  use<T extends Collection>(...extensions: Extension[]): this
   use<T extends Collection>(
     prefix: `/${string}`,
-    ...exts: Extension[]
+    ...extensions: Extension[]
   ): this
   use<T extends Collection>(
     prefix: `/${string}`,
     collection: T,
-    ...exts: Extension[]
+    ...extensions: Extension[]
   ): this
 
-  use<T extends Collection>(...items: (`/${string}` | T | Extension)[]) {
-    let prefix
+  use<T extends Collection>(...elements: (`/${string}` | T | Extension)[]) {
+    let pre
 
-    for (const item of items) {
-      if (typeof item === 'string') { // prefix
-        prefix = item
-      } else if (item instanceof Collection) { // collection
-        if (!prefix) {
-          throw new Error(
-            'Please define a prefix when attaching a collection!',
-          )
+    for (const e of elements) {
+      if (typeof e === 'string') { // prefix
+        pre = e
+      } else if (e instanceof Collection) { // collection
+        if (!pre || pre === '/') {
+          pre = ''
         }
 
-        const length = item.routes.length
+        const length = e.routes.length
 
         for (let i = 0; i < length; ++i) {
-          let url = item.routes[i][1]
+          let url = e.routes[i][1]
 
           if (url === '/') {
             url = ''
           }
 
-          if (prefix === '/') {
-            // @ts-ignore:
-            prefix = ''
-          }
-
           this.#add(
-            item.routes[i][0],
-            this.#base ? this.#base + prefix + url : prefix + url,
-            item.routes[i][2],
+            e.routes[i][0],
+            this.#base ? this.#base + pre + url : pre + url,
+            e.routes[i][2],
           )
         }
-      } else if (isValidExtension(item)) { // extension
-        if (!prefix) {
-          prefix = '*'
+      } else if (validExtension(e)) { // extension
+        if (!pre) {
+          pre = '*'
         }
 
-        this.#ext.push([prefix, item])
+        this.#extensions.push([pre, e])
       }
     }
 
     return this
   }
 
+  /* router ------------------------------------------------------------------- */
+
   #add(
     method: Uppercase<Method>,
     pathname: string,
     handlers: HandlerOrSchema[],
   ) {
-    this.#r.push([
+    this.#routes.push([
       method,
       RegExp(`^${
         (pathname
@@ -230,21 +189,21 @@ export class cheetah extends base<cheetah>() {
   }
 
   #match(method: string, pathname: string, preflight: boolean) {
-    for (let i = 0; i < this.#r.length; ++i) {
+    for (let i = 0; i < this.#routes.length; ++i) {
       if (
-        method === this.#r[i][0] ||
+        method === this.#routes[i][0] ||
         method === 'OPTIONS' ||
-        preflight && method === 'HEAD' && this.#r[i][0] === 'GET'
+        preflight && method === 'HEAD' && this.#routes[i][0] === 'GET'
       ) {
-        const result = pathname.match(this.#r[i][1])
+        const result = pathname.match(this.#routes[i][1])
 
         if (!result) {
           continue
         }
 
         return {
-          handlers: this.#r[i][2],
-          params: result.groups ?? {},
+          _: this.#routes[i][2],
+          ...result.groups,
         }
       }
     }
@@ -252,39 +211,38 @@ export class cheetah extends base<cheetah>() {
     return null
   }
 
-  /* -------------------------------------------------------------------------- */
-  /* Fetch Handler                                                              */
-  /* -------------------------------------------------------------------------- */
+  /* fetch -------------------------------------------------------------------- */
 
   fetch = async (
-    request: Request,
-    env: Record<string, unknown> | ConnInfo = {},
+    req: Request,
+    data: Record<string, unknown> | Deno.ServeHandlerInfo = {},
     context?: {
       waitUntil: (promise: Promise<unknown>) => void
     },
   ): Promise<Response> => {
     let cache: Cache | undefined
 
-    const ip = env?.remoteAddr
-      ? ((env as ConnInfo & { remoteAddr: { hostname: string } }).remoteAddr)
+    const ip = data?.remoteAddr
+      ? ((data as Deno.ServeHandlerInfo).remoteAddr)
         .hostname
-      : request.headers.get('cf-connecting-ip') ?? undefined
+      : req.headers.get('cf-connecting-ip') ?? undefined
 
-    const url = new URL(request.url)
+    const url = new URL(req.url)
 
     let body: Response | void = undefined
 
-    for (let i = 0; i < this.#ext.length; i++) {
+    for (let i = 0; i < this.#extensions.length; i++) {
       if (
-        this.#ext[i][0] !== '*' && !url.pathname.startsWith(this.#ext[i][0])
+        this.#extensions[i][0] !== '*' &&
+        !url.pathname.startsWith(this.#extensions[i][0])
       ) {
         continue
       }
 
-      const { onRequest } = this.#ext[i][1]
+      const { onRequest } = this.#extensions[i][1]
 
       if (onRequest !== undefined) {
-        const result = await onRequest(request, this.#ext[i][1].__config)
+        const result = await onRequest(req, this.#extensions[i][1].__config)
 
         if (result !== undefined) {
           body = result
@@ -298,18 +256,18 @@ export class cheetah extends base<cheetah>() {
 
     try {
       const route = this.#match(
-        request.method,
+        req.method,
         url.pathname,
         this.#preflight,
       )
 
       if (!route) {
         if (this.#notFound) {
-          if (request.method !== 'HEAD') {
-            return await this.#notFound(request)
+          if (req.method !== 'HEAD') {
+            return await this.#notFound(req)
           }
 
-          const response = await this.#notFound(request)
+          const response = await this.#notFound(req)
 
           return new Response(null, {
             headers: response.headers,
@@ -321,9 +279,11 @@ export class cheetah extends base<cheetah>() {
         throw new Exception(404)
       }
 
+      const { _, ...rest } = route
+
       let response = await this.#handle(
-        request,
-        env,
+        req,
+        data as Record<string, unknown>,
         context?.waitUntil ??
           ((promise: Promise<unknown>) => {
             setTimeout(async () => {
@@ -332,11 +292,11 @@ export class cheetah extends base<cheetah>() {
           }),
         ip,
         url,
-        route.params,
-        route.handlers,
+        rest,
+        _,
       )
 
-      if (request.method === 'HEAD') {
+      if (req.method === 'HEAD') {
         response = new Response(null, {
           headers: response.headers,
           status: response.status,
@@ -345,24 +305,22 @@ export class cheetah extends base<cheetah>() {
       }
 
       if (cache && response.ok && context) {
-        context.waitUntil(cache.put(request, response.clone()))
+        context.waitUntil(cache.put(req, response.clone()))
       }
 
       return response
     } catch (err) {
-      //console.log(err)
-
       let res: Response
 
       if (err instanceof Exception) {
-        res = err.response(request)
+        res = err.response(req)
       } else if (this.#error) {
-        res = await this.#error(err, request)
+        res = await this.#error(err, req)
       } else {
-        res = new Exception('Something Went Wrong').response(request)
+        res = new Exception('Something Went Wrong').response(req)
       }
 
-      if (request.method === 'HEAD') {
+      if (req.method === 'HEAD') {
         res = new Response(null, {
           headers: res.headers,
           status: res.status,
@@ -374,36 +332,34 @@ export class cheetah extends base<cheetah>() {
     }
   }
 
-  /* -------------------------------------------------------------------------- */
-  /* Request Handler                                                            */
-  /* -------------------------------------------------------------------------- */
+  /* handler ------------------------------------------------------------------ */
 
   async #handle(
-    request: Request,
-    env: Record<string, any>,
+    req: Request,
+    env: Record<string, unknown>,
     waitUntil: (promise: Promise<unknown>) => void,
     ip: string | undefined,
     url: URL,
     params: Record<string, string | undefined>,
     route: HandlerOrSchema[],
   ) {
-    const options = typeof route[0] !== 'function' ? route[0] : null
+    const opts = typeof route[0] !== 'function' ? route[0] : null
 
-    /* Preflight Request -------------------------------------------------------- */
+    // preflight cors request
 
     if (
-      request.method === 'OPTIONS' &&
-      request.headers.has('origin') &&
-      request.headers.has('access-control-request-method')
+      req.method === 'OPTIONS' &&
+      req.headers.has('origin') &&
+      req.headers.has('access-control-request-method')
     ) {
       return new Response(null, {
         status: 204,
         headers: {
-          ...((this.#cors || options?.cors) &&
-            { 'access-control-allow-origin': options?.cors ?? this.#cors }),
+          ...((this.#cors || opts?.cors) &&
+            { 'access-control-allow-origin': opts?.cors ?? this.#cors }),
           'access-control-allow-methods': '*',
           'access-control-allow-headers':
-            request.headers.get('access-control-request-headers') ?? '*',
+            req.headers.get('access-control-request-headers') ?? '*',
           'access-control-allow-credentials': 'false',
           'access-control-max-age': '600',
         },
@@ -414,47 +370,47 @@ export class cheetah extends base<cheetah>() {
 
     /* Construct Context -------------------------------------------------------- */
 
-    // const responseHeaders: Record<string, string> = {
-    //   ...(this.#cors && {
-    //     'access-control-allow-origin': this.#cors,
-    //   }),
-    //   ...(request.method === 'GET' && {
-    //     'cache-control': !this.#cache || this.#cache.maxAge === 0
-    //       ? 'max-age=0, private, must-revalidate'
-    //       : `max-age: ${this.#cache.maxAge}`,
-    //   }),
-    // }
-
-    // if (options?.cache !== undefined) {
-    //   responseHeaders['cache-control'] =
-    //     options.cache === false || options.cache.maxAge === 0
-    //       ? `max-age=0, private, must-revalidate`
-    //       : `max-age: ${options.cache.maxAge}`
-    // }
-
-    const __internal: {
+    const $: {
       b: Exclude<Payload, void> | null
       c: number
       h: Headers
     } = {
       b: null,
       c: 200,
-      h: new Headers(),
+      h: new Headers({
+        ...(this.#cors && {
+          'access-control-allow-origin': this.#cors,
+        }),
+        ...(req.method === 'GET' && {
+          'cache-control': !this.#cache || this.#cache.maxAge === 0
+            ? 'max-age=0, private, must-revalidate'
+            : `max-age: ${this.#cache.maxAge}`,
+        }),
+      }),
+    }
+
+    if (opts?.cache !== undefined) {
+      $.h.set(
+        'cache-control',
+        opts.cache === false || opts.cache.maxAge === 0
+          ? `max-age=0, private, must-revalidate`
+          : `max-age: ${opts.cache.maxAge}`,
+      )
     }
 
     const context = new Context(
       {
-        proxy: this.#p,
-        routes: this.#r,
+        env,
+        proxy: this.#proxy,
+        routes: this.#routes,
       },
-      __internal,
-      env,
+      $,
       ip,
       params,
-      request,
+      req,
       this.#runtime,
-      // @ts-ignore:
-      options,
+      // @ts-ignore
+      opts,
       waitUntil,
     )
 
@@ -469,7 +425,7 @@ export class cheetah extends base<cheetah>() {
         continue
       }
 
-      if (__internal.b && !next) {
+      if ($.b && !next) {
         break
       }
 
@@ -483,86 +439,81 @@ export class cheetah extends base<cheetah>() {
       )
 
       if (result) {
-        __internal.b = result
+        $.b = result
       }
     }
 
     /* Construct Response ------------------------------------------------------- */
 
-    let c = __internal.c
-    const h = __internal.h
-
-    if (c !== 200 && c !== 301) {
-      h.delete('cache-control')
+    if ($.c !== 200 && $.c !== 301) {
+      $.h.delete('cache-control')
     }
 
-    if (h.has('location')) {
+    if ($.h.has('location')) {
       return new Response(null, {
-        headers: h,
-        status: c,
+        headers: $.h,
+        status: $.c,
       })
     }
 
-    if (!__internal.b) {
+    if (!$.b) {
       return new Response(null, {
-        headers: h,
-        status: c,
+        headers: $.h,
+        status: $.c,
       })
     }
 
     if (
-      __internal.b !== null && __internal.b !== undefined
+      $.b !== null && $.b !== undefined
     ) {
-      if (typeof __internal.b === 'string') {
-        h.set('content-length', __internal.b.length.toString())
+      if (typeof $.b === 'string') {
+        $.h.set('content-length', $.b.length.toString())
 
-        if (!h.has('content-type')) {
-          h.set('content-type', 'text/plain; charset=utf-8')
+        if (!$.h.has('content-type')) {
+          $.h.set('content-type', 'text/plain; charset=utf-8')
         }
       } else if (
-        __internal.b instanceof ArrayBuffer ||
-        __internal.b instanceof Uint8Array
+        $.b instanceof ArrayBuffer ||
+        $.b instanceof Uint8Array
       ) {
-        h.set('content-length', __internal.b.byteLength.toString())
-      } else if (__internal.b instanceof Blob) {
-        h.set('content-length', __internal.b.size.toString())
+        $.h.set('content-length', $.b.byteLength.toString())
+      } else if ($.b instanceof Blob) {
+        $.h.set('content-length', $.b.size.toString())
       } else if (
-        __internal.b instanceof FormData ||
-        __internal.b instanceof ReadableStream
+        ($.b instanceof FormData || $.b instanceof ReadableStream) === false
       ) {
-        // TODO: calculate content length
-      } else {
-        __internal.b = JSON.stringify(__internal.b)
+        $.b = JSON.stringify($.b)
 
-        h.set('content-length', __internal.b.length.toString())
+        $.h.set('content-length', $.b.length.toString())
 
-        if (!h.has('content-type')) {
-          h.set('content-type', 'application/json; charset=utf-8')
+        if (!$.h.has('content-type')) {
+          $.h.set('content-type', 'application/json; charset=utf-8')
         }
 
-        if (((__internal.b as unknown) as { code: number }).code) {
-          c = ((__internal.b as unknown) as { code: number }).code
+        if ((($.b as unknown) as { code: number }).code) {
+          $.c = (($.b as unknown) as { code: number }).code
         }
       }
     }
 
-    for (let i = 0; i < this.#ext.length; i++) {
+    for (let i = 0; i < this.#extensions.length; i++) {
       if (
-        this.#ext[i][0] !== '*' && !url.pathname.startsWith(this.#ext[i][0])
+        this.#extensions[i][0] !== '*' &&
+        !url.pathname.startsWith(this.#extensions[i][0])
       ) {
         continue
       }
 
-      const { onResponse } = this.#ext[i][1]
+      const { onResponse } = this.#extensions[i][1]
 
       if (onResponse !== undefined) {
-        onResponse(context, this.#ext[i][1].__config)
+        onResponse(context, this.#extensions[i][1].__config)
       }
     }
 
-    return new Response(__internal.b as BodyInit, {
-      headers: h,
-      status: c,
+    return new Response($.b as BodyInit, {
+      headers: $.h,
+      status: $.c,
     })
   }
 
@@ -578,7 +529,6 @@ export class cheetah extends base<cheetah>() {
     return Deno.serve({
       hostname,
       port,
-      // @ts-ignore
     }, this.fetch).finished
   }
 }
