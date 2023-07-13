@@ -6,7 +6,7 @@ import { AppContext } from './cheetah.ts'
 import { ObjectType, Payload } from './handler.ts'
 
 export class Context<
-  Params extends Record<string, unknown> = Record<string, never>,
+  Params extends Record<string, unknown> = Record<string, unknown>,
   ValidatedBody extends ZodType | unknown = unknown,
   ValidatedCookies extends ObjectType | unknown = unknown,
   ValidatedHeaders extends ObjectType | unknown = unknown,
