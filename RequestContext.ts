@@ -82,53 +82,6 @@ export class RequestContext<
   }
 
   /**
-   * A method to retrieve the geo-location data of the incoming request *(works only on Cloudflare Workers)*.
-   */
-  get geo(): {
-    city?: string
-    region?: string
-    country?: string
-    continent?: ContinentCode
-    regionCode?: string
-    latitude?: string
-    longitude?: string
-    postalCode?: string
-    timezone?: string
-    datacenter?: string
-  } {
-    let geo
-
-    if (this.#a.runtime === 'cloudflare') {
-      const { cf } = this.#r as Request & {
-        cf: IncomingRequestCfProperties
-      }
-
-      geo = {
-        city: cf.city,
-        region: cf.region,
-        country: cf.country,
-        continent: cf.continent,
-        regionCode: cf.regionCode,
-        latitude: cf.latitude,
-        longitude: cf.longitude,
-        timezone: cf.timezone,
-        datacenter: cf.colo,
-      }
-    } else {
-      geo = {
-        city: this.#r.headers.get('cf-ipcity') ?? undefined,
-        country: this.#r.headers.get('cf-ipcountry') ?? undefined,
-        continent: this.#r.headers.get('cf-ipcontinent') as ContinentCode ??
-          undefined,
-        latitude: this.#r.headers.get('cf-iplatitude') ?? undefined,
-        longitude: this.#r.headers.get('cf-iplongitude') ?? undefined,
-      }
-    }
-
-    return geo
-  }
-
-  /**
    * The validated body of the incoming request.
    */
   async body(): Promise<
