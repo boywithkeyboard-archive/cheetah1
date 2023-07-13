@@ -1,17 +1,17 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import {
-  ContinentCode,
-  IncomingRequestCfProperties,
-} from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230710.0/index.ts'
-import {
   deadline as resolveWithDeadline,
   DeadlineError,
 } from 'https://deno.land/std@0.194.0/async/deadline.ts'
-import z from 'https://deno.land/x/zod@v3.21.4/index.ts'
-import { ZodType } from 'https://deno.land/x/zod@v3.21.4/types.ts'
+import { z } from 'https://deno.land/x/zod@v3.21.4/mod.ts'
+import {
+  ZodStringDef,
+  ZodType,
+  ZodUnionDef,
+} from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { Method } from './base.ts'
 import { BaseType, ObjectType } from './handler.ts'
-import { AppContext, Exception } from './mod.ts'
+import { Exception } from './mod.ts'
 
 type Static<T extends ZodType | unknown> = T extends ZodType ? z.infer<T>
   : unknown
@@ -23,7 +23,6 @@ export class RequestContext<
   ValidatedHeaders extends ObjectType | unknown = unknown,
   ValidatedQuery extends ObjectType | unknown = unknown,
 > {
-  #a
   #c: Record<string, string | undefined> | undefined
   #h: Record<string, string | undefined> | undefined
   #i: string | undefined
@@ -33,7 +32,6 @@ export class RequestContext<
   #s
 
   constructor(
-    __app: AppContext,
     p: Record<string, string | undefined>,
     r: Request,
     s: {
@@ -44,7 +42,6 @@ export class RequestContext<
       [key: string]: unknown
     } | null,
   ) {
-    this.#a = __app
     this.#p = p
     this.#r = r
     this.#s = s
@@ -96,10 +93,17 @@ export class RequestContext<
 
     try {
       if (
-        (this.#s.body as BaseType)._def.typeName === 'ZodObject'
+        (this.#s.body as BaseType<ZodStringDef>)._def.typeName ===
+          'ZodString' ||
+        (this.#s.body as BaseType<ZodUnionDef>)._def.typeName === 'ZodUnion' &&
+          (this.#s.body as BaseType<ZodUnionDef>)._def.options.every((
+            { _def },
+          ) => _def.typeName === 'ZodString')
       ) {
+        body = await resolveWithDeadline(this.#r.text(), 3000)
+      } else {
         if (
-          this.#s.transform === true &&
+          this.#s?.transform === true &&
           this.#r.headers.get('content-type') === 'multipart/form-data'
         ) {
           const formData = await resolveWithDeadline(this.#r.formData(), 3000)
@@ -112,22 +116,18 @@ export class RequestContext<
         } else {
           body = await resolveWithDeadline(this.#r.json(), 3000)
         }
-      } else if (
-        (this.#s.body as BaseType)._def.typeName === 'ZodString'
-      ) {
-        body = await resolveWithDeadline(this.#r.text(), 3000)
       }
-    } catch (err) {
+    } catch (err: unknown) {
       throw new Exception(err instanceof DeadlineError ? 413 : 400)
     }
 
-    const isValid = this.#s.body.safeParse(body).success
+    const result = this.#s.body.safeParse(body)
 
-    if (!isValid) {
+    if (!result.success) {
       throw new Exception(400)
     }
 
-    return body
+    return result.data
   }
 
   /**

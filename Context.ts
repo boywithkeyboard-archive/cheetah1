@@ -45,7 +45,7 @@ export class Context<
     waitUntil: (promise: Promise<unknown>) => void,
   ) {
     this.#a = __app
-    this.req = new RequestContext(__app, p, r, s)
+    this.req = new RequestContext(p, r, s)
     this.res = new ResponseContext(__internal)
     this.waitUntil = waitUntil
   }

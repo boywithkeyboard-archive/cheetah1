@@ -1,25 +1,21 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { ZodStringDef } from 'https://deno.land/x/zod@v3.21.4/external.ts'
+import { ZodTypeDef, ZodUnion } from 'https://deno.land/x/zod@v3.21.4/index.ts'
 import {
   ZodObject,
-  ZodObjectDef,
   ZodRecord,
   ZodString,
   ZodType,
 } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { Context } from './mod.ts'
-import { ZodUnion } from 'https://deno.land/x/zod@v3.21.4/index.ts'
 
 export type ObjectType =
   // deno-lint-ignore no-explicit-any
   | ZodObject<any>
   | ZodRecord
 
-export type BaseType =
+export type BaseType<T extends ZodTypeDef = ZodTypeDef> =
   // deno-lint-ignore no-explicit-any
-  | ZodType<any, ZodObjectDef<any, any, any>, any>
-  // deno-lint-ignore no-explicit-any
-  | ZodType<any, ZodStringDef, any>
+  ZodType<any, T, any>
 
 type ExtractParam<Path, NextPart> = Path extends `:${infer Param}`
   ? Record<Param, string> & NextPart
