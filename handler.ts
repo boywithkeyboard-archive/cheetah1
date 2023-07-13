@@ -8,6 +8,7 @@ import {
   ZodType,
 } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { Context } from './mod.ts'
+import { ZodUnion } from 'https://deno.land/x/zod@v3.21.4/index.ts'
 
 export type ObjectType =
   // deno-lint-ignore no-explicit-any
@@ -60,7 +61,8 @@ export type Handler<
 export function handler<T>() {
   return <
     Pathname extends `/${string}`,
-    ValidatedBody extends ObjectType | ZodString,
+    // deno-lint-ignore no-explicit-any
+    ValidatedBody extends ObjectType | ZodString | ZodUnion<any>,
     ValidatedCookies extends ObjectType,
     ValidatedHeaders extends ObjectType,
     ValidatedQuery extends ObjectType,
