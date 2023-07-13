@@ -2,11 +2,11 @@
 import {
   ContinentCode,
   IncomingRequestCfProperties,
-} from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230628.0/index.ts'
+} from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230710.0/index.ts'
 import {
   deadline as resolveWithDeadline,
   DeadlineError,
-} from 'https://deno.land/std@0.193.0/async/deadline.ts'
+} from 'https://deno.land/std@0.194.0/async/deadline.ts'
 import z from 'https://deno.land/x/zod@v3.21.4/index.ts'
 import { ZodType } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { Method } from './base.ts'
