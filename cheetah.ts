@@ -24,20 +24,6 @@ export type AppConfig = {
    */
   base?: `/${string}`
 
-  cache?: {
-    /**
-     * A unique name for your cache.
-     */
-    name: string
-
-    /**
-     * Duration in seconds for how long a response should be cached.
-     *
-     * @since v0.11
-     */
-    maxAge?: number
-  }
-
   /**
    * Enable Cross-Origin Resource Sharing (CORS) for your app by setting a origin, e.g. `*`.
    */
@@ -73,7 +59,6 @@ export type AppConfig = {
 
 export class cheetah extends base<cheetah>() {
   #base
-  #cache
   #cors
   #error
   #extensions: [string, Extension][]
@@ -85,7 +70,6 @@ export class cheetah extends base<cheetah>() {
 
   constructor({
     base,
-    cache,
     cors,
     preflight = false,
     proxy = 'none',
@@ -103,12 +87,6 @@ export class cheetah extends base<cheetah>() {
     })
 
     this.#base = base === '/' ? undefined : base
-    this.#cache = cache
-      ? {
-        name: cache.name,
-        maxAge: cache.maxAge ?? 0,
-      }
-      : undefined
     this.#cors = cors
     this.#error = error
     this.#extensions = []
@@ -224,8 +202,6 @@ export class cheetah extends base<cheetah>() {
       waitUntil: (promise: Promise<unknown>) => void
     },
   ): Promise<Response> => {
-    let cache: Cache | undefined
-
     const ip = data?.remoteAddr
       ? ((data as Deno.ServeHandlerInfo).remoteAddr)
         .hostname
@@ -315,10 +291,6 @@ export class cheetah extends base<cheetah>() {
         })
       }
 
-      if (cache && response.ok && context) {
-        context.waitUntil(cache.put(req, response.clone()))
-      }
-
       return response
     } catch (err) {
       let res: Response
@@ -389,21 +361,7 @@ export class cheetah extends base<cheetah>() {
         ...(this.#cors && {
           'access-control-allow-origin': this.#cors,
         }),
-        ...(r.method === 'GET' && {
-          'cache-control': !this.#cache || this.#cache.maxAge === 0
-            ? 'max-age=0, private, must-revalidate'
-            : `max-age: ${this.#cache.maxAge}`,
-        }),
       }),
-    }
-
-    if (o?.cache !== undefined) {
-      $.h.set(
-        'cache-control',
-        o.cache === false || o.cache.maxAge === 0
-          ? `max-age=0, private, must-revalidate`
-          : `max-age: ${o.cache.maxAge}`,
-      )
     }
 
     const context = new Context(
@@ -445,10 +403,6 @@ export class cheetah extends base<cheetah>() {
     }
 
     // construct response
-
-    if ($.c !== 200 && $.c !== 301) {
-      $.h.delete('cache-control')
-    }
 
     if ($.h.has('location')) {
       return new Response(null, {

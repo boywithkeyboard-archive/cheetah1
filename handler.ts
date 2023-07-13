@@ -77,7 +77,6 @@ export function handler<T>() {
         headers?: ValidatedHeaders
         query?: ValidatedQuery
         transform?: boolean
-        cache?: false | { maxAge: number }
         cors?: string
       }
       | Handler<
@@ -125,7 +124,6 @@ export function bodylessHandler<T>() {
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
-        cache?: false | { maxAge: number }
         cors?: string
       }
       | BodylessHandler<
@@ -148,7 +146,6 @@ export type HandlerOrSchema =
     headers?: ObjectType
     query?: ObjectType
     transform?: boolean
-    cache?: false | { maxAge: number }
     cors?: string
   }
   | Handler<unknown>
