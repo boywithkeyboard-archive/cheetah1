@@ -34,7 +34,7 @@ export class Cache {
 
     this.#context.waitUntil(
       this.#cache.put(
-        `https://cloudflare.com/${encode(key)}`,
+        `https://${this.#name}.com/${encode(key)}`,
         new Response(
           typeof data === 'string' || data instanceof Uint8Array
             ? data
