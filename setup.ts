@@ -3,8 +3,8 @@ import {
   brightGreen,
   brightRed,
   gray,
-} from 'https://deno.land/std@0.193.0/fmt/colors.ts'
-import { Select } from 'https://deno.land/x/cliffy@v1.0.0-rc.2/prompt/select.ts'
+} from 'https://deno.land/std@0.194.0/fmt/colors.ts'
+import { Select } from 'https://deno.land/x/cliffy@v0.25.7/prompt/select.ts'
 import { decompress } from 'https://deno.land/x/zip@v1.2.5/mod.ts'
 
 async function setup() {

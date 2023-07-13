@@ -16,7 +16,7 @@
     "compare": "deno run -A bench/compare.ts",
     "license_year": "deno run -A .github/update_license_year.ts",
     "test": "deno test -A",
-    "upgrade": "deno run -A https://deno.land/x/upgrade@v1.0.1/mod.ts"
+    "upgrade": "deno run -A https://deno.land/x/upgrade@v1.0.1/mod.ts -q"
   },
   "lock": false
 }
