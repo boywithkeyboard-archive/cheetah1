@@ -125,15 +125,15 @@ export class cheetah extends base<cheetah>() {
         const length = e.routes.length
 
         for (let i = 0; i < length; ++i) {
-          let url = e.routes[i][1]
+          let pathname = e.routes[i][1]
 
-          if (url === '/') {
-            url = ''
+          if (pathname === '/') {
+            pathname = ''
           }
 
           this.#add(
             e.routes[i][0],
-            this.#base ? this.#base + pre + url : pre + url,
+            this.#base ? this.#base + pre + pathname : pre + pathname,
             e.routes[i][2],
           )
         }
@@ -184,8 +184,8 @@ export class cheetah extends base<cheetah>() {
         }
 
         return {
-          _: this.#routes[i][2],
-          ...result.groups,
+          handlers: this.#routes[i][2],
+          params: result.groups ?? {},
         }
       }
     }
@@ -202,75 +202,79 @@ export class cheetah extends base<cheetah>() {
       waitUntil: (promise: Promise<unknown>) => void
     },
   ): Promise<Response> => {
-    const ip = data?.remoteAddr
+    const ip = data?.remoteAddr && typeof globalThis.Deno?.serve === 'function'
       ? ((data as Deno.ServeHandlerInfo).remoteAddr)
         .hostname
       : req.headers.get('cf-connecting-ip') ?? undefined
 
-    const url = new URL(req.url)
+    const parts = req.url.split('?')
 
-    let body: Response | void = undefined
+    parts[0] = parts[0].slice(8)
 
-    for (let i = 0; i < this.#extensions.length; i++) {
-      if (
-        this.#extensions[i][0] !== '*' &&
-        !url.pathname.startsWith(this.#extensions[i][0])
-      ) {
-        continue
-      }
+    const pathname = parts[0].substring(parts[0].indexOf('/'))
 
-      const { onRequest } = this.#extensions[i][1]
+    const qs: string | undefined = parts[1]
 
-      if (onRequest !== undefined) {
-        const result = await onRequest(req, this.#extensions[i][1].__config)
+    if (this.#extensions.length > 0) {
+      let body: Response | void = undefined
 
-        if (result !== undefined) {
-          body = result
+      for (let i = 0; i < this.#extensions.length; i++) {
+        if (
+          this.#extensions[i][0] !== '*' &&
+          pathname.indexOf(this.#extensions[i][0]) !== 0
+        ) {
+          continue
+        }
+
+        const { onRequest } = this.#extensions[i][1]
+
+        if (onRequest !== undefined) {
+          const result = await onRequest(req, this.#extensions[i][1].__config)
+
+          if (result !== undefined) {
+            body = result
+          }
         }
       }
-    }
 
-    if (body !== undefined) {
-      return body
+      if (body !== undefined) {
+        return body
+      }
     }
 
     try {
       const route = this.#match(
         req.method,
-        url.pathname,
+        pathname,
         this.#preflight,
       )
 
       if (!route) {
-        if (this.#notFound) {
-          if (req.method !== 'HEAD') {
-            return await this.#notFound(req)
-          }
-
-          const response = await this.#notFound(req)
-
-          return new Response(null, {
-            headers: response.headers,
-            status: response.status,
-            statusText: response.statusText,
-          })
+        if (!this.#notFound) {
+          throw new Exception(404)
         }
 
-        throw new Exception(404)
-      }
+        if (req.method !== 'HEAD') {
+          return await this.#notFound(req)
+        }
 
-      const { _, ...rest } = route
+        const response = await this.#notFound(req)
 
-      const __app: AppContext = {
-        env: data as Record<string, unknown>,
-        ip,
-        proxy: this.#proxy,
-        routes: this.#routes,
-        runtime: this.#runtime,
+        return new Response(null, {
+          headers: response.headers,
+          status: response.status,
+          statusText: response.statusText,
+        })
       }
 
       let response = await this.#handle(
-        __app,
+        {
+          env: data as Record<string, unknown>,
+          ip,
+          proxy: this.#proxy,
+          routes: this.#routes,
+          runtime: this.#runtime,
+        },
         req,
         context?.waitUntil ??
           ((promise: Promise<unknown>) => {
@@ -278,9 +282,10 @@ export class cheetah extends base<cheetah>() {
               await promise
             }, 0)
           }),
-        url,
-        rest,
-        _,
+        pathname,
+        qs,
+        route.params,
+        route.handlers,
       )
 
       if (req.method === 'HEAD') {
@@ -321,11 +326,12 @@ export class cheetah extends base<cheetah>() {
     __app: AppContext,
     r: Request,
     waitUntil: (promise: Promise<unknown>) => void,
-    url: URL,
+    pathname: string,
+    qs: string | undefined,
     p: Record<string, string | undefined>,
-    route: HandlerOrSchema[],
+    handlers: HandlerOrSchema[],
   ) {
-    const o = typeof route[0] !== 'function' ? route[0] : null
+    const o = typeof handlers[0] !== 'function' ? handlers[0] : null
 
     // preflight cors request
 
@@ -368,6 +374,7 @@ export class cheetah extends base<cheetah>() {
       __app,
       $,
       p,
+      qs,
       r,
       o,
       waitUntil,
@@ -375,12 +382,12 @@ export class cheetah extends base<cheetah>() {
 
     // handle request
 
-    const length = route.length
+    const len = handlers.length
 
     let next = false
 
-    for (let i = 0; i < length; ++i) {
-      if (typeof route[i] !== 'function') {
+    for (let i = 0; i < len; ++i) {
+      if (typeof handlers[i] !== 'function') {
         continue
       }
 
@@ -390,7 +397,7 @@ export class cheetah extends base<cheetah>() {
 
       next = false
 
-      const result = await (route[i] as Handler<unknown>)(
+      const result = await (handlers[i] as Handler<unknown>)(
         context,
         () => {
           next = true
@@ -404,7 +411,7 @@ export class cheetah extends base<cheetah>() {
 
     // construct response
 
-    if ($.h.has('location')) {
+    if ($.c.toString().indexOf('3') === 0) {
       return new Response(null, {
         headers: $.h,
         status: $.c,
@@ -418,25 +425,8 @@ export class cheetah extends base<cheetah>() {
       })
     }
 
-    if (
-      $.b !== null && $.b !== undefined
-    ) {
-      if (typeof $.b === 'string') {
-        $.h.set('content-length', $.b.length.toString())
-
-        if (!$.h.has('content-type')) {
-          $.h.set('content-type', 'text/plain; charset=utf-8')
-        }
-      } else if (
-        $.b instanceof ArrayBuffer ||
-        $.b instanceof Uint8Array
-      ) {
-        $.h.set('content-length', $.b.byteLength.toString())
-      } else if ($.b instanceof Blob) {
-        $.h.set('content-length', $.b.size.toString())
-      } else if (
-        ($.b instanceof FormData || $.b instanceof ReadableStream) === false
-      ) {
+    switch ($.b.constructor.name) {
+      case 'Object': {
         $.b = JSON.stringify($.b)
 
         $.h.set('content-length', $.b.length.toString())
@@ -448,13 +438,62 @@ export class cheetah extends base<cheetah>() {
         if ((($.b as unknown) as { code: number }).code) {
           $.c = (($.b as unknown) as { code: number }).code
         }
+
+        break
       }
+
+      case 'String': {
+        $.h.set('content-length', ($.b as string).length.toString())
+
+        if (!$.h.has('content-type')) {
+          $.h.set('content-type', 'text/plain; charset=utf-8')
+        }
+
+        break
+      }
+
+      case 'ArrayBuffer': {
+        $.h.set('content-length', ($.b as ArrayBuffer).byteLength.toString())
+
+        break
+      }
+
+      case 'Uint8Array': {
+        $.h.set('content-length', ($.b as Uint8Array).byteLength.toString())
+
+        break
+      }
+
+      case 'Blob': {
+        $.h.set('content-length', ($.b as Blob).size.toString())
+
+        break
+      }
+
+      case 'Array': {
+        $.b = JSON.stringify($.b)
+
+        $.h.set('content-length', $.b.length.toString())
+
+        if (!$.h.has('content-type')) {
+          $.h.set('content-type', 'application/json; charset=utf-8')
+        }
+
+        if ((($.b as unknown) as { code: number }).code) {
+          $.c = (($.b as unknown) as { code: number }).code
+        }
+
+        break
+      }
+
+      default: // FormData or ReadableStream
+        break
     }
 
     for (let i = 0; i < this.#extensions.length; i++) {
       if (
         this.#extensions[i][0] !== '*' &&
-        !url.pathname.startsWith(this.#extensions[i][0])
+        pathname.indexOf(this.#extensions[i][0]) !== 0
       ) {
         continue
       }
