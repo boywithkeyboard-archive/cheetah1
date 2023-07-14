@@ -7,11 +7,11 @@ export class Collection extends base<Collection>() {
     | string
     | undefined
 
-  routes: [
+  routes: Set<[
     Uppercase<Method>,
     string,
     HandlerOrSchema[],
-  ][]
+  ]>
 
   constructor({
     cors,
@@ -30,12 +30,12 @@ export class Collection extends base<Collection>() {
         }
       }
 
-      this.routes.push([method, pathname, handlers])
+      this.routes.add([method, pathname, handlers])
 
       return this
     })
 
     this.#cors = cors
-    this.routes = []
+    this.routes = new Set()
   }
 }
