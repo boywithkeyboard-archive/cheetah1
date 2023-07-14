@@ -9,7 +9,7 @@ import { Handler, HandlerOrSchema, Payload } from './handler.ts'
 export type AppContext = {
   env: Record<string, unknown> | undefined
   ip: string | undefined
-  proxy: 'cloudflare' | 'none'
+  proxy: AppConfig['proxy']
   routes: Set<[Uppercase<Method>, RegExp, HandlerOrSchema[]]>
   runtime:
     | 'cloudflare'
@@ -40,11 +40,9 @@ export type AppConfig = {
   /**
    * If you're using Cloudflare as a proxy, you should confirm it with this setting in order to unleash the full potential of cheetah.
    *
-   * @default 'none'
+   * @default undefined
    */
-  proxy?:
-    | 'cloudflare'
-    | 'none'
+  proxy?: 'cloudflare'
 
   /**
    * Set a custom error handler.
@@ -64,7 +62,7 @@ export class cheetah extends base<cheetah>() {
   #extensions: Set<[string, Extension]>
   #notFound
   #preflight
-  #proxy: Exclude<AppConfig['proxy'], undefined>
+  #proxy
   #routes: Set<[Uppercase<Method>, RegExp, HandlerOrSchema[]]>
   #runtime: 'deno' | 'cloudflare'
 
@@ -72,7 +70,7 @@ export class cheetah extends base<cheetah>() {
     base,
     cors,
     preflight = false,
-    proxy = 'none',
+    proxy,
     error,
     notFound,
   }: AppConfig = {}) {
@@ -139,14 +137,16 @@ export class cheetah extends base<cheetah>() {
 
           this.#routes.add([
             r[0],
-            RegExp(`^${
-              ((this.#base ? this.#base + pre + pathname : pre + pathname)
-                .replace(/\/+(\/|$)/g, '$1'))
-                .replace(/(\/?\.?):(\w+)\+/g, '($1(?<$2>*))')
-                .replace(/(\/?\.?):(\w+)/g, '($1(?<$2>[^$1/]+?))')
-                .replace(/\./g, '\\.')
-                .replace(/(\/?)\*/g, '($1.*)?')
-            }/*$`),
+            RegExp(
+              `^${
+                ((this.#base ? this.#base + pre + pathname : pre + pathname)
+                  .replace(/\/+(\/|$)/g, '$1'))
+                  .replace(/(\/?\.?):(\w+)\+/g, '($1(?<$2>*))')
+                  .replace(/(\/?\.?):(\w+)/g, '($1(?<$2>[^$1/]+?))')
+                  .replace(/\./g, '\\.')
+                  .replace(/(\/?)\*/g, '($1.*)?')
+              }/*$`,
+            ),
             r[2],
           ])
         }
@@ -418,70 +418,54 @@ export class cheetah extends base<cheetah>() {
       })
     }
 
-    // switch ($.b.constructor.name) {
-    //   case 'Object': {
-    //     $.b = JSON.stringify($.b)
+    switch ($.b.constructor.name) {
+      case 'String': {
+        $.h.set('content-length', ($.b as string).length.toString())
 
-    //     $.h.set('content-length', $.b.length.toString())
+        if (!$.h.has('content-type')) {
+          $.h.set('content-type', 'text/plain; charset=utf-8')
+        }
 
-    //     if (!$.h.has('content-type')) {
-    //       $.h.set('content-type', 'application/json; charset=utf-8')
-    //     }
+        break
+      }
 
-    //     if ((($.b as unknown) as { code: number }).code) {
-    //       $.c = (($.b as unknown) as { code: number }).code
-    //     }
+      case 'Object': {
+        $.b = JSON.stringify($.b)
 
-    //     break
-    //   }
+        $.h.set('content-length', $.b.length.toString())
 
-    //   case 'String': {
-    //     $.h.set('content-length', ($.b as string).length.toString())
+        if (!$.h.has('content-type')) {
+          $.h.set('content-type', 'application/json; charset=utf-8')
+        }
 
-    //     if (!$.h.has('content-type')) {
-    //       $.h.set('content-type', 'text/plain; charset=utf-8')
-    //     }
+        if ((($.b as unknown) as { code: number }).code) {
+          $.c = (($.b as unknown) as { code: number }).code
+        }
 
-    //     break
-    //   }
+        break
+      }
 
-    //   case 'ArrayBuffer': {
-    //     $.h.set('content-length', ($.b as ArrayBuffer).byteLength.toString())
+      case 'ArrayBuffer': {
+        $.h.set('content-length', ($.b as ArrayBuffer).byteLength.toString())
 
-    //     break
-    //   }
+        break
+      }
 
-    //   case 'Uint8Array': {
-    //     $.h.set('content-length', ($.b as Uint8Array).byteLength.toString())
+      case 'Uint8Array': {
+        $.h.set('content-length', ($.b as Uint8Array).byteLength.toString())
 
-    //     break
-    //   }
+        break
+      }
 
-    //   case 'Blob': {
-    //     $.h.set('content-length', ($.b as Blob).size.toString())
+      case 'Blob': {
+        $.h.set('content-length', ($.b as Blob).size.toString())
 
-    //     break
-    //   }
+        break
+      }
 
-    //   case 'Array': {
-    //     $.b = JSON.stringify($.b)
-
-    //     $.h.set('content-length', $.b.length.toString())
-
-    //     if (!$.h.has('content-type')) {
-    //       $.h.set('content-type', 'application/json; charset=utf-8')
-    //     }
-
-    //     if ((($.b as unknown) as { code: number }).code) {
-    //       $.c = (($.b as unknown) as { code: number }).code
-    //     }
-
-    //     break
-    //   }
-
-    //   default: // FormData or ReadableStream
-    //     break
-    // }
+      default: // FormData or ReadableStream
+        break
+    }
 
     for (const e of this.#extensions.values()) {
       if (
