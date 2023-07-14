@@ -13,14 +13,21 @@ export class Context<
   ValidatedQuery extends ObjectType | unknown = unknown,
 > {
   #a
-  req: RequestContext<
-    Params,
-    ValidatedBody,
-    ValidatedCookies,
-    ValidatedHeaders,
-    ValidatedQuery
-  >
-  res: ResponseContext
+  #i
+  #p
+  #qs
+  #r
+  #s
+  #req:
+    | RequestContext<
+      Params,
+      ValidatedBody,
+      ValidatedCookies,
+      ValidatedHeaders,
+      ValidatedQuery
+    >
+    | undefined
+  #res: ResponseContext | undefined
   /**
    * Wait until the response is sent to the client, then resolve the promise.
    */
@@ -34,6 +41,7 @@ export class Context<
       h: Headers
     },
     p: Record<string, string | undefined>,
+    qs: string | undefined,
     r: Request,
     s: {
       body?: ZodType | undefined
@@ -45,13 +53,42 @@ export class Context<
     waitUntil: (promise: Promise<unknown>) => void,
   ) {
     this.#a = __app
-    this.req = new RequestContext(p, r, s)
-    this.res = new ResponseContext(__internal)
+    this.#i = __internal
+    this.#p = p
+    this.#qs = qs
+    this.#r = r
+    this.#s = s
     this.waitUntil = waitUntil
   }
 
   get __app(): AppContext {
     return this.#a
+  }
+
+  get req(): RequestContext<
+    Params,
+    ValidatedBody,
+    ValidatedCookies,
+    ValidatedHeaders,
+    ValidatedQuery
+  > {
+    if (this.#req) {
+      return this.#req
+    }
+
+    this.#req = new RequestContext(this.#p, this.#qs, this.#r, this.#s)
+
+    return this.#req
+  }
+
+  get res(): ResponseContext {
+    if (this.#res) {
+      return this.#res
+    }
+
+    this.#res = new ResponseContext(this.#i)
+
+    return this.#res
   }
 
   get runtime() {
