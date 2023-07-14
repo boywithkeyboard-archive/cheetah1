@@ -28,11 +28,13 @@ export class RequestContext<
   #i: string | undefined
   #p
   #q: Record<string, unknown> | undefined
+  #qs: string | undefined
   #r
   #s
 
   constructor(
     p: Record<string, string | undefined>,
+    qs: string | undefined,
     r: Request,
     s: {
       body?: ZodType | undefined
@@ -43,6 +45,7 @@ export class RequestContext<
     } | null,
   ) {
     this.#p = p
+    this.#qs = qs
     this.#r = r
     this.#s = s
   }
@@ -219,23 +222,27 @@ export class RequestContext<
 
     this.#q = {}
 
-    for (const [key, value] of new URL(this.#r.url).searchParams) {
-      if (value === '' || value === 'true') {
-        this.#q[key] = true
-      } else if (value === 'false') {
-        this.#q[key] = false
-      } else if (value.indexOf(',') > -1) {
-        this.#q[key] = value.split(',')
-      } else if (
-        !isNaN((value as unknown) as number) && !isNaN(parseFloat(value))
-      ) {
-        this.#q[key] = parseInt(value)
-      } else if (value === 'undefined') {
-        this.#q[key] = undefined
-      } else if (value === 'null') {
-        this.#q[key] = null
-      } else {
-        this.#q[key] = decodeURIComponent(value)
+    if (this.#qs) {
+      const arr = this.#qs.split('&')
+
+      for (let i = 0; i < arr.length; i++) {
+        const [key, value] = arr[i].split('=')
+
+        if (!key) {
+          continue
+        }
+
+        if (typeof value === 'undefined') {
+          this.#q[key] = true
+
+          continue
+        }
+
+        try {
+          this.#q[key] = JSON.parse(decodeURIComponent(value))
+        } catch (_err) {
+          this.#q[key] = decodeURIComponent(value)
+        }
       }
     }
 
