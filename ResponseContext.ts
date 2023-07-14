@@ -30,29 +30,41 @@ export class ResponseContext {
       return 0
     }
 
-    if (
-      this.#i.b instanceof ReadableStream ||
-      this.#i.b instanceof FormData
-    ) {
-      return -1
+    let s
+
+    switch (this.#i.b.constructor.name) {
+      case 'String': {
+        s = (this.#i.b as string).length
+        break
+      }
+
+      case 'Object': {
+        s = JSON.stringify(this.#i.b).length
+        break
+      }
+
+      case 'ArrayBuffer': {
+        s = (this.#i.b as ArrayBuffer).byteLength
+        break
+      }
+
+      case 'Uint8Array': {
+        s = (this.#i.b as ArrayBuffer).byteLength
+        break
+      }
+
+      case 'Blob': {
+        s = (this.#i.b as Blob).size
+        break
+      }
+
+      default: {
+        s = -1
+        break
+      }
     }
 
-    let bodySize = -1
-
-    if (typeof this.#i.b === 'string') {
-      bodySize = this.#i.b.length
-    } else if (
-      this.#i.b instanceof ArrayBuffer ||
-      this.#i.b instanceof Uint8Array
-    ) {
-      bodySize = this.#i.b.byteLength
-    } else if (this.#i.b instanceof Blob) {
-      bodySize = this.#i.b.size
-    } else {
-      bodySize = JSON.stringify(this.#i.b).length
-    }
-
-    return bodySize
+    return s
   }
 
   /**
