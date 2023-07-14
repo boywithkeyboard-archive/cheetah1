@@ -10,7 +10,7 @@ export type AppContext = {
   env: Record<string, unknown> | undefined
   ip: string | undefined
   proxy: 'cloudflare' | 'none'
-  routes: [Uppercase<Method>, RegExp, HandlerOrSchema[]][]
+  routes: Set<[Uppercase<Method>, RegExp, HandlerOrSchema[]]>
   runtime:
     | 'cloudflare'
     | 'deno'
@@ -61,11 +61,11 @@ export class cheetah extends base<cheetah>() {
   #base
   #cors
   #error
-  #extensions: [string, Extension][]
+  #extensions: Set<[string, Extension]>
   #notFound
   #preflight
   #proxy: Exclude<AppConfig['proxy'], undefined>
-  #routes: [Uppercase<Method>, RegExp, HandlerOrSchema[]][] = []
+  #routes: Set<[Uppercase<Method>, RegExp, HandlerOrSchema[]]>
   #runtime: 'deno' | 'cloudflare'
 
   constructor({
@@ -77,11 +77,18 @@ export class cheetah extends base<cheetah>() {
     notFound,
   }: AppConfig = {}) {
     super((method, pathname, handlers) => {
-      this.#add(
+      this.#routes.add([
         method,
-        this.#base ? this.#base + pathname : pathname,
+        RegExp(`^${
+          ((this.#base ? this.#base + pathname : pathname)
+            .replace(/\/+(\/|$)/g, '$1'))
+            .replace(/(\/?\.?):(\w+)\+/g, '($1(?<$2>*))')
+            .replace(/(\/?\.?):(\w+)/g, '($1(?<$2>[^$1/]+?))')
+            .replace(/\./g, '\\.')
+            .replace(/(\/?)\*/g, '($1.*)?')
+        }/*$`),
         handlers,
-      )
+      ])
 
       return this
     })
@@ -89,10 +96,11 @@ export class cheetah extends base<cheetah>() {
     this.#base = base === '/' ? undefined : base
     this.#cors = cors
     this.#error = error
-    this.#extensions = []
+    this.#extensions = new Set()
     this.#notFound = notFound
     this.#preflight = preflight
     this.#proxy = proxy
+    this.#routes = new Set()
     this.#runtime = typeof globalThis?.Deno?.serve !== 'function'
       ? 'cloudflare'
       : 'deno'
@@ -122,27 +130,32 @@ export class cheetah extends base<cheetah>() {
           pre = ''
         }
 
-        const length = e.routes.length
-
-        for (let i = 0; i < length; ++i) {
-          let pathname = e.routes[i][1]
+        for (const r of e.routes.values()) {
+          let pathname = r[1]
 
           if (pathname === '/') {
             pathname = ''
           }
 
-          this.#add(
-            e.routes[i][0],
-            this.#base ? this.#base + pre + pathname : pre + pathname,
-            e.routes[i][2],
-          )
+          this.#routes.add([
+            r[0],
+            RegExp(`^${
+              ((this.#base ? this.#base + pre + pathname : pre + pathname)
+                .replace(/\/+(\/|$)/g, '$1'))
+                .replace(/(\/?\.?):(\w+)\+/g, '($1(?<$2>*))')
+                .replace(/(\/?\.?):(\w+)/g, '($1(?<$2>[^$1/]+?))')
+                .replace(/\./g, '\\.')
+                .replace(/(\/?)\*/g, '($1.*)?')
+            }/*$`),
+            r[2],
+          ])
         }
       } else if (validExtension(e)) { // extension
         if (!pre) {
           pre = '*'
         }
 
-        this.#extensions.push([pre, e])
+        this.#extensions.add([pre, e])
       }
     }
 
@@ -151,40 +164,21 @@ export class cheetah extends base<cheetah>() {
 
   /* router ------------------------------------------------------------------- */
 
-  #add(
-    method: Uppercase<Method>,
-    pathname: string,
-    handlers: HandlerOrSchema[],
-  ) {
-    this.#routes.push([
-      method,
-      RegExp(`^${
-        (pathname
-          .replace(/\/+(\/|$)/g, '$1'))
-          .replace(/(\/?\.?):(\w+)\+/g, '($1(?<$2>*))')
-          .replace(/(\/?\.?):(\w+)/g, '($1(?<$2>[^$1/]+?))')
-          .replace(/\./g, '\\.')
-          .replace(/(\/?)\*/g, '($1.*)?')
-      }/*$`),
-      handlers,
-    ])
-  }
-
   #match(method: string, pathname: string, preflight: boolean) {
-    for (let i = 0; i < this.#routes.length; ++i) {
+    for (const r of this.#routes.values()) {
       if (
-        method === this.#routes[i][0] ||
+        method === r[0] ||
         method === 'OPTIONS' ||
-        preflight && method === 'HEAD' && this.#routes[i][0] === 'GET'
+        preflight && method === 'HEAD' && r[0] === 'GET'
       ) {
-        const result = pathname.match(this.#routes[i][1])
+        const result = pathname.match(r[1])
 
         if (!result) {
           continue
         }
 
         return {
-          handlers: this.#routes[i][2],
+          handlers: r[2],
           params: result.groups ?? {},
         }
       }
@@ -202,7 +196,7 @@ export class cheetah extends base<cheetah>() {
       waitUntil: (promise: Promise<unknown>) => void
     },
   ): Promise<Response> => {
-    const ip = data?.remoteAddr && typeof globalThis.Deno?.serve === 'function'
+    const ip = data?.remoteAddr && this.#runtime === 'deno'
       ? ((data as Deno.ServeHandlerInfo).remoteAddr)
         .hostname
       : req.headers.get('cf-connecting-ip') ?? undefined
@@ -215,21 +209,21 @@ export class cheetah extends base<cheetah>() {
 
     const qs: string | undefined = parts[1]
 
-    if (this.#extensions.length > 0) {
+    if (this.#extensions.size > 0) {
       let body: Response | void = undefined
 
-      for (let i = 0; i < this.#extensions.length; i++) {
+      for (const e of this.#extensions.values()) {
         if (
-          this.#extensions[i][0] !== '*' &&
-          pathname.indexOf(this.#extensions[i][0]) !== 0
+          e[0] !== '*' &&
+          pathname.indexOf(e[0]) !== 0
         ) {
           continue
         }
 
-        const { onRequest } = this.#extensions[i][1]
+        const { onRequest } = e[1]
 
         if (onRequest !== undefined) {
-          const result = await onRequest(req, this.#extensions[i][1].__config)
+          const result = await onRequest(req, e[1].__config)
 
           if (result !== undefined) {
             body = result
@@ -267,7 +261,7 @@ export class cheetah extends base<cheetah>() {
         })
       }
 
-      let response = await this.#handle(
+      const response = await this.#handle(
         {
           env: data as Record<string, unknown>,
           ip,
@@ -288,7 +282,7 @@ export class cheetah extends base<cheetah>() {
       )
 
       if (req.method === 'HEAD') {
-        response = new Response(null, {
+        return new Response(null, {
           headers: response.headers,
           status: response.status,
           statusText: response.statusText,
@@ -308,7 +302,7 @@ export class cheetah extends base<cheetah>() {
       }
 
       if (req.method === 'HEAD') {
-        res = new Response(null, {
+        return new Response(null, {
           headers: res.headers,
           status: res.status,
           statusText: res.statusText,
@@ -424,83 +418,83 @@ export class cheetah extends base<cheetah>() {
       })
     }
 
-    switch ($.b.constructor.name) {
-      case 'Object': {
-        $.b = JSON.stringify($.b)
+    // switch ($.b.constructor.name) {
+    //   case 'Object': {
+    //     $.b = JSON.stringify($.b)
 
-        $.h.set('content-length', $.b.length.toString())
+    //     $.h.set('content-length', $.b.length.toString())
 
-        if (!$.h.has('content-type')) {
-          $.h.set('content-type', 'application/json; charset=utf-8')
-        }
+    //     if (!$.h.has('content-type')) {
+    //       $.h.set('content-type', 'application/json; charset=utf-8')
+    //     }
 
-        if ((($.b as unknown) as { code: number }).code) {
-          $.c = (($.b as unknown) as { code: number }).code
-        }
+    //     if ((($.b as unknown) as { code: number }).code) {
+    //       $.c = (($.b as unknown) as { code: number }).code
+    //     }
 
-        break
-      }
+    //     break
+    //   }
 
-      case 'String': {
-        $.h.set('content-length', ($.b as string).length.toString())
+    //   case 'String': {
+    //     $.h.set('content-length', ($.b as string).length.toString())
 
-        if (!$.h.has('content-type')) {
-          $.h.set('content-type', 'text/plain; charset=utf-8')
-        }
+    //     if (!$.h.has('content-type')) {
+    //       $.h.set('content-type', 'text/plain; charset=utf-8')
+    //     }
 
-        break
-      }
+    //     break
+    //   }
 
-      case 'ArrayBuffer': {
-        $.h.set('content-length', ($.b as ArrayBuffer).byteLength.toString())
+    //   case 'ArrayBuffer': {
+    //     $.h.set('content-length', ($.b as ArrayBuffer).byteLength.toString())
 
-        break
-      }
+    //     break
+    //   }
 
-      case 'Uint8Array': {
-        $.h.set('content-length', ($.b as Uint8Array).byteLength.toString())
+    //   case 'Uint8Array': {
+    //     $.h.set('content-length', ($.b as Uint8Array).byteLength.toString())
 
-        break
-      }
+    //     break
+    //   }
 
-      case 'Blob': {
-        $.h.set('content-length', ($.b as Blob).size.toString())
+    //   case 'Blob': {
+    //     $.h.set('content-length', ($.b as Blob).size.toString())
 
-        break
-      }
+    //     break
+    //   }
 
-      case 'Array': {
-        $.b = JSON.stringify($.b)
+    //   case 'Array': {
+    //     $.b = JSON.stringify($.b)
 
-        $.h.set('content-length', $.b.length.toString())
+    //     $.h.set('content-length', $.b.length.toString())
 
-        if (!$.h.has('content-type')) {
-          $.h.set('content-type', 'application/json; charset=utf-8')
-        }
+    //     if (!$.h.has('content-type')) {
+    //       $.h.set('content-type', 'application/json; charset=utf-8')
+    //     }
 
-        if ((($.b as unknown) as { code: number }).code) {
-          $.c = (($.b as unknown) as { code: number }).code
-        }
+    //     if ((($.b as unknown) as { code: number }).code) {
+    //       $.c = (($.b as unknown) as { code: number }).code
+    //     }
 
-        break
-      }
+    //     break
+    //   }
 
-      default: // FormData or ReadableStream
-        break
-    }
+    //   default: // FormData or ReadableStream
+    //     break
+    // }
 
-    for (let i = 0; i < this.#extensions.length; i++) {
+    for (const e of this.#extensions.values()) {
       if (
-        this.#extensions[i][0] !== '*' &&
-        pathname.indexOf(this.#extensions[i][0]) !== 0
+        e[0] !== '*' &&
+        pathname.indexOf(e[0]) !== 0
       ) {
         continue
       }
 
-      const { onResponse } = this.#extensions[i][1]
+      const { onResponse } = e[1]
 
       if (onResponse !== undefined) {
-        onResponse(context, this.#extensions[i][1].__config)
+        onResponse(context, e[1].__config)
       }
     }
 
