@@ -278,9 +278,8 @@ export class cheetah extends base<cheetah>() {
         req,
         context?.waitUntil ??
           ((promise: Promise<unknown>) => {
-            setTimeout(async () => {
-              await promise
-            }, 0)
+            // deno-fmt-ignore-line
+            (async () => await promise)()
           }),
         pathname,
         qs,
