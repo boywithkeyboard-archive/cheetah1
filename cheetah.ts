@@ -10,7 +10,7 @@ export type AppContext = {
   env: Record<string, unknown> | undefined
   ip: string | undefined
   proxy: AppConfig['proxy']
-  routes: Set<[Uppercase<Method>, RegExp, HandlerOrSchema[]]>
+  routes: Set<[Uppercase<Method>, string, RegExp, HandlerOrSchema[]]>
   runtime:
     | 'cloudflare'
     | 'deno'
@@ -63,7 +63,7 @@ export class cheetah extends base<cheetah>() {
   #notFound
   #preflight
   #proxy
-  #routes: Set<[Uppercase<Method>, RegExp, HandlerOrSchema[]]>
+  #routes: Set<[Uppercase<Method>, string, RegExp, HandlerOrSchema[]]>
   #runtime: 'deno' | 'cloudflare'
 
   constructor({
@@ -75,10 +75,13 @@ export class cheetah extends base<cheetah>() {
     notFound,
   }: AppConfig = {}) {
     super((method, pathname, handlers) => {
+      pathname = this.#base ? this.#base + pathname : pathname
+
       this.#routes.add([
         method,
+        pathname,
         RegExp(`^${
-          ((this.#base ? this.#base + pathname : pathname)
+          (pathname
             .replace(/\/+(\/|$)/g, '$1'))
             .replace(/(\/?\.?):(\w+)\+/g, '($1(?<$2>*))')
             .replace(/(\/?\.?):(\w+)/g, '($1(?<$2>[^$1/]+?))')
@@ -135,11 +138,14 @@ export class cheetah extends base<cheetah>() {
             pathname = ''
           }
 
+          pathname = this.#base ? this.#base + pre + pathname : pre + pathname
+
           this.#routes.add([
             r[0],
+            pathname,
             RegExp(
               `^${
-                ((this.#base ? this.#base + pre + pathname : pre + pathname)
+                (pathname
                   .replace(/\/+(\/|$)/g, '$1'))
                   .replace(/(\/?\.?):(\w+)\+/g, '($1(?<$2>*))')
                   .replace(/(\/?\.?):(\w+)/g, '($1(?<$2>[^$1/]+?))')
@@ -162,6 +168,10 @@ export class cheetah extends base<cheetah>() {
     return this
   }
 
+  get routes() {
+    return this.#routes
+  }
+
   /* router ------------------------------------------------------------------- */
 
   #match(method: string, pathname: string, preflight: boolean) {
@@ -171,14 +181,14 @@ export class cheetah extends base<cheetah>() {
         method === 'OPTIONS' ||
         preflight && method === 'HEAD' && r[0] === 'GET'
       ) {
-        const result = pathname.match(r[1])
+        const result = pathname.match(r[2])
 
         if (!result) {
           continue
         }
 
         return {
-          handlers: r[2],
+          handlers: r[3],
           params: result.groups ?? {},
         }
       }
