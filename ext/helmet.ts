@@ -131,22 +131,25 @@ export const helmet = createExtension<{
     | 'unsafe-url'
     | null
 }>({
-  onResponse(c, {
-    contentSecurityPolicy = true,
-    crossOriginEmbedderPolicy = null,
-    crossOriginOpenerPolicy = 'same-origin',
-    crossOriginResourcePolicy = 'same-origin',
-    dnsPrefetching = false,
-    noFraming = 'sameorigin',
-    hsts = {
-      maxAge: 31536000, // a year
-      includeSubDomains: true,
-    },
-    noSniffing = true,
-    originAgentCluster = true,
-    crossDomainPolicy = 'none',
-    referrerPolicy = 'no-referrer',
-  } = {}) {
+  onResponse({
+    c,
+    _: {
+      contentSecurityPolicy = true,
+      crossOriginEmbedderPolicy = null,
+      crossOriginOpenerPolicy = 'same-origin',
+      crossOriginResourcePolicy = 'same-origin',
+      dnsPrefetching = false,
+      noFraming = 'sameorigin',
+      hsts = {
+        maxAge: 31536000, // a year
+        includeSubDomains: true,
+      },
+      noSniffing = true,
+      originAgentCluster = true,
+      crossDomainPolicy = 'none',
+      referrerPolicy = 'no-referrer',
+    } = {},
+  }) {
     if (contentSecurityPolicy) {
       c.res.header(
         'content-security-policy',

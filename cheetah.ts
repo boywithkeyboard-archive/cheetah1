@@ -211,6 +211,14 @@ export class cheetah extends base<cheetah>() {
         .hostname
       : req.headers.get('cf-connecting-ip') ?? undefined
 
+    const __app = {
+      env: data as Record<string, unknown>,
+      ip,
+      proxy: this.#proxy,
+      routes: this.#routes,
+      runtime: this.#runtime,
+    }
+
     const parts = req.url.split('?')
 
     parts[0] = parts[0].slice(8)
@@ -233,7 +241,7 @@ export class cheetah extends base<cheetah>() {
         const { onRequest } = e[1]
 
         if (onRequest !== undefined) {
-          const result = await onRequest(req, e[1].__config)
+          const result = await onRequest({ app: __app, req, _: e[1].__config })
 
           if (result !== undefined) {
             body = result
@@ -272,13 +280,7 @@ export class cheetah extends base<cheetah>() {
       }
 
       const response = await this.#handle(
-        {
-          env: data as Record<string, unknown>,
-          ip,
-          proxy: this.#proxy,
-          routes: this.#routes,
-          runtime: this.#runtime,
-        },
+        __app,
         req,
         context?.waitUntil ??
           ((promise: Promise<unknown>) => {
@@ -488,7 +490,7 @@ export class cheetah extends base<cheetah>() {
       const { onResponse } = e[1]
 
       if (onResponse !== undefined) {
-        onResponse(context, e[1].__config)
+        onResponse({ app: __app, c: context, _: e[1].__config })
       }
     }
 

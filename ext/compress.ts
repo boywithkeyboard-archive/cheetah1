@@ -9,7 +9,7 @@ import { createExtension } from '../mod.ts'
  * @since v1.0
  */
 export const compress = createExtension({
-  onResponse(c) {
+  onResponse({ c }) {
     const header = c.req.headers['accept-encoding']
 
     if (c.res.body === null || !header || header === 'identity') {

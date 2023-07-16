@@ -4,19 +4,19 @@ import { assertEquals } from 'https://deno.land/std@0.194.0/testing/asserts.ts'
 
 Deno.test('Extensions', async (t) => {
   const a = createExtension({
-    onRequest(req) {
+    onRequest({ req }) {
       req.headers.set('custom', 'test')
     },
   })
 
   const b = createExtension({
-    onResponse(c) {
+    onResponse({ c }) {
       c.res.body = 'custom'
     },
   })
 
   const c = createExtension({
-    onRequest(req) {
+    onRequest({ req }) {
       const url = new URL(req.url)
 
       if (url.pathname.startsWith('/foo')) {

@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { Context } from './mod.ts'
+import { AppContext, Context } from './mod.ts'
 
 type HasRequired<T> = Partial<T> extends T ? false : true
 
@@ -7,17 +7,26 @@ export type Extension<
   Config extends Record<string, unknown> | unknown = unknown,
 > = {
   __config: Config | undefined
-  onRequest?: HasRequired<Config> extends true ? ((
-      req: Request,
-      config: Config,
-    ) => Response | void | Promise<Response> | Promise<void>)
-    : ((
-      req: Request,
-      config?: Config,
-    ) => Response | void | Promise<Response> | Promise<void>)
-  onResponse?: HasRequired<Config> extends true
-    ? ((c: Context, config: Config) => Promise<void> | void)
-    : ((c: Context, config?: Config) => Promise<void> | void)
+  onRequest?: HasRequired<Config> extends true ? ((context: {
+      app: AppContext
+      req: Request
+      _: Config
+    }) => Response | void | Promise<Response> | Promise<void>)
+    : ((context: {
+      app: AppContext
+      req: Request
+      _?: Config
+    }) => Response | void | Promise<Response> | Promise<void>)
+  onResponse?: HasRequired<Config> extends true ? ((context: {
+      app: AppContext
+      c: Context
+      _: Config
+    }) => Promise<void> | void)
+    : ((context: {
+      app: AppContext
+      c: Context
+      _?: Config
+    }) => Promise<void> | void)
 }
 
 type ReturnFunction<

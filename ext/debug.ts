@@ -15,7 +15,7 @@ import { createExtension } from '../mod.ts'
  * @since v1.0
  */
 export const debug = createExtension({
-  onResponse(c) {
+  onResponse({ c }) {
     const code = c.res.code.toString()
 
     console.info(
