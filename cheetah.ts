@@ -1,8 +1,8 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { base, Method } from './base.ts'
-import { Collection } from './Collection.ts'
-import { Context } from './Context.ts'
-import { Exception } from './Exception.ts'
+import { Collection } from './collection.ts'
+import { Context } from './context.ts'
+import { Exception } from './exception.ts'
 import { Extension, validExtension } from './extensions.ts'
 import { Handler, HandlerOrSchema, Payload } from './handler.ts'
 

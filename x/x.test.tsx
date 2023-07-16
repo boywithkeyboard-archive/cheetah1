@@ -6,7 +6,7 @@ import {
 } from 'https://deno.land/std@0.194.0/testing/asserts.ts'
 import { cheetah } from '../cheetah.ts'
 import { h, jsx } from './jsx.tsx'
-import { createKey, importKey, jwt } from './mod.ts'
+import { createKey, importKey, sign, verify } from './jwt.ts'
 
 Deno.test('x', async (t) => {
   await t.step('jwt', async () => {
@@ -15,10 +15,10 @@ Deno.test('x', async (t) => {
 
     assertInstanceOf(cryptoKey, CryptoKey)
 
-    const token = await jwt.sign({ example: 'object' }, key)
+    const token = await sign({ example: 'object' }, key)
 
-    assertEquals(await jwt.verify(token, key) !== undefined, true)
-    assertEquals(await jwt.verify(token, cryptoKey) !== undefined, true)
+    assertEquals(await verify(token, key) !== undefined, true)
+    assertEquals(await verify(token, cryptoKey) !== undefined, true)
   })
 
   await t.step('jsx', async () => {
