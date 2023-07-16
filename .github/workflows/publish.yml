@@ -1,0 +1,29 @@
+name: publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: Kind of release
+        default: minor
+        type: choice
+        options:
+        - prepatch
+        - patch
+        - preminor
+        - minor
+        - premajor
+        - major
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Publish update
+        uses: boywithkeyboard/taco@v0
+        with:
+          kind: ${{github.event.inputs.kind}}
