@@ -35,13 +35,15 @@
 ## Sneak Peek
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah@v0.13.0/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah/mod.ts'
 
 const app = new cheetah()
   .get('/', () => 'Hello World')
 
-Deno.serve(app.fetch)
+app.serve()
 ```
+
+Please read our [guide](https://cheetah.mod.land) to learn more.
 
 ## Release Schedule
 
@@ -57,16 +59,10 @@ We strictly follow [SemVer](https://semver.org) and release updates in two chann
 
 ## Benchmark
 
-[//]: bstart
+We don't benchmark cheetah against other modules ourselves, but there are some well-written resources that might be worth checking out:
 
-| Channel | Avg | Max | p75 | p90 | p95 | p99 |
-| --- | --- | --- | --- | --- | --- | --- |
-| ◆ [**current**](https://deno.land/x/cheetah@v0.13.0) <sup>v0.13.0</sup> | 29749 | 33993 | 32603 | 33287 | 33561 | 33993 |
-| ◇ [**canary**](https://deno.land/x/cheetah@v1.0.0-canary.1) <sup>v1.0.0-canary.1</sup> | 30683 | 34999 | 33449 | 33818 | 34039 | 34999 |
-
-[//]: bend
-
-###### A basic [RPS](https://www.google.com/search?q=requests+per+second) benchmark conducted with [oha](https://github.com/hatoo/oha).
+1. [denosaurs/bench](https://github.com/denosaurs/bench)
+2. [Im-Beast/http_benchmarks](https://github.com/Im-Beast/http_benchmarks)
 
 ## Contributing
 
