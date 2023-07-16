@@ -1,6 +1,6 @@
 import { walk } from 'https://deno.land/std@0.194.0/fs/walk.ts'
 
-for await (const entry of walk(Deno.cwd(), { exts: ['ts'] })) {
+for await (const entry of walk(Deno.cwd(), { exts: ['ts', 'tsx'] })) {
   if (!entry.isFile) {
     continue
   }
