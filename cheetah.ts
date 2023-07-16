@@ -109,18 +109,24 @@ export class cheetah extends base<cheetah>() {
 
   /* use ---------------------------------------------------------------------- */
 
-  use<T extends Collection>(...extensions: Extension[]): this
-  use<T extends Collection>(
+  // deno-lint-ignore no-explicit-any
+  use<C extends Collection>(...extensions: Extension<any>[]): this
+  use<C extends Collection>(
     prefix: `/${string}`,
-    ...extensions: Extension[]
+    // deno-lint-ignore no-explicit-any
+    ...extensions: Extension<any>[]
   ): this
-  use<T extends Collection>(
+  use<C extends Collection>(
     prefix: `/${string}`,
-    collection: T,
-    ...extensions: Extension[]
+    collection: C,
+    // deno-lint-ignore no-explicit-any
+    ...extensions: Extension<any>[]
   ): this
 
-  use<T extends Collection>(...elements: (`/${string}` | T | Extension)[]) {
+  use<C extends Collection>(
+    // deno-lint-ignore no-explicit-any
+    ...elements: (`/${string}` | C | Extension<any>)[]
+  ) {
     let pre
 
     for (const e of elements) {
@@ -161,6 +167,7 @@ export class cheetah extends base<cheetah>() {
           pre = '*'
         }
 
+        // @ts-ignore:
         this.#extensions.add([pre, e])
       }
     }

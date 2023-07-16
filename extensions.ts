@@ -4,7 +4,7 @@ import { AppContext, Context } from './mod.ts'
 type HasRequired<T> = Partial<T> extends T ? false : true
 
 export type Extension<
-  Config extends Record<string, unknown> | unknown = unknown,
+  Config extends Record<string, unknown> | unknown = never,
 > = {
   __config: Config | undefined
   onRequest?: HasRequired<Config> extends true ? ((context: {
@@ -31,9 +31,10 @@ export type Extension<
 
 type ReturnFunction<
   Config extends Record<string, unknown> | unknown = unknown,
-> = Config extends unknown ? (() => Extension<Config>)
-  : HasRequired<Config> extends true ? ((config: Config) => Extension<Config>)
-  : ((config?: Config) => Extension<Config>)
+> = Config extends Record<string, unknown>
+  ? (HasRequired<Config> extends true ? ((config: Config) => Extension<Config>)
+    : ((config?: Config) => Extension<Config>))
+  : (() => Extension<Config>)
 
 export function validExtension(ext: Record<string, unknown>) {
   const symbol = Object.getOwnPropertySymbols(ext).find((s) =>
