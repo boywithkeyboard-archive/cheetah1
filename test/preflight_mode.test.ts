@@ -17,21 +17,18 @@ Deno.test('preflight mode', async (t) => {
     const res1 = await app.fetch(new Request('https://deno.com/foo1'))
 
     assertEquals(res1.body === null, false)
-    assertEquals(res1.headers.get('content-length'), '4')
 
     const res2 = await app.fetch(
       new Request('https://deno.com/foo1', { method: 'HEAD' }),
     )
 
     assertEquals(res2.body === null, true)
-    assertEquals(res2.headers.get('content-length'), '4')
 
     const res3 = await app.fetch(
       new Request('https://deno.com/foo2', { method: 'POST' }),
     )
 
     assertEquals(res3.body === null, false)
-    assertEquals(res3.headers.get('content-length'), '4')
 
     const res4 = await app.fetch(
       new Request('https://deno.com/foo2', { method: 'HEAD' }),
@@ -39,10 +36,6 @@ Deno.test('preflight mode', async (t) => {
 
     assertEquals(res4.status, 404)
     assertEquals(res4.body === null, true)
-    assertEquals(
-      res4.headers.get('content-length'),
-      'Not Found'.length.toString(),
-    )
   })
 
   await t.step('not found', async () => {
@@ -51,20 +44,12 @@ Deno.test('preflight mode', async (t) => {
     const res1 = await app.fetch(new Request('https://deno.com/foo'))
 
     assertEquals(res1.body === null, false)
-    assertEquals(
-      res1.headers.get('content-length'),
-      'Not Found'.length.toString(),
-    )
 
     const res2 = await app.fetch(
       new Request('https://deno.com/foo', { method: 'HEAD' }),
     )
 
     assertEquals(res2.body === null, true)
-    assertEquals(
-      res2.headers.get('content-length'),
-      'Not Found'.length.toString(),
-    )
   })
 
   await t.step('not found (custom)', async () => {

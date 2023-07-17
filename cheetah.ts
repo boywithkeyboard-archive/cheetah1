@@ -439,8 +439,6 @@ export class cheetah extends base<cheetah>() {
 
     switch ($.b.constructor.name) {
       case 'String': {
-        $.h.set('content-length', ($.b as string).length.toString())
-
         if (!$.h.has('content-type')) {
           $.h.set('content-type', 'text/plain; charset=utf-8')
         }
@@ -450,8 +448,6 @@ export class cheetah extends base<cheetah>() {
 
       case 'Object': {
         $.b = JSON.stringify($.b)
-
-        $.h.set('content-length', $.b.length.toString())
 
         if (!$.h.has('content-type')) {
           $.h.set('content-type', 'application/json; charset=utf-8')
@@ -464,25 +460,17 @@ export class cheetah extends base<cheetah>() {
         break
       }
 
-      case 'ArrayBuffer': {
-        $.h.set('content-length', ($.b as ArrayBuffer).byteLength.toString())
+      case 'Array': {
+        $.b = JSON.stringify($.b)
+
+        if (!$.h.has('content-type')) {
+          $.h.set('content-type', 'application/json; charset=utf-8')
+        }
 
         break
       }
 
-      case 'Uint8Array': {
-        $.h.set('content-length', ($.b as Uint8Array).byteLength.toString())
-
-        break
-      }
-
-      case 'Blob': {
-        $.h.set('content-length', ($.b as Blob).size.toString())
-
-        break
-      }
-
-      default: // FormData or ReadableStream
+      default:
         break
     }
 
