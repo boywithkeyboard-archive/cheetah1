@@ -396,14 +396,14 @@ export class cheetah extends base<cheetah>() {
 
     const len = handlers.length
 
-    let next = false
+    let next = true
 
     for (let i = 0; i < len; ++i) {
       if (typeof handlers[i] !== 'function') {
         continue
       }
 
-      if ($.b && !next) {
+      if (!next) {
         break
       }
 
