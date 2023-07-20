@@ -87,7 +87,7 @@ export class RequestContext<
   async body(options?: {
     /**
      * This enables the conversion of a FormData request body into a JSON object (if the request body has the MIME type `multipart/form-data`).
-     * 
+     *
      * @default false
      */
     transform: boolean
