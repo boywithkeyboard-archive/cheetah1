@@ -110,13 +110,13 @@ export class RequestContext<
             { _def },
           ) => _def.typeName === 'ZodString')
       ) {
-        body = await resolveWithDeadline(this.#r.text(), 3000)
+        body = await resolveWithDeadline(this.#r.text(), 2500)
       } else {
         if (
           (options?.transform === true || this.#s?.transform === true) &&
           this.#r.headers.get('content-type') === 'multipart/form-data'
         ) {
-          const formData = await resolveWithDeadline(this.#r.formData(), 3000)
+          const formData = await resolveWithDeadline(this.#r.formData(), 2500)
 
           body = {} as Record<string, unknown>
 
@@ -124,7 +124,7 @@ export class RequestContext<
             body[key] = value
           }
         } else {
-          body = await resolveWithDeadline(this.#r.json(), 3000)
+          body = await resolveWithDeadline(this.#r.json(), 2500)
         }
       }
     } catch (err: unknown) {
@@ -262,13 +262,13 @@ export class RequestContext<
   }
 
   /**
-   * Parse the request body as an `ArrayBuffer` with a set time limit in milliseconds.
+   * Parse the request body as an `ArrayBuffer` with a set time limit in ms.
    *
-   * @param deadline (default 2500)
+   * @param deadline (default `2500`)
    */
   async blob(deadline = 2500) {
     try {
-      const promise = this.#r.bodyUsed ? this.#r.clone().blob() : this.#r.blob()
+      const promise = this.#r.blob()
 
       return await resolveWithDeadline(promise, deadline)
     } catch (_err) {
@@ -277,15 +277,13 @@ export class RequestContext<
   }
 
   /**
-   * Parse the request body as an `ArrayBuffer` with a set time limit in milliseconds.
+   * Parse the request body as an `ArrayBuffer` with a set time limit in ms.
    *
-   * @param deadline (default 2500)
+   * @param deadline (default `2500`)
    */
   async buffer(deadline = 2500) {
     try {
-      const promise = this.#r.bodyUsed
-        ? this.#r.clone().arrayBuffer()
-        : this.#r.arrayBuffer()
+      const promise = this.#r.arrayBuffer()
 
       return await resolveWithDeadline(promise, deadline)
     } catch (_err) {
@@ -294,15 +292,47 @@ export class RequestContext<
   }
 
   /**
-   * Parse the request body as a `FormData` with a set time limit in milliseconds.
+   * Parse the request body as JSON with a set time limit in ms.
    *
-   * @param deadline (default 2500)
+   * **If you have defined a validation schema, use `c.req.body()` instead!**
+   *
+   * @param deadline (default `2500`)
+   */
+  async json(deadline = 2500): Promise<unknown> {
+    try {
+      const promise = this.#r.json()
+
+      return await resolveWithDeadline(promise, deadline)
+    } catch (_err) {
+      return null
+    }
+  }
+
+  /**
+   * Parse the request body as a `FormData` object with a set time limit in ms.
+   *
+   * @param deadline (default `2500`)
    */
   async formData(deadline = 2500) {
     try {
-      const promise = this.#r.bodyUsed
-        ? this.#r.clone().formData()
-        : this.#r.formData()
+      const promise = this.#r.formData()
+
+      return await resolveWithDeadline(promise, deadline)
+    } catch (_err) {
+      return null
+    }
+  }
+
+  /**
+   * Parse the request body as a `string` with a set time limit in ms.
+   *
+   * **If you have defined a validation schema, use `c.req.body()` instead!**
+   *
+   * @param deadline (default `2500`)
+   */
+  async text(deadline = 2500) {
+    try {
+      const promise = this.#r.text()
 
       return await resolveWithDeadline(promise, deadline)
     } catch (_err) {
