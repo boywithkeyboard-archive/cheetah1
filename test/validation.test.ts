@@ -4,32 +4,68 @@ import { assertEquals } from 'https://deno.land/std@0.194.0/testing/asserts.ts'
 import z from 'https://deno.land/x/zod@v3.21.4/index.ts'
 
 Deno.test('Validation', async (t) => {
-  await t.step('transform', async () => {
+  await t.step('transform', async (t) => {
     const app = new cheetah()
 
-    app.post('/one', {
-      body: z.object({
-        message: z.string(),
-      }),
-      transform: true,
-    }, async (c) => {
-      assertEquals(await c.req.body(), { message: 'Hello World' })
+    // TODO remove at v2.0
+    await t.step('original (deprecated)', async () => {
+      app.post('/transform_original', {
+        body: z.object({
+          message: z.string(),
+        }),
+        transform: true,
+      }, async (c) => {
+        assertEquals(await c.req.body(), { message: 'Hello World' })
 
-      return 'test'
+        return 'test'
+      })
+
+      const form = new FormData()
+      form.append('message', 'Hello World')
+      await (await app.fetch(
+        new Request('http://localhost/transform_original', {
+          method: 'POST',
+          body: form,
+        }),
+      )).text()
+
+      await (await app.fetch(
+        new Request('http://localhost/transform_original', {
+          method: 'POST',
+          body: JSON.stringify({ message: 'Hello World' }),
+        }),
+      )).text()
     })
 
-    const form = new FormData()
-    form.append('message', 'Hello World')
-    await (await app.fetch(
-      new Request('http://localhost/one', { method: 'POST', body: form }),
-    )).text()
+    await t.step('new', async () => {
+      app.post('/transform', {
+        body: z.object({
+          message: z.string(),
+        }),
+      }, async (c) => {
+        assertEquals(await c.req.body({ transform: true }), {
+          message: 'Hello World',
+        })
 
-    await (await app.fetch(
-      new Request('http://localhost/one', {
-        method: 'POST',
-        body: JSON.stringify({ message: 'Hello World' }),
-      }),
-    )).text()
+        return 'test'
+      })
+
+      const form = new FormData()
+      form.append('message', 'Hello World')
+      await (await app.fetch(
+        new Request('http://localhost/transform', {
+          method: 'POST',
+          body: form,
+        }),
+      )).text()
+
+      await (await app.fetch(
+        new Request('http://localhost/transform', {
+          method: 'POST',
+          body: JSON.stringify({ message: 'Hello World' }),
+        }),
+      )).text()
+    })
   })
 
   await t.step('cookies', async () => {

@@ -72,7 +72,8 @@ export function handler<T>() {
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
-        transform?: boolean
+        /** @deprecated please pass this option to the `c.req.body()` method! */
+        transform?: boolean // TODO remove at v2.0
         cors?: string
       }
       | Handler<
@@ -141,7 +142,8 @@ export type HandlerOrSchema =
     cookies?: ObjectType
     headers?: ObjectType
     query?: ObjectType
-    transform?: boolean
+    /** @deprecated please pass this option to the `c.req.body()` method! */
+    transform?: boolean // TODO remove at v2.0
     cors?: string
   }
   | Handler<unknown>
