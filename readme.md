@@ -57,12 +57,14 @@ We strictly follow [SemVer](https://semver.org) and release updates in two chann
 
   The canary channel is meant for pre-releases that lack features for a stable release or contain features that are still a prototype. These releases are **not suited for production** and only meant for testing purposes.
 
+<!--
 ## Benchmark
 
 We don't benchmark cheetah against other modules ourselves, but there are some well-written resources that might be worth checking out:
 
 1. [denosaurs/bench](https://github.com/denosaurs/bench)
 2. [Im-Beast/http_benchmarks](https://github.com/Im-Beast/http_benchmarks)
+-->
 
 ## Contributing
 
