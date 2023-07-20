@@ -84,7 +84,14 @@ export class RequestContext<
   /**
    * The validated body of the incoming request.
    */
-  async body(): Promise<
+  async body(options?: {
+    /**
+     * This enables the conversion of a FormData request body into a JSON object (if the request body has the MIME type `multipart/form-data`).
+     *
+     * @default false
+     */
+    transform: boolean
+  }): Promise<
     ValidatedBody extends ZodType ? Static<ValidatedBody> : unknown
   > {
     if (!this.#s?.body) {
@@ -106,7 +113,7 @@ export class RequestContext<
         body = await resolveWithDeadline(this.#r.text(), 3000)
       } else {
         if (
-          this.#s?.transform === true &&
+          (options?.transform === true || this.#s?.transform === true) &&
           this.#r.headers.get('content-type') === 'multipart/form-data'
         ) {
           const formData = await resolveWithDeadline(this.#r.formData(), 3000)
