@@ -3,6 +3,9 @@ import { AppContext, Context } from './mod.ts'
 
 type HasRequired<T> = Partial<T> extends T ? false : true
 
+type Req = Response | void | undefined
+type Res = void | undefined
+
 export type Extension<
   Config extends Record<string, unknown> | unknown = never,
 > = {
@@ -11,22 +14,22 @@ export type Extension<
       app: AppContext
       req: Request
       _: Config
-    }) => Response | void | Promise<Response> | Promise<void>)
+    }) => Req | Promise<Req>)
     : ((context: {
       app: AppContext
       req: Request
       _?: Config
-    }) => Response | void | Promise<Response> | Promise<void>)
+    }) => Req | Promise<Req>)
   onResponse?: HasRequired<Config> extends true ? ((context: {
       app: AppContext
       c: Context
       _: Config
-    }) => Promise<void> | void)
+    }) => Res | Promise<Res>)
     : ((context: {
       app: AppContext
       c: Context
       _?: Config
-    }) => Promise<void> | void)
+    }) => Res | Promise<Res>)
 }
 
 type ReturnFunction<
