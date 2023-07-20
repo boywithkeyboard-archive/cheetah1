@@ -15,7 +15,6 @@ export class Context<
   #a
   #i
   #p
-  #qs
   #r
   #s
   #req:
@@ -41,7 +40,6 @@ export class Context<
       h: Headers
     },
     p: Record<string, string | undefined>,
-    qs: string | undefined,
     r: Request,
     s: {
       body?: ZodType | undefined
@@ -55,7 +53,6 @@ export class Context<
     this.#a = __app
     this.#i = __internal
     this.#p = p
-    this.#qs = qs
     this.#r = r
     this.#s = s
     this.waitUntil = waitUntil
@@ -76,7 +73,7 @@ export class Context<
       return this.#req
     }
 
-    this.#req = new RequestContext(this.#p, this.#qs, this.#r, this.#s)
+    this.#req = new RequestContext(this.#a, this.#p, this.#r, this.#s)
 
     return this.#req
   }
