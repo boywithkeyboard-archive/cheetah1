@@ -11,7 +11,7 @@ import {
 } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { Method } from './base.ts'
 import { BaseType, ObjectType } from './handler.ts'
-import { Exception } from './mod.ts'
+import { AppContext, Exception } from './mod.ts'
 
 type Static<T extends ZodType | unknown> = T extends ZodType ? z.infer<T>
   : unknown
@@ -33,8 +33,8 @@ export class RequestContext<
   #s
 
   constructor(
+    a: AppContext,
     p: Record<string, string | undefined>,
-    qs: string | undefined,
     r: Request,
     s: {
       body?: ZodType | undefined
@@ -45,7 +45,7 @@ export class RequestContext<
     } | null,
   ) {
     this.#p = p
-    this.#qs = qs
+    this.#qs = a.request.querystring
     this.#r = r
     this.#s = s
   }

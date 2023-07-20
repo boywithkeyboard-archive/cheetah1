@@ -14,6 +14,10 @@ export type AppContext = {
   runtime:
     | 'cloudflare'
     | 'deno'
+  request: {
+    pathname: string
+    querystring?: string
+  }
 }
 
 export type AppConfig = {
@@ -218,21 +222,21 @@ export class cheetah extends base<cheetah>() {
         .hostname
       : req.headers.get('cf-connecting-ip') ?? undefined
 
-    const __app = {
-      env: data as Record<string, unknown>,
-      ip,
-      proxy: this.#proxy,
-      routes: this.#routes,
-      runtime: this.#runtime,
-    }
-
     const parts = req.url.split('?')
 
     parts[0] = parts[0].slice(8)
 
-    const pathname = parts[0].substring(parts[0].indexOf('/'))
-
-    const qs: string | undefined = parts[1]
+    const __app: AppContext = {
+      env: data as Record<string, unknown>,
+      ip,
+      proxy: this.#proxy,
+      request: {
+        pathname: parts[0].substring(parts[0].indexOf('/')),
+        querystring: parts[1],
+      },
+      routes: this.#routes,
+      runtime: this.#runtime,
+    }
 
     if (this.#extensions.size > 0) {
       let body: Response | void = undefined
@@ -240,7 +244,7 @@ export class cheetah extends base<cheetah>() {
       for (const e of this.#extensions.values()) {
         if (
           e[0] !== '*' &&
-          pathname.indexOf(e[0]) !== 0
+          __app.request.pathname.indexOf(e[0]) !== 0
         ) {
           continue
         }
@@ -264,7 +268,7 @@ export class cheetah extends base<cheetah>() {
     try {
       const route = this.#match(
         req.method,
-        pathname,
+        __app.request.pathname,
         this.#preflight,
       )
 
@@ -294,8 +298,6 @@ export class cheetah extends base<cheetah>() {
             // deno-fmt-ignore-line
             (async () => await promise)()
           }),
-        pathname,
-        qs,
         route.params,
         route.handlers,
       )
@@ -338,8 +340,6 @@ export class cheetah extends base<cheetah>() {
     __app: AppContext,
     r: Request,
     waitUntil: (promise: Promise<unknown>) => void,
-    pathname: string,
-    qs: string | undefined,
     p: Record<string, string | undefined>,
     handlers: HandlerOrSchema[],
   ) {
@@ -386,7 +386,6 @@ export class cheetah extends base<cheetah>() {
       __app,
       $,
       p,
-      qs,
       r,
       o,
       waitUntil,
@@ -440,7 +439,7 @@ export class cheetah extends base<cheetah>() {
     for (const e of this.#extensions.values()) {
       if (
         e[0] !== '*' &&
-        pathname.indexOf(e[0]) !== 0
+        __app.request.pathname.indexOf(e[0]) !== 0
       ) {
         continue
       }
