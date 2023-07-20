@@ -174,13 +174,12 @@ export class RequestContext<
   /**
    * The validated headers of the incoming request.
    */
-  get headers(): ValidatedHeaders extends unknown
-    ? Record<string, string | undefined>
-    : Static<ValidatedHeaders> {
+  get headers(): ValidatedHeaders extends ObjectType ? Static<ValidatedHeaders>
+    : Record<string, string | undefined> {
     if (this.#h) {
-      return this.#h as ValidatedHeaders extends unknown
-        ? Record<string, string | undefined>
-        : Static<ValidatedHeaders>
+      return this.#h as ValidatedHeaders extends ObjectType
+        ? Static<ValidatedHeaders>
+        : Record<string, string | undefined>
     }
 
     this.#h = {}
@@ -207,9 +206,9 @@ export class RequestContext<
       }
     }
 
-    return this.#h as ValidatedHeaders extends unknown
-      ? Record<string, string | undefined>
-      : Static<ValidatedHeaders>
+    return this.#h as ValidatedHeaders extends ObjectType
+      ? Static<ValidatedHeaders>
+      : Record<string, string | undefined>
   }
 
   /**
