@@ -1,7 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { assertEquals } from 'https://deno.land/std@0.194.0/testing/asserts.ts'
 import cheetah from '../mod.ts'
-import z from 'https://deno.land/x/zod@v3.21.4/index.ts'
+import { assertEquals, z } from './deps.ts'
 
 Deno.test('Request', async (t) => {
   await t.step('req.param()', async () => {
@@ -10,7 +9,7 @@ Deno.test('Request', async (t) => {
     app.get('/users/:name', (c) => c.req.param('name'))
     assertEquals(
       await (await app.fetch(
-        new Request('http://localhost:3000/users/johndoe'),
+        new Request('http://localhost/users/johndoe'),
       )).text(),
       'johndoe',
     )
@@ -21,8 +20,8 @@ Deno.test('Request', async (t) => {
 
     app.get('/ip', (c) => c.req.ip)
 
-    const result =
-      await (await app.fetch(new Request('http://localhost:3000/ip'))).text()
+    const result = await (await app.fetch(new Request('http://localhost/ip')))
+      .text()
     assertEquals(typeof result === 'string' && result !== undefined, true)
   })
 
@@ -33,7 +32,7 @@ Deno.test('Request', async (t) => {
 
     assertEquals(
       await (await app.fetch(
-        new Request('http://localhost:3000/raw', { method: 'POST' }),
+        new Request('http://localhost/raw', { method: 'POST' }),
       )).text(),
       'POST',
     )
@@ -259,7 +258,7 @@ Deno.test('Request', async (t) => {
 
     assertEquals(
       await (await app.fetch(
-        new Request('http://localhost:3000/buffer', {
+        new Request('http://localhost/buffer', {
           method: 'POST',
           body: 'test',
         }),
@@ -278,7 +277,7 @@ Deno.test('Request', async (t) => {
 
     assertEquals(
       await (await app.fetch(
-        new Request('http://localhost:3000/blob', {
+        new Request('http://localhost/blob', {
           method: 'POST',
           body: 'test',
         }),
@@ -301,7 +300,7 @@ Deno.test('Request', async (t) => {
 
     assertEquals(
       await (await app.fetch(
-        new Request('http://localhost:3000/formData', {
+        new Request('http://localhost/formData', {
           method: 'POST',
           body: new FormData(),
         }),
@@ -310,7 +309,7 @@ Deno.test('Request', async (t) => {
     )
     assertEquals(
       await (await app.fetch(
-        new Request('http://localhost:3000/notFormData', {
+        new Request('http://localhost/notFormData', {
           method: 'POST',
           body: 'test',
         }),
@@ -338,7 +337,7 @@ Deno.test('Request', async (t) => {
 
     assertEquals(
       await (await app.fetch(
-        new Request('http://localhost:3000/stream', {
+        new Request('http://localhost/stream', {
           method: 'POST',
           body: new ReadableStream(),
         }),

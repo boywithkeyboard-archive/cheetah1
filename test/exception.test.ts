@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { assertEquals } from 'https://deno.land/std@0.194.0/testing/asserts.ts'
 import cheetah, { Exception } from '../mod.ts'
+import { assertEquals } from './deps.ts'
 
 Deno.test('Exception', async () => {
   const app = new cheetah()
@@ -14,7 +14,7 @@ Deno.test('Exception', async () => {
   })
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/custom1', {
+      new Request('http://localhost/custom1', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
@@ -22,19 +22,19 @@ Deno.test('Exception', async () => {
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/custom2', {
+      new Request('http://localhost/custom2', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
     { code: 420, message: 'Custom' },
   )
   assertEquals(
-    await (await app.fetch(new Request('http://localhost:3000/custom1')))
+    await (await app.fetch(new Request('http://localhost/custom1')))
       .text(),
     'Custom',
   )
   assertEquals(
-    await (await app.fetch(new Request('http://localhost:3000/custom2')))
+    await (await app.fetch(new Request('http://localhost/custom2')))
       .text(),
     'Custom',
   )
@@ -48,7 +48,7 @@ Deno.test('Exception', async () => {
   })
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/notfound1', {
+      new Request('http://localhost/notfound1', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
@@ -56,19 +56,19 @@ Deno.test('Exception', async () => {
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/notfound2', {
+      new Request('http://localhost/notfound2', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
     { code: 404, message: 'Not Found' },
   )
   assertEquals(
-    await (await app.fetch(new Request('http://localhost:3000/notfound1')))
+    await (await app.fetch(new Request('http://localhost/notfound1')))
       .text(),
     'Not Found',
   )
   assertEquals(
-    await (await app.fetch(new Request('http://localhost:3000/notfound2')))
+    await (await app.fetch(new Request('http://localhost/notfound2')))
       .text(),
     'Not Found',
   )
@@ -82,7 +82,7 @@ Deno.test('Exception', async () => {
   })
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/accessdenied1', {
+      new Request('http://localhost/accessdenied1', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
@@ -90,19 +90,19 @@ Deno.test('Exception', async () => {
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/accessdenied2', {
+      new Request('http://localhost/accessdenied2', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
     { code: 403, message: 'Access Denied' },
   )
   assertEquals(
-    await (await app.fetch(new Request('http://localhost:3000/accessdenied1')))
+    await (await app.fetch(new Request('http://localhost/accessdenied1')))
       .text(),
     'Access Denied',
   )
   assertEquals(
-    await (await app.fetch(new Request('http://localhost:3000/accessdenied2')))
+    await (await app.fetch(new Request('http://localhost/accessdenied2')))
       .text(),
     'Access Denied',
   )
@@ -116,7 +116,7 @@ Deno.test('Exception', async () => {
   })
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/somethingwentwrong1', {
+      new Request('http://localhost/somethingwentwrong1', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
@@ -124,7 +124,7 @@ Deno.test('Exception', async () => {
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/somethingwentwrong2', {
+      new Request('http://localhost/somethingwentwrong2', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
@@ -132,13 +132,13 @@ Deno.test('Exception', async () => {
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/somethingwentwrong1'),
+      new Request('http://localhost/somethingwentwrong1'),
     )).text(),
     'Something Went Wrong',
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/somethingwentwrong2'),
+      new Request('http://localhost/somethingwentwrong2'),
     )).text(),
     'Something Went Wrong',
   )
@@ -152,7 +152,7 @@ Deno.test('Exception', async () => {
   })
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/badrequest1', {
+      new Request('http://localhost/badrequest1', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
@@ -160,19 +160,19 @@ Deno.test('Exception', async () => {
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/badrequest2', {
+      new Request('http://localhost/badrequest2', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
     { code: 400, message: 'Bad Request' },
   )
   assertEquals(
-    await (await app.fetch(new Request('http://localhost:3000/badrequest1')))
+    await (await app.fetch(new Request('http://localhost/badrequest1')))
       .text(),
     'Bad Request',
   )
   assertEquals(
-    await (await app.fetch(new Request('http://localhost:3000/badrequest2')))
+    await (await app.fetch(new Request('http://localhost/badrequest2')))
       .text(),
     'Bad Request',
   )
@@ -186,7 +186,7 @@ Deno.test('Exception', async () => {
   })
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/payloadtoolarge1', {
+      new Request('http://localhost/payloadtoolarge1', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
@@ -194,7 +194,7 @@ Deno.test('Exception', async () => {
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/payloadtoolarge2', {
+      new Request('http://localhost/payloadtoolarge2', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
@@ -202,13 +202,13 @@ Deno.test('Exception', async () => {
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/payloadtoolarge1'),
+      new Request('http://localhost/payloadtoolarge1'),
     )).text(),
     'Payload Too Large',
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/payloadtoolarge2'),
+      new Request('http://localhost/payloadtoolarge2'),
     )).text(),
     'Payload Too Large',
   )
@@ -222,7 +222,7 @@ Deno.test('Exception', async () => {
   })
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/toomanyrequests1', {
+      new Request('http://localhost/toomanyrequests1', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
@@ -230,7 +230,7 @@ Deno.test('Exception', async () => {
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/toomanyrequests2', {
+      new Request('http://localhost/toomanyrequests2', {
         headers: { accept: 'application/json' },
       }),
     )).json(),
@@ -238,13 +238,13 @@ Deno.test('Exception', async () => {
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/toomanyrequests1'),
+      new Request('http://localhost/toomanyrequests1'),
     )).text(),
     'Too Many Requests',
   )
   assertEquals(
     await (await app.fetch(
-      new Request('http://localhost:3000/toomanyrequests2'),
+      new Request('http://localhost/toomanyrequests2'),
     )).text(),
     'Too Many Requests',
   )

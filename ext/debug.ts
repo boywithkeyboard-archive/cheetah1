@@ -1,12 +1,12 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { format } from 'https://deno.land/std@0.194.0/fmt/bytes.ts'
+import { format } from 'https://deno.land/std@0.195.0/fmt/bytes.ts'
 import {
   brightBlue,
   brightGreen,
   brightRed,
   gray,
   white,
-} from 'https://deno.land/std@0.194.0/fmt/colors.ts'
+} from 'https://deno.land/std@0.195.0/fmt/colors.ts'
 import { createExtension } from '../mod.ts'
 
 /**

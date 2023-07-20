@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { assertEquals } from 'https://deno.land/std@0.194.0/testing/asserts.ts'
 import cheetah, { Collection } from '../mod.ts'
+import { assertEquals } from './deps.ts'
 
 Deno.test('Nesting/Routing', async (t) => {
   const collection = new Collection()
@@ -15,13 +15,13 @@ Deno.test('Nesting/Routing', async (t) => {
 
     assertEquals(
       await (await r1.fetch(
-        new Request('http://localhost:3000/api/collection'),
+        new Request('http://localhost/api/collection'),
       )).text(),
       'nested root route',
     )
     assertEquals(
       await (await r1.fetch(
-        new Request('http://localhost:3000/api/collection/nestedroute'),
+        new Request('http://localhost/api/collection/nestedroute'),
       )).text(),
       'nested route',
     )
@@ -32,13 +32,13 @@ Deno.test('Nesting/Routing', async (t) => {
       .use('/collection', collection)
 
     assertEquals(
-      await (await r2.fetch(new Request('http://localhost:3000/collection')))
+      await (await r2.fetch(new Request('http://localhost/collection')))
         .text(),
       'nested root route',
     )
     assertEquals(
       await (await r2.fetch(
-        new Request('http://localhost:3000/collection/nestedroute'),
+        new Request('http://localhost/collection/nestedroute'),
       )).text(),
       'nested route',
     )

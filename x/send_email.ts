@@ -6,4 +6,4 @@ import { sendMail as _sendMail } from './send_mail.ts'
  *
  * @deprecated please import the module from `https://deno.land/x/cheetah/x/send_mail.ts`.
  */
-export const sendMail = _sendMail
+export const sendMail = _sendMail // TODO remove at v2.0
