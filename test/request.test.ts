@@ -20,8 +20,8 @@ Deno.test('Request', async (t) => {
 
     app.get('/ip', (c) => c.req.ip)
 
-    const result =
-      await (await app.fetch(new Request('http://localhost/ip'))).text()
+    const result = await (await app.fetch(new Request('http://localhost/ip')))
+      .text()
     assertEquals(typeof result === 'string' && result !== undefined, true)
   })
 
