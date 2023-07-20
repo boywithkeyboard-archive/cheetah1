@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { assertEquals } from 'https://deno.land/std@0.194.0/testing/asserts.ts'
 import cheetah from '../mod.ts'
+import { assertEquals } from './deps.ts'
 
 Deno.test('Response', async (t) => {
   const app = new cheetah()
@@ -10,7 +10,7 @@ Deno.test('Response', async (t) => {
       c.res.code = 101
     })
     assertEquals(
-      (await app.fetch(new Request('http://localhost:3000/code'))).status,
+      (await app.fetch(new Request('http://localhost/code'))).status,
       101,
     )
   })
@@ -23,7 +23,7 @@ Deno.test('Response', async (t) => {
     })
 
     const result = await app.fetch(
-      new Request('http://localhost:3000/body_size'),
+      new Request('http://localhost/body_size'),
     )
 
     assertEquals(
@@ -35,7 +35,7 @@ Deno.test('Response', async (t) => {
   await t.step('res.cookie()', async () => {
     app.get('/cookie', (c) => c.res.cookie('custom', 'test'))
     assertEquals(
-      (await app.fetch(new Request('http://localhost:3000/cookie'))).headers
+      (await app.fetch(new Request('http://localhost/cookie'))).headers
         .get('set-cookie'),
       'custom=test;',
     )
@@ -44,7 +44,7 @@ Deno.test('Response', async (t) => {
   await t.step('res.header()', async () => {
     app.get('/header', (c) => c.res.header('custom', 'test'))
     assertEquals(
-      (await app.fetch(new Request('http://localhost:3000/header'))).headers
+      (await app.fetch(new Request('http://localhost/header'))).headers
         .get('custom'),
       'test',
     )
@@ -55,7 +55,7 @@ Deno.test('Response', async (t) => {
     app.get('/temporaryredirect', (c) => c.res.redirect('https://deno.com'))
 
     const response1 = await app.fetch(
-      new Request('http://localhost:3000/temporaryredirect'),
+      new Request('http://localhost/temporaryredirect'),
     )
     assertEquals(response1.status, 307)
     assertEquals(response1.headers.get('location'), 'https://deno.com')
@@ -67,7 +67,7 @@ Deno.test('Response', async (t) => {
     )
 
     const response2 = await app.fetch(
-      new Request('http://localhost:3000/permanentredirect'),
+      new Request('http://localhost/permanentredirect'),
     )
     assertEquals(response2.status, 301)
     assertEquals(response2.headers.get('location'), 'https://deno.com')
@@ -83,7 +83,7 @@ Deno.test('Response', async (t) => {
     assertEquals(
       new TextDecoder().decode(
         await (await (await app.fetch(
-          new Request('http://localhost:3000/blob'),
+          new Request('http://localhost/blob'),
         )).blob()).arrayBuffer(),
       ),
       'test',
@@ -96,7 +96,7 @@ Deno.test('Response', async (t) => {
     })
 
     assertEquals(
-      (await app.fetch(new Request('http://localhost:3000/stream'))).body !==
+      (await app.fetch(new Request('http://localhost/stream'))).body !==
         null,
       true,
     )
@@ -111,7 +111,7 @@ Deno.test('Response', async (t) => {
     })
 
     assertEquals(
-      await (await app.fetch(new Request('http://localhost:3000/formData')))
+      await (await app.fetch(new Request('http://localhost/formData')))
         .formData(),
       formData,
     )
@@ -126,7 +126,7 @@ Deno.test('Response', async (t) => {
     })
 
     assertEquals(
-      await (await app.fetch(new Request('http://localhost:3000/buffer')))
+      await (await app.fetch(new Request('http://localhost/buffer')))
         .arrayBuffer(),
       arrayBuffer,
     )
@@ -141,7 +141,7 @@ Deno.test('Response', async (t) => {
 
     assertEquals(
       await (await app.fetch(
-        new Request('http://localhost:3000/json'),
+        new Request('http://localhost/json'),
       )).json(),
       { message: 'test' },
     )
@@ -154,7 +154,7 @@ Deno.test('Response', async (t) => {
 
     assertEquals(
       await (await app.fetch(
-        new Request('http://localhost:3000/text'),
+        new Request('http://localhost/text'),
       )).text(),
       'test',
     )

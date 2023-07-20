@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import cheetah, { createExtension } from '../mod.ts'
-import { assertEquals } from 'https://deno.land/std@0.194.0/testing/asserts.ts'
+import { assertEquals } from './deps.ts'
 
 Deno.test('Extensions', async (t) => {
   const a = createExtension({
