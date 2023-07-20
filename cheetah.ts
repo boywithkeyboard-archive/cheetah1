@@ -437,6 +437,21 @@ export class cheetah extends base<cheetah>() {
       })
     }
 
+    for (const e of this.#extensions.values()) {
+      if (
+        e[0] !== '*' &&
+        pathname.indexOf(e[0]) !== 0
+      ) {
+        continue
+      }
+
+      const { onResponse } = e[1]
+
+      if (onResponse !== undefined) {
+        onResponse({ app: __app, c: context, _: e[1].__config })
+      }
+    }
+
     switch ($.b.constructor.name) {
       case 'String': {
         if (!$.h.has('content-type')) {
@@ -472,21 +487,6 @@ export class cheetah extends base<cheetah>() {
 
       default:
         break
-    }
-
-    for (const e of this.#extensions.values()) {
-      if (
-        e[0] !== '*' &&
-        pathname.indexOf(e[0]) !== 0
-      ) {
-        continue
-      }
-
-      const { onResponse } = e[1]
-
-      if (onResponse !== undefined) {
-        onResponse({ app: __app, c: context, _: e[1].__config })
-      }
     }
 
     return new Response($.b as BodyInit, {
