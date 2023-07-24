@@ -7,6 +7,7 @@
 
 <div align='center'>
   <p><code>secure</code> × <code>simple</code> × <code>light</code></p>
+  <br><p><b>👉 <a href='https://discord.gg/2rCya9EWGv'>JOIN US ON DISCORD!</a> 👈</b></p>
 </div>
 
 <br>
