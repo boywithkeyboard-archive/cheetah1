@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { encode } from 'https://deno.land/std@0.195.0/encoding/base64.ts'
+import { encode } from 'https://deno.land/std@0.197.0/encoding/base64.ts'
 import { Context } from '../mod.ts'
 
 export class Cache {
