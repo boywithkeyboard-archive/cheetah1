@@ -244,7 +244,7 @@ export class cheetah extends base<cheetah>() {
       let body: Response | void = undefined
 
       for (const e of this.#extensions.values()) {
-        if (this.#onPlugIn === true && e[1].onPlugIn !== undefined) {
+        if (!this.#onPlugIn && e[1].onPlugIn !== undefined) {
           await e[1].onPlugIn({
             env: __app.env,
             routes: this.#routes,
@@ -290,8 +290,8 @@ export class cheetah extends base<cheetah>() {
         }
       }
 
-      if (this.#onPlugIn) {
-        this.#onPlugIn = false
+      if (!this.#onPlugIn) {
+        this.#onPlugIn = true
       }
 
       if (body !== undefined) {
