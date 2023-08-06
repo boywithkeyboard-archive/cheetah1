@@ -11,6 +11,21 @@
 
 <br>
 
+### Sneak Peek 🤫
+
+```ts
+import cheetah from 'https://deno.land/x/cheetah/mod.ts'
+
+const app = new cheetah()
+  .get('/', () => 'Hello World')
+
+app.serve()
+```
+
+❔ Please read our [guide](https://cheetah.mod.land) or [join our Discord](https://discord.gg/2rCya9EWGv) to learn more.
+
+<br>
+
 ---
 
 <div align='center'>
@@ -32,21 +47,6 @@
 
 <br>
 
-### Sneak Peek 🤫
-
-```ts
-import cheetah from 'https://deno.land/x/cheetah/mod.ts'
-
-const app = new cheetah()
-  .get('/', () => 'Hello World')
-
-app.serve()
-```
-
-❔ Please read our [guide](https://cheetah.mod.land) or [join our Discord](https://discord.gg/2rCya9EWGv) to learn more.
-
-<br>
-
 ### Release Schedule 🗓️
 
 We strictly follow [SemVer](https://semver.org) and release updates in two channels:
@@ -58,15 +58,6 @@ We strictly follow [SemVer](https://semver.org) and release updates in two chann
 - ◇ **canary**
 
   The canary channel is meant for pre-releases that lack features for a stable release or contain features that are still a prototype. These releases are **not suited for production** and only meant for testing purposes.
-
-<!--
-## Benchmark
-
-We don't benchmark cheetah against other modules ourselves, but there are some well-written resources that might be worth checking out:
-
-1. [denosaurs/bench](https://github.com/denosaurs/bench)
-2. [Im-Beast/http_benchmarks](https://github.com/Im-Beast/http_benchmarks)
--->
 
 <br>
 
