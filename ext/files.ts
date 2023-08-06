@@ -45,7 +45,9 @@ export const files = createExtension<{
       const bucket = app.env[serve.name] as R2Bucket
 
       const data = await bucket.get(
-        app.request.pathname.substring(prefix.length + 1),
+        prefix !== '*'
+          ? app.request.pathname.substring(prefix.length + 1)
+          : app.request.pathname,
       )
 
       if (data === null) {
@@ -58,7 +60,9 @@ export const files = createExtension<{
     } else {
       const path = join(
         serve.directory,
-        app.request.pathname.substring(prefix.length + 1),
+        prefix !== '*'
+          ? app.request.pathname.substring(prefix.length + 1)
+          : app.request.pathname,
       )
 
       let exists
