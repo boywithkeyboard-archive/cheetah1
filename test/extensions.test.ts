@@ -17,8 +17,10 @@ Deno.test('Extensions', async (t) => {
   })
 
   const b = createExtension({
-    onResponse({ c }) {
+    onResponse({ c, prefix }) {
       c.res.body = 'custom'
+
+      assertEquals(prefix, '/b')
     },
   })
 

@@ -9,100 +9,117 @@ type HasRequired<T> = Partial<T> extends T ? false : true
 type Req = Response | void | undefined
 type Res = void | undefined
 
+type ExtensionContext = {
+  /** The prefix of the routes to which this extension is assigned. */
+  prefix: string
+}
+
 export type Extension<
   Config extends Record<string, unknown> | unknown = never,
 > = {
   __config: Config | undefined
-  onPlugIn: HasRequired<Config> extends true ? ((context: {
-      env: AppContext['env']
-      routes: AppContext['routes']
-      runtime: AppContext['runtime']
-      setRoute: <
-        Pathname extends `/${string}`,
-        // deno-lint-ignore no-explicit-any
-        ValidatedBody extends ObjectType | ZodString | ZodUnion<any>,
-        ValidatedCookies extends ObjectType,
-        ValidatedHeaders extends ObjectType,
-        ValidatedQuery extends ObjectType,
-      >(
-        method: Method,
-        pathname: Pathname,
-        ...handler: (
-          | {
-            body?: ValidatedBody
-            cookies?: ValidatedCookies
-            headers?: ValidatedHeaders
-            query?: ValidatedQuery
-            /** @deprecated please pass this option to the `c.req.body()` method! */
-            transform?: boolean // TODO remove at v2.0
-            cors?: string
-          }
-          | Handler<
-            Pathname,
-            ValidatedBody,
-            ValidatedCookies,
-            ValidatedHeaders,
-            ValidatedQuery
-          >
-        )[]
-      ) => void | Promise<void>
-      settings: Config
-    }) => void | Promise<void>)
-    : ((context: {
-      env: AppContext['env']
-      routes: AppContext['routes']
-      runtime: AppContext['runtime']
-      setRoute: <
-        Pathname extends `/${string}`,
-        // deno-lint-ignore no-explicit-any
-        ValidatedBody extends ObjectType | ZodString | ZodUnion<any>,
-        ValidatedCookies extends ObjectType,
-        ValidatedHeaders extends ObjectType,
-        ValidatedQuery extends ObjectType,
-      >(
-        method: Method,
-        pathname: Pathname,
-        ...handlers: (
-          | {
-            body?: ValidatedBody
-            cookies?: ValidatedCookies
-            headers?: ValidatedHeaders
-            query?: ValidatedQuery
-            /** @deprecated please pass this option to the `c.req.body()` method! */
-            transform?: boolean // TODO remove at v2.0
-            cors?: string
-          }
-          | Handler<
-            Pathname,
-            ValidatedBody,
-            ValidatedCookies,
-            ValidatedHeaders,
-            ValidatedQuery
-          >
-        )[]
-      ) => void
-      settings?: Config
-    }) => void | Promise<void>)
-  onRequest?: HasRequired<Config> extends true ? ((context: {
-      app: AppContext
-      req: Request
-      _: Config
-    }) => Req | Promise<Req>)
-    : ((context: {
-      app: AppContext
-      req: Request
-      _?: Config
-    }) => Req | Promise<Req>)
-  onResponse?: HasRequired<Config> extends true ? ((context: {
-      app: AppContext
-      c: Context
-      _: Config
-    }) => Res | Promise<Res>)
-    : ((context: {
-      app: AppContext
-      c: Context
-      _?: Config
-    }) => Res | Promise<Res>)
+  onPlugIn: HasRequired<Config> extends true ? ((
+      context: ExtensionContext & {
+        env: AppContext['env']
+        routes: AppContext['routes']
+        runtime: AppContext['runtime']
+        setRoute: <
+          Pathname extends `/${string}`,
+          // deno-lint-ignore no-explicit-any
+          ValidatedBody extends ObjectType | ZodString | ZodUnion<any>,
+          ValidatedCookies extends ObjectType,
+          ValidatedHeaders extends ObjectType,
+          ValidatedQuery extends ObjectType,
+        >(
+          method: Method,
+          pathname: Pathname,
+          ...handler: (
+            | {
+              body?: ValidatedBody
+              cookies?: ValidatedCookies
+              headers?: ValidatedHeaders
+              query?: ValidatedQuery
+              /** @deprecated please pass this option to the `c.req.body()` method! */
+              transform?: boolean // TODO remove at v2.0
+              cors?: string
+            }
+            | Handler<
+              Pathname,
+              ValidatedBody,
+              ValidatedCookies,
+              ValidatedHeaders,
+              ValidatedQuery
+            >
+          )[]
+        ) => void | Promise<void>
+        settings: Config
+      },
+    ) => void | Promise<void>)
+    : ((
+      context: ExtensionContext & {
+        env: AppContext['env']
+        routes: AppContext['routes']
+        runtime: AppContext['runtime']
+        setRoute: <
+          Pathname extends `/${string}`,
+          // deno-lint-ignore no-explicit-any
+          ValidatedBody extends ObjectType | ZodString | ZodUnion<any>,
+          ValidatedCookies extends ObjectType,
+          ValidatedHeaders extends ObjectType,
+          ValidatedQuery extends ObjectType,
+        >(
+          method: Method,
+          pathname: Pathname,
+          ...handlers: (
+            | {
+              body?: ValidatedBody
+              cookies?: ValidatedCookies
+              headers?: ValidatedHeaders
+              query?: ValidatedQuery
+              /** @deprecated please pass this option to the `c.req.body()` method! */
+              transform?: boolean // TODO remove at v2.0
+              cors?: string
+            }
+            | Handler<
+              Pathname,
+              ValidatedBody,
+              ValidatedCookies,
+              ValidatedHeaders,
+              ValidatedQuery
+            >
+          )[]
+        ) => void
+        settings?: Config
+      },
+    ) => void | Promise<void>)
+  onRequest?: HasRequired<Config> extends true ? ((
+      context: ExtensionContext & {
+        app: AppContext
+        req: Request
+        _: Config
+      },
+    ) => Req | Promise<Req>)
+    : ((
+      context: ExtensionContext & {
+        app: AppContext
+        req: Request
+        _?: Config
+      },
+    ) => Req | Promise<Req>)
+  onResponse?: HasRequired<Config> extends true ? ((
+      context: ExtensionContext & {
+        app: AppContext
+        c: Context
+        _: Config
+      },
+    ) => Res | Promise<Res>)
+    : ((
+      context: ExtensionContext & {
+        app: AppContext
+        c: Context
+        _?: Config
+      },
+    ) => Res | Promise<Res>)
 }
 
 type ReturnFunction<
