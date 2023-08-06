@@ -219,87 +219,89 @@ export class cheetah extends base<cheetah>() {
       waitUntil: (promise: Promise<unknown>) => void
     },
   ): Promise<Response> => {
-    const ip = data?.remoteAddr && this.#runtime === 'deno'
-      ? ((data as Deno.ServeHandlerInfo).remoteAddr)
-        .hostname
-      : req.headers.get('cf-connecting-ip') ?? undefined
+    try {
+      const ip = data?.remoteAddr && this.#runtime === 'deno'
+        ? ((data as Deno.ServeHandlerInfo).remoteAddr)
+          .hostname
+        : req.headers.get('cf-connecting-ip') ?? undefined
 
-    const parts = req.url.split('?')
+      const parts = req.url.split('?')
 
-    parts[0] = parts[0].slice(8)
+      parts[0] = parts[0].slice(8)
 
-    const __app: AppContext = {
-      env: data as Record<string, unknown>,
-      ip,
-      proxy: this.#proxy,
-      request: {
-        pathname: parts[0].substring(parts[0].indexOf('/')),
-        querystring: parts[1],
-      },
-      routes: this.#routes,
-      runtime: this.#runtime,
-    }
+      const __app: AppContext = {
+        env: data as Record<string, unknown>,
+        ip,
+        proxy: this.#proxy,
+        request: {
+          pathname: parts[0].substring(parts[0].indexOf('/')),
+          querystring: parts[1],
+        },
+        routes: this.#routes,
+        runtime: this.#runtime,
+      }
 
-    if (this.#extensions.size > 0) {
-      let body: Response | void = undefined
+      if (this.#extensions.size > 0) {
+        let body: Response | void = undefined
 
-      for (const e of this.#extensions.values()) {
-        if (!this.#onPlugIn && e[1].onPlugIn !== undefined) {
-          await e[1].onPlugIn({
-            env: __app.env,
-            routes: this.#routes,
-            runtime: this.#runtime,
-            setRoute: (method, pathname, ...handlers) => {
-              this.#routes.add([
-                method.toUpperCase() as Uppercase<Method>,
-                pathname,
-                RegExp(
-                  `^${
-                    (pathname
-                      .replace(/\/+(\/|$)/g, '$1'))
-                      .replace(/(\/?\.?):(\w+)\+/g, '($1(?<$2>*))')
-                      .replace(/(\/?\.?):(\w+)/g, '($1(?<$2>[^$1/]+?))')
-                      .replace(/\./g, '\\.')
-                      .replace(/(\/?)\*/g, '($1.*)?')
-                  }/*$`,
-                ),
-                // @ts-ignore:
-                handlers,
-              ])
-            },
-          })
-        }
+        for (const e of this.#extensions.values()) {
+          if (!this.#onPlugIn && e[1].onPlugIn !== undefined) {
+            await e[1].onPlugIn({
+              prefix: e[0],
+              env: __app.env,
+              routes: this.#routes,
+              runtime: this.#runtime,
+              setRoute: (method, pathname, ...handlers) => {
+                this.#routes.add([
+                  method.toUpperCase() as Uppercase<Method>,
+                  pathname,
+                  RegExp(
+                    `^${
+                      (pathname
+                        .replace(/\/+(\/|$)/g, '$1'))
+                        .replace(/(\/?\.?):(\w+)\+/g, '($1(?<$2>*))')
+                        .replace(/(\/?\.?):(\w+)/g, '($1(?<$2>[^$1/]+?))')
+                        .replace(/\./g, '\\.')
+                        .replace(/(\/?)\*/g, '($1.*)?')
+                    }/*$`,
+                  ),
+                  // @ts-ignore:
+                  handlers,
+                ])
+              },
+            })
+          }
 
-        if (
-          e[0] !== '*' &&
-          __app.request.pathname.indexOf(e[0]) !== 0
-        ) {
-          continue
-        }
+          if (
+            e[0] !== '*' &&
+            __app.request.pathname.indexOf(e[0]) !== 0
+          ) {
+            continue
+          }
 
-        if (e[1].onRequest !== undefined) {
-          const result = await e[1].onRequest({
-            app: __app,
-            req,
-            _: e[1].__config,
-          })
+          if (e[1].onRequest !== undefined) {
+            const result = await e[1].onRequest({
+              prefix: e[0],
+              app: __app,
+              req,
+              _: e[1].__config,
+            })
 
-          if (result !== undefined) {
-            body = result
+            if (result !== undefined) {
+              body = result
+            }
           }
         }
+
+        if (!this.#onPlugIn) {
+          this.#onPlugIn = true
+        }
+
+        if (body !== undefined) {
+          return body
+        }
       }
 
-      if (!this.#onPlugIn) {
-        this.#onPlugIn = true
-      }
-
-      if (body !== undefined) {
-        return body
-      }
-    }
-
-    try {
       const route = this.#match(
         req.method,
         __app.request.pathname,
@@ -481,7 +483,12 @@ export class cheetah extends base<cheetah>() {
       const { onResponse } = e[1]
 
       if (onResponse !== undefined) {
-        onResponse({ app: __app, c: context, _: e[1].__config })
+        onResponse({
+          prefix: e[0],
+          app: __app,
+          c: context,
+          _: e[1].__config,
+        })
       }
     }
 
