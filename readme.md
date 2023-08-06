@@ -6,8 +6,7 @@
 </div>
 
 <div align='center'>
-  <p><code>secure</code> × <code>simple</code> × <code>light</code></p>
-  <br><p><b>👉 <a href='https://discord.gg/2rCya9EWGv'>JOIN US ON DISCORD!</a> 👈</b></p>
+  <p><code>🛡️ secure</code> × <code>💎 simple</code> × <code>🪶 light</code></p>
 </div>
 
 <br>
@@ -33,7 +32,7 @@
 
 <br>
 
-## Sneak Peek
+### Sneak Peek 🤫
 
 ```ts
 import cheetah from 'https://deno.land/x/cheetah/mod.ts'
@@ -44,9 +43,11 @@ const app = new cheetah()
 app.serve()
 ```
 
-Please read our [guide](https://cheetah.mod.land) to learn more.
+❔ Please read our [guide](https://cheetah.mod.land) or [join our Discord](https://discord.gg/2rCya9EWGv) to learn more.
 
-## Release Schedule
+<br>
+
+### Release Schedule 🗓️
 
 We strictly follow [SemVer](https://semver.org) and release updates in two channels:
 
@@ -67,7 +68,9 @@ We don't benchmark cheetah against other modules ourselves, but there are some w
 2. [Im-Beast/http_benchmarks](https://github.com/Im-Beast/http_benchmarks)
 -->
 
-## Contributing
+<br>
+
+### Contributing 😘
 
 We appreciate your help! 💕
 
