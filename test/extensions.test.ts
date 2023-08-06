@@ -3,7 +3,14 @@ import cheetah, { createExtension } from '../mod.ts'
 import { assertEquals } from './deps.ts'
 
 Deno.test('Extensions', async (t) => {
+  let count = 0
+
   const a = createExtension({
+    onPlugIn({ setRoute }) {
+      setRoute('get', '/cookie', () => '🍪')
+
+      count++
+    },
     onRequest({ req }) {
       req.headers.set('custom', 'test')
     },
@@ -39,6 +46,12 @@ Deno.test('Extensions', async (t) => {
       return 'test'
     })
 
+  await t.step('onPlugIn (part 1)', async () => {
+    const result = await app.fetch(new Request('http://localhost/cookie'))
+
+    assertEquals(await result.text(), '🍪')
+  })
+
   await t.step('onRequest', async () => {
     const result = await app.fetch(new Request('http://localhost/a'))
 
@@ -53,5 +66,12 @@ Deno.test('Extensions', async (t) => {
     const result2 = await app.fetch(new Request('http://localhost/foo/bar'))
 
     assertEquals(await result2.text(), 'hello')
+  })
+
+  await t.step('onPlugIn (part 2)', async () => {
+    const result = await app.fetch(new Request('http://localhost/cookie'))
+
+    assertEquals(await result.text(), '🍪')
+    assertEquals(count, 1)
   })
 })
