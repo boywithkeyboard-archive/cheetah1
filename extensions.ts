@@ -1,5 +1,8 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
+import { ZodString, ZodUnion } from 'https://deno.land/x/zod@v3.21.4/types.ts'
+import { Handler, ObjectType } from './handler.ts'
 import { AppContext, Context } from './mod.ts'
+import { Method } from './base.ts'
 
 type HasRequired<T> = Partial<T> extends T ? false : true
 
@@ -10,6 +13,76 @@ export type Extension<
   Config extends Record<string, unknown> | unknown = never,
 > = {
   __config: Config | undefined
+  onPlugIn: HasRequired<Config> extends true ? ((context: {
+      env: AppContext['env']
+      routes: AppContext['routes']
+      runtime: AppContext['runtime']
+      setRoute: <
+        Pathname extends `/${string}`,
+        // deno-lint-ignore no-explicit-any
+        ValidatedBody extends ObjectType | ZodString | ZodUnion<any>,
+        ValidatedCookies extends ObjectType,
+        ValidatedHeaders extends ObjectType,
+        ValidatedQuery extends ObjectType,
+      >(
+        method: Method,
+        pathname: Pathname,
+        ...handler: (
+          | {
+            body?: ValidatedBody
+            cookies?: ValidatedCookies
+            headers?: ValidatedHeaders
+            query?: ValidatedQuery
+            /** @deprecated please pass this option to the `c.req.body()` method! */
+            transform?: boolean // TODO remove at v2.0
+            cors?: string
+          }
+          | Handler<
+            Pathname,
+            ValidatedBody,
+            ValidatedCookies,
+            ValidatedHeaders,
+            ValidatedQuery
+          >
+        )[]
+      ) => void | Promise<void>
+      settings: Config
+    }) => void | Promise<void>)
+    : ((context: {
+      env: AppContext['env']
+      routes: AppContext['routes']
+      runtime: AppContext['runtime']
+      setRoute: <
+        Pathname extends `/${string}`,
+        // deno-lint-ignore no-explicit-any
+        ValidatedBody extends ObjectType | ZodString | ZodUnion<any>,
+        ValidatedCookies extends ObjectType,
+        ValidatedHeaders extends ObjectType,
+        ValidatedQuery extends ObjectType,
+      >(
+        method: Method,
+        pathname: Pathname,
+        ...handlers: (
+          | {
+            body?: ValidatedBody
+            cookies?: ValidatedCookies
+            headers?: ValidatedHeaders
+            query?: ValidatedQuery
+            /** @deprecated please pass this option to the `c.req.body()` method! */
+            transform?: boolean // TODO remove at v2.0
+            cors?: string
+          }
+          | Handler<
+            Pathname,
+            ValidatedBody,
+            ValidatedCookies,
+            ValidatedHeaders,
+            ValidatedQuery
+          >
+        )[]
+      ) => void
+      settings?: Config
+    }) => void | Promise<void>)
   onRequest?: HasRequired<Config> extends true ? ((context: {
       app: AppContext
       req: Request
@@ -51,15 +124,18 @@ export function validExtension(ext: Record<string, unknown>) {
 export function createExtension<
   Config extends Record<string, unknown> | unknown = unknown,
 >({
+  onPlugIn,
   onRequest,
   onResponse,
 }: {
+  onPlugIn?: Extension<Config>['onPlugIn']
   onRequest?: Extension<Config>['onRequest']
   onResponse?: Extension<Config>['onResponse']
 }) {
   return ((__config?: Config) => {
     return {
       __config,
+      onPlugIn,
       onRequest,
       onResponse,
       [Symbol('cheetah.extension')]: 'v1.0',

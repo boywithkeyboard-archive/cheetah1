@@ -69,6 +69,7 @@ export class cheetah extends base<cheetah>() {
   #proxy
   #routes: Set<[Uppercase<Method>, string, RegExp, HandlerOrSchema[]]>
   #runtime: 'deno' | 'cloudflare'
+  #onPlugIn
 
   constructor({
     base,
@@ -109,6 +110,7 @@ export class cheetah extends base<cheetah>() {
     this.#runtime = typeof globalThis?.Deno?.serve !== 'function'
       ? 'cloudflare'
       : 'deno'
+    this.#onPlugIn = false
   }
 
   /* use ---------------------------------------------------------------------- */
@@ -242,6 +244,32 @@ export class cheetah extends base<cheetah>() {
       let body: Response | void = undefined
 
       for (const e of this.#extensions.values()) {
+        if (this.#onPlugIn === true && e[1].onPlugIn !== undefined) {
+          await e[1].onPlugIn({
+            env: __app.env,
+            routes: this.#routes,
+            runtime: this.#runtime,
+            setRoute: (method, pathname, ...handlers) => {
+              this.#routes.add([
+                method.toUpperCase() as Uppercase<Method>,
+                pathname,
+                RegExp(
+                  `^${
+                    (pathname
+                      .replace(/\/+(\/|$)/g, '$1'))
+                      .replace(/(\/?\.?):(\w+)\+/g, '($1(?<$2>*))')
+                      .replace(/(\/?\.?):(\w+)/g, '($1(?<$2>[^$1/]+?))')
+                      .replace(/\./g, '\\.')
+                      .replace(/(\/?)\*/g, '($1.*)?')
+                  }/*$`,
+                ),
+                // @ts-ignore:
+                handlers,
+              ])
+            },
+          })
+        }
+
         if (
           e[0] !== '*' &&
           __app.request.pathname.indexOf(e[0]) !== 0
@@ -249,15 +277,21 @@ export class cheetah extends base<cheetah>() {
           continue
         }
 
-        const { onRequest } = e[1]
-
-        if (onRequest !== undefined) {
-          const result = await onRequest({ app: __app, req, _: e[1].__config })
+        if (e[1].onRequest !== undefined) {
+          const result = await e[1].onRequest({
+            app: __app,
+            req,
+            _: e[1].__config,
+          })
 
           if (result !== undefined) {
             body = result
           }
         }
+      }
+
+      if (this.#onPlugIn) {
+        this.#onPlugIn = false
       }
 
       if (body !== undefined) {
