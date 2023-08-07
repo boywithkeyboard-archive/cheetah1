@@ -20,6 +20,7 @@ export async function getSessionToken(c: Context) {
   const payload = await jwtVerify(
     token,
     e.jwtSecret ?? e.jwt_secret ?? e.JWT_SECRET as string,
+    { audience: 'oauth' },
   )
 
   if (payload) {

@@ -20,6 +20,7 @@ export async function getSessionId(c: Context): Promise<string | undefined> {
   const payload = await jwtVerify<{ sid: string }>(
     token,
     e.jwtSecret ?? e.jwt_secret ?? e.JWT_SECRET as string,
+    { audience: 'oauth' },
   )
 
   return payload?.sid
