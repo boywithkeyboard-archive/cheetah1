@@ -221,7 +221,7 @@ export class cheetah extends base<cheetah>() {
   ): Promise<Response> => {
     try {
       const ip = data?.remoteAddr && this.#runtime === 'deno'
-        ? ((data as Deno.ServeHandlerInfo).remoteAddr)
+        ? (data as Deno.ServeHandlerInfo).remoteAddr
           .hostname
         : req.headers.get('cf-connecting-ip') ?? undefined
 
