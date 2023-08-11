@@ -10,6 +10,9 @@ import { join } from 'https://deno.land/std@0.197.0/path/mod.ts'
 import byte from 'https://deno.land/x/byte@v3.3.0/byte.ts'
 import * as esbuild from 'https://deno.land/x/esbuild@v0.18.17/mod.js'
 
+/**
+ * @deprecated will be removed at v2!
+ */
 export async function build({
   input = './mod.ts',
   output = './mod.js',
