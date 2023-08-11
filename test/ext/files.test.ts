@@ -3,7 +3,7 @@ import { files } from '../../ext/files.ts'
 import cheetah from '../../mod.ts'
 import { assertEquals } from '../deps.ts'
 
-Deno.test('ext/favicon', async (t) => {
+Deno.test('ext/files', async (t) => {
   await t.step('root', async () => {
     const app = new cheetah()
 
