@@ -3,7 +3,7 @@
 import {
   assertEquals,
   assertInstanceOf,
-} from 'https://deno.land/std@0.197.0/testing/asserts.ts'
+} from 'https://deno.land/std@0.198.0/testing/asserts.ts'
 import { cheetah } from '../cheetah.ts'
 import { h, jsx } from './jsx.tsx'
 import { createKey, importKey, sign, verify } from './jwt.ts'
