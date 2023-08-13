@@ -22,7 +22,7 @@ export async function getSessionToken(c: Context) {
     token,
     getVariable(c, 'JWT_SECRET') ?? getVariable(c, 'jwt_secret') ??
       getVariable(c, 'jwtSecret'),
-    { audience: 'oauth' },
+    { audience: 'oauth:session' },
   )
 
   if (payload) {
