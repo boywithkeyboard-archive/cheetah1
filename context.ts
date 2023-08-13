@@ -7,10 +7,10 @@ import { ObjectType, Payload } from './handler.ts'
 
 export class Context<
   Params extends Record<string, unknown> = Record<string, unknown>,
-  ValidatedBody extends ZodType | unknown = unknown,
-  ValidatedCookies extends ObjectType | unknown = unknown,
-  ValidatedHeaders extends ObjectType | unknown = unknown,
-  ValidatedQuery extends ObjectType | unknown = unknown,
+  ValidatedBody extends ZodType = never,
+  ValidatedCookies extends ObjectType = never,
+  ValidatedHeaders extends ObjectType = never,
+  ValidatedQuery extends ObjectType = never,
 > {
   #a
   #i
