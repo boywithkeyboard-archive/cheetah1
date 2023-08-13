@@ -1,3 +1,4 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { Preset } from 'https://deno.land/x/authenticus@v2.0.3/createPreset.ts'
 import {
   GitHub as githubPreset,
