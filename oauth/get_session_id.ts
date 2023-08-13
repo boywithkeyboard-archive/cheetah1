@@ -37,6 +37,10 @@ export async function getSessionId(c: Context): Promise<string | undefined> {
   if (payload.ip !== c.req.ip) {
     await c.__app.oauth.store.delete(c, payload.identifier)
 
+    if (typeof c.__app.oauth.onSignOut === 'function') {
+      await c.__app.oauth.onSignOut(c, payload.identifier)
+    }
+
     return
   }
 
