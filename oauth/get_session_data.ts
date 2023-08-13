@@ -5,7 +5,7 @@ import { verify } from '../x/jwt.ts'
 import { OAuthSessionData, OAuthSessionToken } from './types.ts'
 
 /**
- * Get the data associated with the current session.
+ * Get the data associated with the current session if logged in.
  *
  * @namespace oauth
  * @since v1.3
