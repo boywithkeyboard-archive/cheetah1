@@ -6,6 +6,7 @@ export type OAuthMethod =
   | 'github'
 
 export type OAuthSessionData = {
+  identifier: string
   email: string
   method: OAuthMethod
   userAgent: {
@@ -22,4 +23,22 @@ export type OAuthSessionData = {
     continent?: LocationData['continent']
   }
   expiresAt: number
+}
+
+export type OAuthSessionToken = {
+  aud: 'oauth:session'
+  identifier: string
+  ip: string
+}
+
+export type OAuthSignInToken = {
+  aud: 'oauth:sign_in'
+  ip: string
+  redirectUri: string
+}
+
+export type OAuthAddMethodToken = {
+  aud: 'oauth:add_method'
+  ip: string
+  redirectUri: string
 }
