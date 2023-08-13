@@ -24,15 +24,20 @@ export async function signIn(
     throw new Error('Please configure the oauth module for your app!')
   }
 
-  const token = await sign<OAuthSignInToken>({
-    aud: 'oauth:sign_in',
-    exp: 300, // 5m
-    ip: c.req.ip,
-    redirectUri: options.redirectUri,
-  }, getVariable(c, 'JWT_SECRET'))
+  const token = await sign<OAuthSignInToken>(
+    {
+      aud: 'oauth:sign_in',
+      exp: 300, // 5m
+      ip: c.req.ip,
+      redirectUri: options.redirectUri,
+    },
+    getVariable(c, 'JWT_SECRET') ?? getVariable(c, 'jwt_secret') ??
+      getVariable(c, 'jwtSecret'),
+  )
 
   const url = createAuthorizeUrl(client.preset, {
-    clientId: getVariable(c, `${client.name.toUpperCase()}_CLIENT_ID`),
+    clientId: getVariable(c, `${client.name.toUpperCase()}_CLIENT_ID`) ??
+      getVariable(c, `${client.name}_client_id`),
     scopes: options.scopes,
     state: token,
     redirectUri: options.redirectUri,
