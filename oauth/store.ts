@@ -1,3 +1,4 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { KVNamespace } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230807.0/index.ts'
 import { Redis } from 'https://deno.land/x/upstash_redis@v1.22.0/mod.ts'
 import { Context } from '../context.ts'
