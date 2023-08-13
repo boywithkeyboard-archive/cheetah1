@@ -4,15 +4,18 @@ import { Context } from '../context.ts'
 import { getVariable } from '../x/env.ts'
 import { sign } from '../x/jwt.ts'
 import { OAuthClient } from './client.ts'
+import { OAuthSignInToken } from './types.ts'
 
 /**
+ * Start the login flow by redirecting the user.
+ *
+ * @namespace oauth
  * @since v1.3
  */
 export async function signIn(
   c: Context,
   client: OAuthClient,
   options: {
-    // TODO allowSignUp?: boolean
     redirectUri: string
     scopes?: string[]
   },
@@ -21,12 +24,11 @@ export async function signIn(
     throw new Error('Please configure the oauth module for your app!')
   }
 
-  const token = await sign({
+  const token = await sign<OAuthSignInToken>({
     aud: 'oauth:sign_in',
-    exp: 900, // 15m
+    exp: 300, // 5m
     ip: c.req.ip,
     redirectUri: options.redirectUri,
-    allowSignUp: options.allowSignUp ?? true,
   }, getVariable(c, 'JWT_SECRET'))
 
   const url = createAuthorizeUrl(client.preset, {
