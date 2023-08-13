@@ -38,14 +38,15 @@ export type Payload =
   | void
 
 export type Handler<
-  Params,
-  ParsedBody = unknown,
-  ParsedCookies = unknown,
-  ParsedHeaders = unknown,
-  ParsedQuery = unknown,
+  Pathname extends `/${string}` | unknown,
+  // deno-lint-ignore no-explicit-any
+  ParsedBody extends ObjectType | ZodString | ZodUnion<any> = never,
+  ParsedCookies extends ObjectType = never,
+  ParsedHeaders extends ObjectType = never,
+  ParsedQuery extends ObjectType = never,
 > = (
   c: Context<
-    ExtractParams<Params>,
+    ExtractParams<Pathname>,
     ParsedBody,
     ParsedCookies,
     ParsedHeaders,
@@ -58,10 +59,10 @@ export function handler<T>() {
   return <
     Pathname extends `/${string}`,
     // deno-lint-ignore no-explicit-any
-    ValidatedBody extends ObjectType | ZodString | ZodUnion<any>,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
+    ValidatedBody extends ObjectType | ZodString | ZodUnion<any> = never,
+    ValidatedCookies extends ObjectType = never,
+    ValidatedHeaders extends ObjectType = never,
+    ValidatedQuery extends ObjectType = never,
   >(
     // deno-lint-ignore no-unused-vars
     pathname: Pathname,
@@ -90,14 +91,15 @@ export function handler<T>() {
 }
 
 export type BodylessHandler<
-  Params,
-  ParsedBody = unknown,
-  ParsedCookies = unknown,
-  ParsedHeaders = unknown,
-  ParsedQuery = unknown,
+  Pathname extends `/${string}` | unknown,
+  // deno-lint-ignore no-explicit-any
+  ParsedBody extends ObjectType | ZodString | ZodUnion<any> = never,
+  ParsedCookies extends ObjectType = never,
+  ParsedHeaders extends ObjectType = never,
+  ParsedQuery extends ObjectType = never,
 > = (
   c: Context<
-    ExtractParams<Params>,
+    ExtractParams<Pathname>,
     ParsedBody,
     ParsedCookies,
     ParsedHeaders,
@@ -109,9 +111,9 @@ export type BodylessHandler<
 export function bodylessHandler<T>() {
   return <
     Pathname extends `/${string}`,
-    ValidatedCookies extends ObjectType,
-    ValidatedHeaders extends ObjectType,
-    ValidatedQuery extends ObjectType,
+    ValidatedCookies extends ObjectType = never,
+    ValidatedHeaders extends ObjectType = never,
+    ValidatedQuery extends ObjectType = never,
   >(
     // deno-lint-ignore no-unused-vars
     pathname: Pathname,

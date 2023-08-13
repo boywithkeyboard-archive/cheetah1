@@ -49,13 +49,13 @@ app.serve()
 
 ### Release Schedule 🗓️
 
-We strictly follow [SemVer](https://semver.org) and release updates in two channels:
+We strictly adhere to [SemVer](https://semver.org) and post updates **weekly**.
 
-- ◆ **current**
+- ◆ **current** *(e.g. v0.1.0)*
 
   The current channel is dedicated to stable releases and is safe for use in production.
 
-- ◇ **canary**
+- ◇ **canary** *(e.g. v0.1.0-canary.0)*
 
   The canary channel is meant for pre-releases that lack features for a stable release or contain features that are still a prototype. These releases are **not suited for production** and only meant for testing purposes.
 
