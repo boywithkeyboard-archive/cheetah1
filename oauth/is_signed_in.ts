@@ -4,7 +4,7 @@ import { getSessionId } from './get_session_id.ts'
 
 /**
  * Check if the user is logged in.
- * 
+ *
  * @namespace oauth
  * @since v1.3
  */
