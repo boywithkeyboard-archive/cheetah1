@@ -26,6 +26,6 @@ export async function signOut(c: Context) {
   }
 
   if (typeof c.__app.oauth.onSignOut === 'function') {
-    await c.__app.oauth.onSignOut(c, data)
+    await c.__app.oauth.onSignOut(c, data.identifier)
   }
 }
