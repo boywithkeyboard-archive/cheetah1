@@ -1,7 +1,7 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { Context } from '../context.ts'
 import { getVariable } from '../x/env.ts'
-import { verify as jwtVerify } from '../x/jwt.ts'
+import { verify } from '../x/jwt.ts'
 import { OAuthSessionToken } from './types.ts'
 
 /**
@@ -23,7 +23,7 @@ export async function getSessionId(c: Context): Promise<string | undefined> {
 
   const token = header.split(' ')[1]
 
-  const payload = await jwtVerify<OAuthSessionToken>(
+  const payload = await verify<OAuthSessionToken>(
     token,
     getVariable(c, 'JWT_SECRET') ?? getVariable(c, 'jwt_secret') ??
       getVariable(c, 'jwtSecret'),
