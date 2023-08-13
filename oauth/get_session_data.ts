@@ -5,6 +5,8 @@ import { verify } from '../x/jwt.ts'
 import { OAuthSessionData, OAuthSessionToken } from './types.ts'
 
 /**
+ * Get the data associated with the current session.
+ *
  * @namespace oauth
  * @since v1.3
  */
@@ -25,11 +27,18 @@ export async function getSessionData(
 
   const payload = await verify<OAuthSessionToken>(
     token,
-    getVariable(c, 'JWT_SECRET'),
+    getVariable(c, 'JWT_SECRET') ?? getVariable(c, 'jwt_secret') ??
+      getVariable(c, 'jwtSecret'),
     { audience: 'oauth:session' },
   )
 
   if (!payload) {
+    return
+  }
+
+  if (payload.ip !== c.req.ip) {
+    await c.__app.oauth.store.delete(c, payload.identifier)
+
     return
   }
 
