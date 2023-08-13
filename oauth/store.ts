@@ -1,76 +1,121 @@
+import { KVNamespace } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230807.0/index.ts'
 import { Redis } from 'https://deno.land/x/upstash_redis@v1.22.0/mod.ts'
 import { Context } from '../context.ts'
 import { env } from '../x/env.ts'
-import { SessionData } from './types.ts'
+import { OAuthSessionData } from './types.ts'
 
 export class OAuthStore {
   set: (
     c: Context,
     key: string,
-    value: SessionData,
-    maxAge: number,
+    value: OAuthSessionData,
+    expiresAt: number, // unix timestamp in ms
   ) => Promise<void>
-  get: (c: Context, key: string) => Promise<SessionData | undefined>
+  get: (c: Context, key: string) => Promise<OAuthSessionData | undefined>
   delete: (c: Context, key: string) => Promise<void>
+  has: (c: Context, key: string) => Promise<boolean>
 
   constructor(
     options: {
-      set: (
-        c: Context,
-        key: string,
-        value: SessionData,
-        maxAge: number,
-      ) => Promise<void>
-      get: (c: Context, key: string) => Promise<SessionData | undefined>
-      delete: (c: Context, key: string) => Promise<void>
+      set: OAuthStore['set']
+      get: OAuthStore['get']
+      delete: OAuthStore['delete']
+      has: OAuthStore['has']
     },
   ) {
     this.set = options.set
     this.get = options.get
     this.delete = options.delete
+    this.has = options.has
   }
 }
 
 let KV: Deno.Kv | undefined
 
 /**
+ * Use [Cloudflare KV](https://developers.cloudflare.com/workers/runtime-apis/kv) or [Deno KV](https://deno.com/kv) as session storage, depending on the runtime.
+ *
+ * @namespace oauth
  * @since v1.3
  */
-export const native = new OAuthStore({
-  async set(_c, key, value, _maxAge) {
-    if (!KV) {
-      KV = await Deno.openKv('oauth')
-    }
+export const kv = new OAuthStore({
+  async set(c, key, value, expiresAt) {
+    if (c.runtime === 'cloudflare') {
+      await (c.__app.env as { oauth: KVNamespace }).oauth.put(
+        key,
+        JSON.stringify(value),
+        { expiration: Math.round(expiresAt / 1000) },
+      )
+    } else {
+      if (!KV) {
+        KV = await Deno.openKv('oauth')
+      }
 
-    await KV.set([key], value)
+      await KV.set([key], value)
+    }
   },
 
-  async get(_c, key) {
-    if (!KV) {
-      KV = await Deno.openKv('oauth')
+  async get(c, key) {
+    if (c.runtime === 'cloudflare') {
+      const kv = (c.__app.env as { oauth: KVNamespace }).oauth
+
+      return await kv.get<OAuthSessionData>(key, 'json') ?? undefined
+    } else {
+      if (!KV) {
+        KV = await Deno.openKv('oauth')
+      }
+
+      const result = await KV.get<OAuthSessionData>([key], {
+        consistency: 'strong',
+      })
+
+      return result.value ?? undefined
     }
-
-    const result = await KV.get<SessionData>([key], { consistency: 'strong' })
-
-    return result.value ?? undefined
   },
 
-  async delete(_c, key) {
-    if (!KV) {
-      KV = await Deno.openKv('oauth')
-    }
+  async has(c, key) {
+    if (c.runtime === 'cloudflare') {
+      const kv = (c.__app.env as { oauth: KVNamespace }).oauth
 
-    await KV.delete([key])
+      return await kv.get<OAuthSessionData>(key, 'json') !== null
+    } else {
+      if (!KV) {
+        KV = await Deno.openKv('oauth')
+      }
+
+      const result = await KV.get<OAuthSessionData>([key], {
+        consistency: 'strong',
+      })
+
+      return result.value !== null
+    }
+  },
+
+  async delete(c, key) {
+    if (c.runtime === 'cloudflare') {
+      const kv = (c.__app.env as { oauth: KVNamespace }).oauth
+
+      await kv.delete(key)
+    } else {
+      if (!KV) {
+        KV = await Deno.openKv('oauth')
+      }
+
+      await KV.delete([key])
+    }
   },
 })
 
 let REDIS: Redis | undefined
 
 /**
+ * Use [Upstash](https://upstash.com) as session storage.
+ *
+ * @namespace oauth
  * @since v1.3
  */
 export const upstash = new OAuthStore({
-  async set(c, key, value, maxAge) {
+  async set(c, key, value, expiresAt) {
     if (!REDIS) {
       const e = env<{
         upstashUrl?: string
@@ -88,7 +133,7 @@ export const upstash = new OAuthStore({
     }
 
     await REDIS.set(key, value, {
-      ex: maxAge,
+      pxat: expiresAt,
     })
   },
 
@@ -110,6 +155,26 @@ export const upstash = new OAuthStore({
     }
 
     return await REDIS.get(key) ?? undefined
+  },
+
+  async has(c, key) {
+    if (!REDIS) {
+      const e = env<{
+        upstashUrl?: string
+        upstash_url?: string
+        UPSTASH_URL?: string
+        upstashToken?: string
+        upstash_token?: string
+        UPSTASH_TOKEN?: string
+      }>(c)
+
+      REDIS = new Redis({
+        url: e.upstashUrl ?? e.upstash_url ?? e.UPSTASH_URL as string,
+        token: e.upstashToken ?? e.upstash_token ?? e.UPSTASH_TOKEN as string,
+      })
+    }
+
+    return await REDIS.exists(key) === 1
   },
 
   async delete(c, key) {
