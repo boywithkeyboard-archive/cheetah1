@@ -8,7 +8,7 @@ import { Handler, HandlerOrSchema, Payload } from './handler.ts'
 
 export type AppContext = {
   env: Record<string, unknown> | undefined
-  ip: string | undefined
+  ip: string
   proxy: AppConfig['proxy']
   routes: Set<[Uppercase<Method>, string, RegExp, HandlerOrSchema[]]>
   runtime:
@@ -223,7 +223,7 @@ export class cheetah extends base<cheetah>() {
       const ip = data?.remoteAddr && this.#runtime === 'deno'
         ? (data as Deno.ServeHandlerInfo).remoteAddr
           .hostname
-        : req.headers.get('cf-connecting-ip') ?? undefined
+        : req.headers.get('cf-connecting-ip') as string
 
       const parts = req.url.split('?')
 
