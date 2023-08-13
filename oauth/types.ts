@@ -38,8 +38,8 @@ export type OAuthSignInToken = {
   redirectUri: string
 }
 
-export type OAuthAddMethodToken = {
-  aud: 'oauth:add_method'
+export type OAuthVerifyMethodToken = {
+  aud: 'oauth:verify_method'
   ip: string
   redirectUri: string
 }

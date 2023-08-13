@@ -1,5 +1,4 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-export { addSignInMethod } from './add_sign_in_method.ts'
 export { GitHub, Google } from './client.ts'
 export type { OAuthClient } from './client.ts'
 export { getSessionData } from './get_session_data.ts'
@@ -10,10 +9,5 @@ export { isSignedIn } from './is_signed_in.ts'
 export { signIn } from './sign_in.ts'
 export { signOut } from './sign_out.ts'
 export { kv, OAuthStore, upstash } from './store.ts'
-export type {
-  OAuthAddMethodToken,
-  OAuthMethod,
-  OAuthSessionData,
-  OAuthSessionToken,
-  OAuthSignInToken,
-} from './types.ts'
+export type { OAuthMethod, OAuthSessionData } from './types.ts'
+export { completeVerification } from './complete_verification.ts'

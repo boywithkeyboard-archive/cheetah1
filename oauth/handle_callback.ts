@@ -1,15 +1,21 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { getNormalizedUser } from 'https://deno.land/x/authenticus@v2.0.3/getNormalizedUser.ts'
-import { getUser } from 'https://deno.land/x/authenticus@v2.0.3/getUser.ts'
-import { getToken } from 'https://deno.land/x/authenticus@v2.0.3/mod.ts'
+import { UserAgent } from 'https://deno.land/std@0.198.0/http/user_agent.ts'
+import {
+  getNormalizedUser,
+  getToken,
+  getUser,
+} from 'https://deno.land/x/authenticus@v2.0.3/mod.ts'
 import { Context } from '../context.ts'
-import { Exception } from '../mod.ts'
+import { Exception } from '../exception.ts'
 import { getVariable } from '../x/env.ts'
 import { sign, verify } from '../x/jwt.ts'
-import { OAuthClient } from './client.ts'
-import { UserAgent } from 'https://deno.land/std@0.198.0/http/user_agent.ts'
-import ms from 'https://esm.sh/ms@2.1.3?target=es2022'
 import { LocationData } from '../x/location_data.ts'
+import { OAuthClient } from './client.ts'
+import {
+  OAuthSessionData,
+  OAuthSessionToken,
+  OAuthSignInToken,
+} from './types.ts'
 
 export async function handleCallback(
   c: Context,
@@ -19,10 +25,18 @@ export async function handleCallback(
     throw new Error('Please configure the oauth module for your app!')
   }
 
-  const payload = await verify<{
-    ip?: string
-    redirectUri: string
-  }>(
+  // validate request
+
+  if (
+    typeof c.req.query.state !== 'string' ||
+    typeof c.req.query.code !== 'string'
+  ) {
+    throw new Exception('Bad Request')
+  }
+
+  // validate state
+
+  const payload = await verify<OAuthSignInToken>(
     c.req.query.state,
     getVariable(c, 'JWT_SECRET'),
     { audience: 'oauth:sign_in' },
@@ -32,12 +46,14 @@ export async function handleCallback(
     throw new Exception('Access Denied')
   }
 
+  // fetch user
+
   const { accessToken } = await getToken(client.preset, {
-    clientId: getVariable<string>(c, `${client.name.toUpperCase()}_CLIENT_ID`),
-    clientSecret: getVariable<string>(
-      c,
-      `${client.name.toUpperCase()}_CLIENT_SECRET`,
-    ),
+    clientId: getVariable(c, `${client.name.toUpperCase()}_CLIENT_ID`) ??
+      getVariable(c, `${client.name}_client_id`) as string,
+    clientSecret:
+      getVariable(c, `${client.name.toUpperCase()}_CLIENT_SECRET`) ??
+        getVariable(c, `${client.name}_client_secret`) as string,
     code: c.req.query.code,
     redirectUri: payload.redirectUri,
   })
@@ -48,22 +64,29 @@ export async function handleCallback(
     await getUser(client.preset, accessToken),
   )
 
-  const sessionCode = crypto.randomUUID()
+  // create session
 
-  const expiryDate = new Date(Date.now() + ms('7d'))
+  const identifier = crypto.randomUUID()
 
-  const token = await sign({
-    aud: 'oauth:session',
-    exp: expiryDate,
-    code: sessionCode,
-    ip: c.req.ip,
-  }, getVariable(c, 'JWT_SECRET'))
+  const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60000)
+
+  const token = await sign<OAuthSessionToken>(
+    {
+      aud: 'oauth:session',
+      exp: expirationDate,
+      identifier,
+      ip: c.req.ip,
+    },
+    getVariable(c, 'JWT_SECRET') ?? getVariable(c, 'jwt_secret') ??
+      getVariable(c, 'jwtSecret'),
+  )
 
   const userAgent = new UserAgent(c.req.headers['user-agent'] ?? '')
 
   const location = new LocationData(c)
 
-  c.__app.oauth.store.set(c, sessionCode, {
+  const data: OAuthSessionData = {
+    identifier,
     email: user.email,
     method: client.name,
     userAgent: {
@@ -79,13 +102,19 @@ export async function handleCallback(
       country: location.country,
       continent: location.continent,
     },
-    expiresAt: expiryDate.getTime(),
-  }, Math.round(ms('7d') / 1000))
+    expiresAt: expirationDate.getTime(),
+  }
+
+  c.__app.oauth.store.set(c, identifier, data, data.expiresAt)
 
   c.res.body = { token }
 
+  if (typeof c.__app.oauth.onSignIn === 'function') {
+    await c.__app.oauth.onSignIn(c, data)
+  }
+
   return {
-    sessionCode,
     token,
+    ...data,
   }
 }
