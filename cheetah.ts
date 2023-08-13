@@ -444,7 +444,8 @@ export class cheetah extends base<cheetah>() {
 
       next = false
 
-      const result = await (handlers[i] as Handler<unknown>)(
+      // deno-lint-ignore no-explicit-any
+      const result = await (handlers[i] as Handler<any>)(
         context,
         () => {
           next = true
