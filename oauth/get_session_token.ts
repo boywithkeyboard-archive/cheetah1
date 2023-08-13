@@ -1,8 +1,14 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { Context } from '../context.ts'
-import { env } from '../x/env.ts'
+import { getVariable } from '../x/env.ts'
 import { verify as jwtVerify } from '../x/jwt.ts'
 
+/**
+ * Get the session token without verifying the session.
+ *
+ * @namespace oauth
+ * @since v1.3
+ */
 export async function getSessionToken(c: Context) {
   const header = c.req.headers.authorization
 
@@ -12,15 +18,10 @@ export async function getSessionToken(c: Context) {
 
   const token = header.split(' ')[1]
 
-  const e = env<{
-    jwtSecret?: string
-    jwt_secret?: string
-    JWT_SECRET?: string
-  }>(c)
-
   const payload = await jwtVerify(
     token,
-    e.jwtSecret ?? e.jwt_secret ?? e.JWT_SECRET as string,
+    getVariable(c, 'JWT_SECRET') ?? getVariable(c, 'jwt_secret') ??
+      getVariable(c, 'jwtSecret'),
     { audience: 'oauth' },
   )
 
