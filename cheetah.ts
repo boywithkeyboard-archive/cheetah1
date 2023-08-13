@@ -5,6 +5,8 @@ import { Context } from './context.ts'
 import { Exception } from './exception.ts'
 import { Extension, validExtension } from './extensions.ts'
 import { Handler, HandlerOrSchema, Payload } from './handler.ts'
+import { OAuthStore } from './oauth/mod.ts'
+import { OAuthSessionData } from './oauth/types.ts'
 
 export type AppContext = {
   env: Record<string, unknown> | undefined
@@ -18,6 +20,7 @@ export type AppContext = {
     pathname: string
     querystring?: string
   }
+  oauth: AppConfig['oauth']
 }
 
 export type AppConfig = {
@@ -57,6 +60,18 @@ export type AppConfig = {
    * Set a custom 404 handler.
    */
   notFound?: (request: Request) => Response | Promise<Response>
+
+  oauth?: {
+    store: OAuthStore
+    onSignIn?: (
+      c: Context,
+      data: OAuthSessionData,
+    ) => Promise<unknown> | unknown
+    onSignOut?: (
+      c: Context,
+      identifier: string,
+    ) => Promise<unknown> | unknown
+  }
 }
 
 export class cheetah extends base<cheetah>() {
@@ -70,6 +85,7 @@ export class cheetah extends base<cheetah>() {
   #routes: Set<[Uppercase<Method>, string, RegExp, HandlerOrSchema[]]>
   #runtime: 'deno' | 'cloudflare'
   #onPlugIn
+  #oauth
 
   constructor({
     base,
@@ -78,6 +94,7 @@ export class cheetah extends base<cheetah>() {
     proxy,
     error,
     notFound,
+    oauth,
   }: AppConfig = {}) {
     super((method, pathname, handlers) => {
       pathname = this.#base ? this.#base + pathname : pathname
@@ -111,6 +128,7 @@ export class cheetah extends base<cheetah>() {
       ? 'cloudflare'
       : 'deno'
     this.#onPlugIn = false
+    this.#oauth = oauth
   }
 
   /* use ---------------------------------------------------------------------- */
@@ -239,6 +257,7 @@ export class cheetah extends base<cheetah>() {
         },
         routes: this.#routes,
         runtime: this.#runtime,
+        oauth: this.#oauth,
       }
 
       if (this.#extensions.size > 0) {
