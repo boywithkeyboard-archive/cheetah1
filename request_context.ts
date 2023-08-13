@@ -25,10 +25,9 @@ export class RequestContext<
 > {
   #c: Record<string, string | undefined> | undefined
   #h: Record<string, string | undefined> | undefined
-  #i: string | undefined
+  #a: AppContext
   #p
   #q: Record<string, unknown> | undefined
-  #qs: string | undefined
   #r
   #s
 
@@ -44,14 +43,14 @@ export class RequestContext<
       [key: string]: unknown
     } | null,
   ) {
+    this.#a = a
     this.#p = p
-    this.#qs = a.request.querystring
     this.#r = r
     this.#s = s
   }
 
-  get ip() {
-    return this.#i
+  get ip(): string {
+    return this.#a.ip
   }
 
   /**
@@ -228,8 +227,8 @@ export class RequestContext<
 
     this.#q = {}
 
-    if (this.#qs) {
-      const arr = this.#qs.split('&')
+    if (this.#a.request.querystring) {
+      const arr = this.#a.request.querystring.split('&')
 
       for (let i = 0; i < arr.length; i++) {
         const [key, value] = arr[i].split('=')
