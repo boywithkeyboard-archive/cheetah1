@@ -1,3 +1,4 @@
+// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { Context } from '../context.ts'
 import { env } from '../x/env.ts'
 import { verify as jwtVerify } from '../x/jwt.ts'

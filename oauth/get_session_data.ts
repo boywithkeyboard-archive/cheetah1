@@ -3,11 +3,9 @@ import { Context } from '../context.ts'
 import { env } from '../x/env.ts'
 import { verify as jwtVerify } from '../x/jwt.ts'
 
-export async function getSessionId(c: Context): Promise<string | undefined> {
-  if (!c.__app.oauth) {
-    throw new Error('Please configure the oauth module for your app!')
-  }
-  
+export async function getSessionData(
+  c: Context,
+): Promise<OAuthPayload | undefined> {
   const header = c.req.headers.authorization
 
   if (!header || /^bearer\s[a-zA-Z0-9-_.]+$/.test(header) === false) {
@@ -22,7 +20,7 @@ export async function getSessionId(c: Context): Promise<string | undefined> {
     JWT_SECRET?: string
   }>(c)
 
-  const payload = await jwtVerify<{ sessionId: string }>(
+  const payload = await jwtVerify<OAuthPayload>(
     token,
     e.jwtSecret ?? e.jwt_secret ?? e.JWT_SECRET as string,
     { audience: 'oauth' },
@@ -32,7 +30,10 @@ export async function getSessionId(c: Context): Promise<string | undefined> {
     return
   }
 
-  if (await c.__app.oauth.store.hasSession(c, payload.sessionId)) {
-    return payload.sessionId
+  return {
+    sessionId: payload.sessionId,
+    email: payload.email,
+    method: payload.method,
+    ip: payload.ip,
   }
 }
