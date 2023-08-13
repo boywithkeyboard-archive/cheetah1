@@ -11,6 +11,12 @@ import { verify } from '../x/jwt.ts'
 import { OAuthClient } from './client.ts'
 import { OAuthSignInToken } from './types.ts'
 
+/**
+ * Complete the verification flow.
+ *
+ * @namespace oauth
+ * @since v1.3
+ */
 export async function completeVerification(
   c: Context,
   client: OAuthClient,
