@@ -38,7 +38,7 @@ export type Payload =
   | void
 
 export type Handler<
-  Pathname extends `/${string}`,
+  Pathname extends `/${string}` | unknown,
   // deno-lint-ignore no-explicit-any
   ParsedBody extends ObjectType | ZodString | ZodUnion<any> = never,
   ParsedCookies extends ObjectType = never,
@@ -91,7 +91,7 @@ export function handler<T>() {
 }
 
 export type BodylessHandler<
-  Pathname extends `/${string}`,
+  Pathname extends `/${string}` | unknown,
   // deno-lint-ignore no-explicit-any
   ParsedBody extends ObjectType | ZodString | ZodUnion<any> = never,
   ParsedCookies extends ObjectType = never,
@@ -148,7 +148,5 @@ export type HandlerOrSchema =
     transform?: boolean // TODO remove at v2.0
     cors?: string
   }
-  // deno-lint-ignore no-explicit-any
-  | Handler<any>
-  // deno-lint-ignore no-explicit-any
-  | BodylessHandler<any>
+  | Handler<unknown>
+  | BodylessHandler<unknown>
