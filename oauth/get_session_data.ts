@@ -1,11 +1,20 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { Context } from '../context.ts'
-import { env } from '../x/env.ts'
-import { verify as jwtVerify } from '../x/jwt.ts'
+import { getVariable } from '../x/env.ts'
+import { verify } from '../x/jwt.ts'
+import { OAuthSessionData, OAuthSessionToken } from './types.ts'
 
+/**
+ * @namespace oauth
+ * @since v1.3
+ */
 export async function getSessionData(
   c: Context,
-): Promise<OAuthPayload | undefined> {
+): Promise<OAuthSessionData | undefined> {
+  if (!c.__app.oauth) {
+    throw new Error('Please configure the oauth module for your app!')
+  }
+
   const header = c.req.headers.authorization
 
   if (!header || /^bearer\s[a-zA-Z0-9-_.]+$/.test(header) === false) {
@@ -14,26 +23,17 @@ export async function getSessionData(
 
   const token = header.split(' ')[1]
 
-  const e = env<{
-    jwtSecret?: string
-    jwt_secret?: string
-    JWT_SECRET?: string
-  }>(c)
-
-  const payload = await jwtVerify<OAuthPayload>(
+  const payload = await verify<OAuthSessionToken>(
     token,
-    e.jwtSecret ?? e.jwt_secret ?? e.JWT_SECRET as string,
-    { audience: 'oauth' },
+    getVariable(c, 'JWT_SECRET'),
+    { audience: 'oauth:session' },
   )
 
   if (!payload) {
     return
   }
 
-  return {
-    sessionId: payload.sessionId,
-    email: payload.email,
-    method: payload.method,
-    ip: payload.ip,
-  }
+  const session = await c.__app.oauth.store.get(c, payload.identifier)
+
+  return session
 }
