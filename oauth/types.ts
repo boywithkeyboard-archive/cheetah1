@@ -37,9 +37,3 @@ export type OAuthSignInToken = {
   ip: string
   redirectUri: string
 }
-
-export type OAuthVerifyMethodToken = {
-  aud: 'oauth:verify_method'
-  ip: string
-  redirectUri: string
-}
