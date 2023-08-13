@@ -53,8 +53,9 @@ export function importKey(key: string) {
 /**
  * Sign a payload.
  */
-export async function sign(
-  payload: Payload,
+// deno-lint-ignore ban-types
+export async function sign<T extends Record<string, unknown> = {}>(
+  payload: T & Payload,
   secret: string | CryptoKey,
 ) {
   const key = typeof secret === 'string' ? await importKey(secret) : secret

@@ -14,3 +14,12 @@ export function env<Environment extends Record<string, unknown>>(
 
   return ENV as Environment
 }
+
+export function getVariable<T extends unknown = string | undefined>(
+  c: Context,
+  name: string,
+): T {
+  return c.runtime === 'cloudflare'
+    ? env(c)[name] as T
+    : Deno.env.get(name) as T
+}
