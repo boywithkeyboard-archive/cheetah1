@@ -108,8 +108,8 @@ export async function handleCallback(
 
     c.__app.oauth.store.set(c, identifier, data, data.expiresAt)
 
-    c.res.cookie('token', token, {
-      expiresAt: expirationDate,
+    c.res.setCookie('token', token, {
+      expires: expirationDate,
       httpOnly: true,
       secure: true,
       path: '/',
