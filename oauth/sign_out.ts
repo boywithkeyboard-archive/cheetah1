@@ -14,7 +14,7 @@ export async function signOut(c: Context) {
   }
 
   c.res.cookie('token', '', {
-    ...(c.__app.oauth.cookie?.path && { path: c.__app.oauth.cookie.path }),
+    path: c.__app.oauth.cookie?.path ?? '/',
     ...(c.__app.oauth.cookie?.domain &&
       { domain: c.__app.oauth.cookie.domain }),
     expiresAt: new Date(0),
