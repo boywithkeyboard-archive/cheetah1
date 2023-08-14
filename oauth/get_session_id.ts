@@ -37,7 +37,7 @@ export async function getSessionId(c: Context): Promise<string | undefined> {
     await c.__app.oauth.store.delete(c, payload.identifier)
 
     c.res.cookie('token', '', {
-      ...(c.__app.oauth.cookie?.path && { path: c.__app.oauth.cookie.path }),
+      path: c.__app.oauth.cookie?.path ?? '/',
       ...(c.__app.oauth.cookie?.domain &&
         { domain: c.__app.oauth.cookie.domain }),
       expiresAt: new Date(0),
