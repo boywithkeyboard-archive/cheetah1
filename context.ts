@@ -1,9 +1,35 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { ZodType } from 'https://deno.land/x/zod@v3.21.4/types.ts'
-import { RequestContext } from './request_context.ts'
-import { ResponseContext } from './response_context.ts'
 import { AppContext } from './cheetah.ts'
 import { ObjectType, Payload } from './handler.ts'
+import { RequestContext } from './request_context.ts'
+import { ResponseContext } from './response_context.ts'
+
+const HTTP_MESSAGES = {
+  'Bad Request': 400,
+  'Unauthorized': 401,
+  'Access Denied': 403,
+  'Not Found': 404,
+  'Method Not Allowed': 405,
+  'Not Acceptable': 406,
+  'Request Timeout': 408,
+  'Conflict': 409,
+  'Gone': 410,
+  'Length Required': 411,
+  'Precondition Failed': 412,
+  'Upload Limit Exceeded': 413,
+  'URI Too Long': 414,
+  'Unsupported Media Type': 415,
+  'Range Not Satisfiable': 416,
+  'Expectation Failed': 417,
+  'Teapot': 418,
+  'Misdirected': 421,
+  'Upgrade Required': 426,
+  'Precondition Required': 428,
+  'Rate Limit Exceeded': 429,
+  'Regional Ban': 451,
+  'Something Went Wrong': 500,
+}
 
 export class Context<
   Params extends Record<string, unknown> = Record<string, unknown>,
@@ -90,5 +116,42 @@ export class Context<
 
   get runtime() {
     return this.#a.runtime
+  }
+
+  exception(error: keyof typeof HTTP_MESSAGES, description?: string) {
+    const code = HTTP_MESSAGES[error]
+
+    return new Exception(error, description, code)
+  }
+}
+
+export class Exception {
+  public response
+
+  constructor(
+    error: string,
+    description: string | undefined,
+    code: number,
+  ) {
+    this.response = (request: Request) => {
+      const a = request.headers.get('accept')
+
+      const json = a
+        ? a.indexOf('application/json') > -1 ||
+          a.indexOf('*/*') > -1
+        : false
+
+      return new Response(
+        json ? JSON.stringify({ error, description, code }) : error,
+        {
+          headers: {
+            'content-type': `${
+              json ? 'application/json' : 'text/plain'
+            }; charset=utf-8;`,
+          },
+          status: code,
+        },
+      )
+    }
   }
 }
