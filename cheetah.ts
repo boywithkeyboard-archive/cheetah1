@@ -371,10 +371,14 @@ export class cheetah extends base<cheetah>() {
 
       if (err instanceof Exception) {
         res = err.response(req)
-      } else if (this.#error) {
-        res = await this.#error(err, req)
       } else {
-        res = new Exception('Something Went Wrong').response(req)
+        // console.error(err)
+
+        if (this.#error) {
+          res = await this.#error(err, req)
+        } else {
+          res = new Exception('Something Went Wrong').response(req)
+        }
       }
 
       if (req.method === 'HEAD') {
@@ -566,6 +570,8 @@ export class cheetah extends base<cheetah>() {
     return Deno.serve({
       hostname,
       port,
-    }, this.fetch).finished
+    }, (request, data) => {
+      return this.fetch(request, data)
+    }).finished
   }
 }
