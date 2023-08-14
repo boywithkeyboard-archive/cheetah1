@@ -62,7 +62,7 @@ export const kv = new OAuthStore({
 
       const value = await kv.get<OAuthSessionData>(key, 'json')
 
-      if (value === null || value.expiresAt >= Date.now()) {
+      if (value === null || value.expiresAt < Date.now()) {
         return
       }
 
@@ -80,7 +80,7 @@ export const kv = new OAuthStore({
         return
       }
 
-      if (result.value.expiresAt < Date.now()) {
+      if (result.value.expiresAt > Date.now()) {
         return result.value
       }
 
@@ -98,7 +98,7 @@ export const kv = new OAuthStore({
         return false
       }
 
-      return value.expiresAt < Date.now()
+      return value.expiresAt > Date.now()
     } else {
       if (!KV) {
         KV = await Deno.openKv('oauth')
@@ -112,7 +112,7 @@ export const kv = new OAuthStore({
         return false
       }
 
-      if (result.value.expiresAt < Date.now()) {
+      if (result.value.expiresAt > Date.now()) {
         return true
       }
 
