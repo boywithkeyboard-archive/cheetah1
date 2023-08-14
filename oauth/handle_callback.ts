@@ -107,7 +107,12 @@ export async function handleCallback(
 
   c.__app.oauth.store.set(c, identifier, data, data.expiresAt)
 
-  c.res.body = { token }
+  c.res.cookie('token', token, {
+    expiresAt: expirationDate,
+    httpOnly: true,
+    secure: true,
+    ...c.__app.oauth.cookie,
+  })
 
   if (typeof c.__app.oauth.onSignIn === 'function') {
     await c.__app.oauth.onSignIn(c, data)

@@ -13,6 +13,13 @@ export async function signOut(c: Context) {
     throw new Error('Please configure the oauth module for your app!')
   }
 
+  c.res.cookie('token', '', {
+    ...(c.__app.oauth.cookie?.path && { path: c.__app.oauth.cookie.path }),
+    ...(c.__app.oauth.cookie?.domain &&
+      { domain: c.__app.oauth.cookie.domain }),
+    expiresAt: new Date(0),
+  })
+
   const data = await getSessionData(c)
 
   if (!data) {
