@@ -7,6 +7,7 @@ import { Extension, validExtension } from './extensions.ts'
 import { Handler, HandlerOrSchema, Payload } from './handler.ts'
 import { OAuthStore } from './oauth/mod.ts'
 import { OAuthSessionData } from './oauth/types.ts'
+import { ResponseContext } from './response_context.ts'
 
 export type AppContext = {
   env: Record<string, unknown> | undefined
@@ -63,6 +64,7 @@ export type AppConfig = {
 
   oauth?: {
     store: OAuthStore
+    cookie?: Parameters<ResponseContext['cookie']>[2]
     onSignIn?: (
       c: Context,
       data: OAuthSessionData,

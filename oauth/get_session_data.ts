@@ -1,4 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
+import { getCookies } from 'https://deno.land/std@0.198.0/http/cookie.ts'
 import { Context } from '../context.ts'
 import { getVariable } from '../x/env.ts'
 import { verify } from '../x/jwt.ts'
@@ -17,16 +18,14 @@ export async function getSessionData(
     throw new Error('Please configure the oauth module for your app!')
   }
 
-  const header = c.req.headers.authorization
+  const cookies = getCookies(c.req.raw.headers)
 
-  if (!header || /^bearer\s[a-zA-Z0-9-_.]+$/.test(header) === false) {
+  if (!cookies.token) {
     return
   }
 
-  const token = header.split(' ')[1]
-
   const payload = await verify<OAuthSessionToken>(
-    token,
+    cookies.token,
     getVariable(c, 'JWT_SECRET') ?? getVariable(c, 'jwt_secret') ??
       getVariable(c, 'jwtSecret'),
     { audience: 'oauth:session' },
@@ -38,6 +37,13 @@ export async function getSessionData(
 
   if (payload.ip !== c.req.ip) {
     await c.__app.oauth.store.delete(c, payload.identifier)
+
+    c.res.cookie('token', '', {
+      ...(c.__app.oauth.cookie?.path && { path: c.__app.oauth.cookie.path }),
+      ...(c.__app.oauth.cookie?.domain &&
+        { domain: c.__app.oauth.cookie.domain }),
+      expiresAt: new Date(0),
+    })
 
     if (typeof c.__app.oauth.onSignOut === 'function') {
       await c.__app.oauth.onSignOut(c, payload.identifier)
