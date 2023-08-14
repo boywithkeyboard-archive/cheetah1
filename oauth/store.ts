@@ -60,17 +60,31 @@ export const kv = new OAuthStore({
     if (c.runtime === 'cloudflare') {
       const kv = (c.__app.env as { oauth: KVNamespace }).oauth
 
-      return await kv.get<OAuthSessionData>(key, 'json') ?? undefined
+      const value = await kv.get<OAuthSessionData>(key, 'json')
+
+      if (value === null || value.expiresAt < Date.now()) {
+        return
+      }
+
+      return value
     } else {
       if (!KV) {
         KV = await Deno.openKv('oauth')
       }
 
       const result = await KV.get<OAuthSessionData>([key], {
-        consistency: 'strong',
+        consistency: 'eventual',
       })
 
-      return result.value ?? undefined
+      if (result.value === null) {
+        return
+      }
+
+      if (result.value.expiresAt > Date.now()) {
+        return result.value
+      }
+
+      await KV.delete([key])
     }
   },
 
@@ -78,17 +92,33 @@ export const kv = new OAuthStore({
     if (c.runtime === 'cloudflare') {
       const kv = (c.__app.env as { oauth: KVNamespace }).oauth
 
-      return await kv.get<OAuthSessionData>(key, 'json') !== null
+      const value = await kv.get<OAuthSessionData>(key, 'json')
+
+      if (value === null) {
+        return false
+      }
+
+      return value.expiresAt > Date.now()
     } else {
       if (!KV) {
         KV = await Deno.openKv('oauth')
       }
 
       const result = await KV.get<OAuthSessionData>([key], {
-        consistency: 'strong',
+        consistency: 'eventual',
       })
 
-      return result.value !== null
+      if (result.value === null) {
+        return false
+      }
+
+      if (result.value.expiresAt > Date.now()) {
+        return true
+      }
+
+      await KV.delete([key])
+
+      return false
     }
   },
 
