@@ -22,7 +22,7 @@ Deno.test('Request', async (t) => {
 
     const result = await (await app.fetch(new Request('http://localhost/ip')))
       .text()
-    assertEquals(typeof result === 'string' && result !== undefined, true)
+    assertEquals(result, '127.0.0.1')
   })
 
   await t.step('req.raw()', async () => {
