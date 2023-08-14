@@ -36,11 +36,10 @@ export async function getSessionId(c: Context): Promise<string | undefined> {
   if (payload.ip !== c.req.ip) {
     await c.__app.oauth.store.delete(c, payload.identifier)
 
-    c.res.cookie('token', '', {
+    c.res.deleteCookie('token', {
       path: c.__app.oauth.cookie?.path ?? '/',
       ...(c.__app.oauth.cookie?.domain &&
         { domain: c.__app.oauth.cookie.domain }),
-      expiresAt: new Date(0),
     })
 
     if (typeof c.__app.oauth.onSignOut === 'function') {
