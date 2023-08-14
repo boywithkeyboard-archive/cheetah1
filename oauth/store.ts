@@ -73,7 +73,7 @@ export const kv = new OAuthStore({
       }
 
       const result = await KV.get<OAuthSessionData>([key], {
-        consistency: 'eventual',
+        consistency: 'strong',
       })
 
       if (result.value === null) {
@@ -105,7 +105,7 @@ export const kv = new OAuthStore({
       }
 
       const result = await KV.get<OAuthSessionData>([key], {
-        consistency: 'eventual',
+        consistency: 'strong',
       })
 
       if (result.value === null) {
