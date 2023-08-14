@@ -72,6 +72,13 @@ export type AppConfig = {
       identifier: string,
     ) => Promise<unknown> | unknown
   }
+
+  /**
+   * If you enable debug mode, all errors will get logged to the console.
+   *
+   * @since v1.3
+   */
+  debug?: boolean
 }
 
 export class cheetah extends base<cheetah>() {
@@ -86,6 +93,7 @@ export class cheetah extends base<cheetah>() {
   #runtime: 'deno' | 'cloudflare'
   #onPlugIn
   #oauth
+  #debug
 
   constructor({
     base,
@@ -95,6 +103,7 @@ export class cheetah extends base<cheetah>() {
     error,
     notFound,
     oauth,
+    debug,
   }: AppConfig = {}) {
     super((method, pathname, handlers) => {
       pathname = this.#base ? this.#base + pathname : pathname
@@ -129,6 +138,7 @@ export class cheetah extends base<cheetah>() {
       : 'deno'
     this.#onPlugIn = false
     this.#oauth = oauth
+    this.#debug = debug
   }
 
   /* use ---------------------------------------------------------------------- */
@@ -372,7 +382,9 @@ export class cheetah extends base<cheetah>() {
       if (err instanceof Exception) {
         res = err.response(req)
       } else {
-        // console.error(err)
+        if (this.#debug) {
+          console.error(err)
+        }
 
         if (this.#error) {
           res = await this.#error(err, req)
