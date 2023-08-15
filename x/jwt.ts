@@ -2,7 +2,7 @@
 import {
   decode,
   encode,
-} from 'https://deno.land/std@0.197.0/encoding/base64.ts'
+} from 'https://deno.land/std@0.198.0/encoding/base64.ts'
 import {
   create,
   getNumericDate,
@@ -53,8 +53,9 @@ export function importKey(key: string) {
 /**
  * Sign a payload.
  */
-export async function sign(
-  payload: Payload,
+// deno-lint-ignore ban-types
+export async function sign<T extends Record<string, unknown> = {}>(
+  payload: T & Payload,
   secret: string | CryptoKey,
 ) {
   const key = typeof secret === 'string' ? await importKey(secret) : secret

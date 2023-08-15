@@ -26,6 +26,8 @@
  * throw new Exception('Too Many Requests')
  * throw new Exception(429)
  * ```
+ *
+ * @deprecated please use `c.exception()` instead!
  */
 export class Exception {
   public response

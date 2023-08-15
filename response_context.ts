@@ -80,7 +80,61 @@ export class ResponseContext {
 
   /**
    * Attach a cookie to the response.
+   *
+   * @since v1.4
    */
+  setCookie(name: string, value: string, options?: {
+    expires?: Date
+    maxAge?: number
+    domain?: string
+    path?: string
+    secure?: boolean
+    httpOnly?: boolean
+    sameSite?:
+      | 'strict'
+      | 'lax'
+      | 'none'
+  }) {
+    let cookie = `${name}=${value};`
+
+    this.#i.h.append(
+      'Set-Cookie',
+      (
+        options?.expires &&
+        (cookie += ` Expires=${options.expires.toUTCString()};`),
+          options?.maxAge && (cookie += ` Max-Age=${options.maxAge};`),
+          options?.domain && (cookie += ` Domain=${options.domain};`),
+          options?.path && (cookie += ` Path=${options.path};`),
+          options?.secure && (cookie += ' Secure;'),
+          options?.httpOnly && (cookie += ' HttpOnly;'),
+          options?.sameSite &&
+          (cookie += ` SameSite=${
+            options.sameSite.charAt(0).toUpperCase() +
+            options.sameSite.slice(1)
+          };`),
+          cookie
+      ),
+    )
+  }
+
+  /**
+   * Set an empty `Set-Cookie` header to delete the cookie.
+   *
+   * @since v1.4
+   */
+  deleteCookie(name: string, options?: { path?: string; domain?: string }) {
+    this.setCookie(name, '', {
+      expires: new Date(0),
+      ...options,
+    })
+  }
+
+  /**
+   * Attach a cookie to the response.
+   *
+   * @deprecated please use `c.res.setCookie()` instead!
+   */
+  // TODO remove at v2.0
   cookie(
     name: string,
     value: string,

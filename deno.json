@@ -12,10 +12,10 @@
     ]
   },
   "tasks": {
-    "check": "deno fmt && deno lint && deno task test",
+    "check": "deno fmt && deno lint --unstable && deno task test",
     "compare": "deno run -A bench/compare.ts",
     "license_year": "deno run -A .github/update_license_year.ts",
-    "test": "deno test -A",
+    "test": "deno test -A --unstable",
     "upgrade": "deno run -A https://deno.land/x/upgrade@v1.0.1/mod.ts -q"
   },
   "lock": false

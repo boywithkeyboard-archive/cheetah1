@@ -32,14 +32,16 @@ Deno.test('Response', async (t) => {
     )
   })
 
-  await t.step('res.cookie()', async () => {
-    app.get('/cookie', (c) => c.res.cookie('custom', 'test'))
+  await t.step('res.setCookie()', async () => {
+    app.get('/cookie', (c) => c.res.setCookie('custom', 'test'))
     assertEquals(
       (await app.fetch(new Request('http://localhost/cookie'))).headers
         .get('set-cookie'),
       'custom=test;',
     )
   })
+
+  // TODO add test suite for res.deleteCookie()
 
   await t.step('res.header()', async () => {
     app.get('/header', (c) => c.res.header('custom', 'test'))

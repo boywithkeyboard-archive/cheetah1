@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230801.0/index.ts'
+import { IncomingRequestCfProperties } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230807.0/index.ts'
 import { Context } from '../mod.ts'
 
 type CloudflareRequest = Request & {
@@ -24,7 +24,7 @@ export class LocationData {
    * @example 'Austin'
    */
   get city() {
-    const city = (this.#c.req.raw as CloudflareRequest).cf.city
+    const city = (this.#c.req.raw as CloudflareRequest).cf?.city
 
     if (!city && this.#c.__app.proxy === 'cloudflare') {
       return this.#c.req.headers['cf-ipcity']
@@ -39,7 +39,7 @@ export class LocationData {
    * @example 'Texas'
    */
   get region() {
-    return (this.#c.req.raw as CloudflareRequest).cf.region
+    return (this.#c.req.raw as CloudflareRequest).cf?.region
   }
 
   /**
@@ -52,7 +52,7 @@ export class LocationData {
    * @example 'GB'
    */
   get country(): IncomingRequestCfProperties['country'] {
-    const country = (this.#c.req.raw as CloudflareRequest).cf.country
+    const country = (this.#c.req.raw as CloudflareRequest).cf?.country
 
     if (!country && this.#c.__app.proxy === 'cloudflare') {
       return this.#c.req
@@ -68,7 +68,7 @@ export class LocationData {
    * @example 'NA'
    */
   get continent(): IncomingRequestCfProperties['continent'] {
-    const continent = (this.#c.req.raw as CloudflareRequest).cf.continent
+    const continent = (this.#c.req.raw as CloudflareRequest).cf?.continent
 
     if (!continent && this.#c.__app.proxy === 'cloudflare') {
       return this.#c.req
@@ -84,7 +84,7 @@ export class LocationData {
    * @example 'TX'
    */
   get regionCode(): IncomingRequestCfProperties['regionCode'] {
-    return (this.#c.req.raw as CloudflareRequest).cf.regionCode
+    return (this.#c.req.raw as CloudflareRequest).cf?.regionCode
   }
 
   /**
@@ -93,7 +93,7 @@ export class LocationData {
    * @example '30.27130'
    */
   get latitude(): IncomingRequestCfProperties['latitude'] {
-    const latitude = (this.#c.req.raw as CloudflareRequest).cf.latitude
+    const latitude = (this.#c.req.raw as CloudflareRequest).cf?.latitude
 
     if (!latitude && this.#c.__app.proxy === 'cloudflare') {
       return this.#c.req.headers['cf-iplatitude']
@@ -108,7 +108,7 @@ export class LocationData {
    * @example '-97.74260'
    */
   get longitude(): IncomingRequestCfProperties['longitude'] {
-    const longitude = (this.#c.req.raw as CloudflareRequest).cf.longitude
+    const longitude = (this.#c.req.raw as CloudflareRequest).cf?.longitude
 
     if (!longitude && this.#c.__app.proxy === 'cloudflare') {
       return this.#c.req.headers['cf-iplongitude']
@@ -123,7 +123,7 @@ export class LocationData {
    * @example '78701'
    */
   get postalCode(): IncomingRequestCfProperties['postalCode'] {
-    return (this.#c.req.raw as CloudflareRequest).cf.postalCode
+    return (this.#c.req.raw as CloudflareRequest).cf?.postalCode
   }
 
   /**
@@ -132,7 +132,7 @@ export class LocationData {
    * @example 'America/Chicago'
    */
   get timezone(): IncomingRequestCfProperties['timezone'] {
-    return (this.#c.req.raw as CloudflareRequest).cf.timezone
+    return (this.#c.req.raw as CloudflareRequest).cf?.timezone
   }
 
   /**
@@ -141,6 +141,6 @@ export class LocationData {
    * @example 'DFW'
    */
   get datacenter(): IncomingRequestCfProperties['colo'] {
-    return (this.#c.req.raw as CloudflareRequest).cf.colo
+    return (this.#c.req.raw as CloudflareRequest).cf?.colo
   }
 }

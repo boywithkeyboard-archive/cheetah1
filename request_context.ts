@@ -2,7 +2,7 @@
 import {
   deadline as resolveWithDeadline,
   DeadlineError,
-} from 'https://deno.land/std@0.197.0/async/deadline.ts'
+} from 'https://deno.land/std@0.198.0/async/deadline.ts'
 import { z } from 'https://deno.land/x/zod@v3.21.4/mod.ts'
 import {
   ZodStringDef,
@@ -13,22 +13,21 @@ import { Method } from './base.ts'
 import { BaseType, ObjectType } from './handler.ts'
 import { AppContext, Exception } from './mod.ts'
 
-type Static<T extends ZodType | unknown> = T extends ZodType ? z.infer<T>
-  : unknown
+type Static<T extends ZodType> = T extends ZodType ? z.infer<T>
+  : never
 
 export class RequestContext<
   Params extends Record<string, unknown> = Record<string, never>,
-  ValidatedBody extends ZodType | unknown = unknown,
-  ValidatedCookies extends ObjectType | unknown = unknown,
-  ValidatedHeaders extends ObjectType | unknown = unknown,
-  ValidatedQuery extends ObjectType | unknown = unknown,
+  ValidatedBody extends ZodType = never,
+  ValidatedCookies extends ObjectType = never,
+  ValidatedHeaders extends ObjectType = never,
+  ValidatedQuery extends ObjectType = never,
 > {
   #c: Record<string, string | undefined> | undefined
   #h: Record<string, string | undefined> | undefined
-  #i: string | undefined
+  #a: AppContext
   #p
   #q: Record<string, unknown> | undefined
-  #qs: string | undefined
   #r
   #s
 
@@ -44,14 +43,14 @@ export class RequestContext<
       [key: string]: unknown
     } | null,
   ) {
+    this.#a = a
     this.#p = p
-    this.#qs = a.request.querystring
     this.#r = r
     this.#s = s
   }
 
-  get ip() {
-    return this.#i
+  get ip(): string {
+    return this.#a.ip
   }
 
   /**
@@ -92,7 +91,7 @@ export class RequestContext<
      */
     transform: boolean
   }): Promise<
-    ValidatedBody extends ZodType ? Static<ValidatedBody> : unknown
+    [ValidatedBody] extends [never] ? unknown : Static<ValidatedBody>
   > {
     if (!this.#s?.body) {
       // @ts-ignore:
@@ -143,9 +142,11 @@ export class RequestContext<
   /**
    * The validated cookies of the incoming request.
    */
-  get cookies(): Static<ValidatedCookies> {
+  get cookies(): [ValidatedCookies] extends [never] ? never
+    : Static<ValidatedCookies> {
     if (this.#c || !this.#s?.cookies) {
-      return this.#c as Static<ValidatedCookies>
+      return this.#c as [ValidatedCookies] extends [never] ? never
+        : Static<ValidatedCookies>
     }
 
     try {
@@ -175,18 +176,20 @@ export class RequestContext<
       throw new Exception(400)
     }
 
-    return this.#c as Static<ValidatedCookies>
+    return this.#c as [ValidatedCookies] extends [never] ? never
+      : Static<ValidatedCookies>
   }
 
   /**
    * The validated headers of the incoming request.
    */
-  get headers(): ValidatedHeaders extends ObjectType ? Static<ValidatedHeaders>
-    : Record<string, string | undefined> {
+  get headers(): [ValidatedHeaders] extends [never]
+    ? Record<string, string | undefined>
+    : Static<ValidatedHeaders> {
     if (this.#h) {
-      return this.#h as ValidatedHeaders extends ObjectType
-        ? Static<ValidatedHeaders>
-        : Record<string, string | undefined>
+      return this.#h as [ValidatedHeaders] extends [never]
+        ? Record<string, string | undefined>
+        : Static<ValidatedHeaders>
     }
 
     this.#h = {}
@@ -213,23 +216,26 @@ export class RequestContext<
       }
     }
 
-    return this.#h as ValidatedHeaders extends ObjectType
-      ? Static<ValidatedHeaders>
-      : Record<string, string | undefined>
+    return this.#h as [ValidatedHeaders] extends [never]
+      ? Record<string, string | undefined>
+      : Static<ValidatedHeaders>
   }
 
   /**
    * The validated query parameters of the incoming request.
    */
-  get query(): Static<ValidatedQuery> {
-    if (this.#q || !this.#s?.query) {
-      return this.#q as Static<ValidatedQuery>
+  get query(): [ValidatedQuery] extends [never] ? Record<string, unknown>
+    : Static<ValidatedQuery> {
+    if (this.#q) {
+      return this.#q as [ValidatedQuery] extends [never]
+        ? Record<string, unknown>
+        : Static<ValidatedQuery>
     }
 
     this.#q = {}
 
-    if (this.#qs) {
-      const arr = this.#qs.split('&')
+    if (this.#a.request.querystring) {
+      const arr = this.#a.request.querystring.split('&')
 
       for (let i = 0; i < arr.length; i++) {
         const [key, value] = arr[i].split('=')
@@ -252,13 +258,16 @@ export class RequestContext<
       }
     }
 
-    const isValid = this.#s.query.safeParse(this.#q).success
+    if (this.#s?.query) {
+      const isValid = this.#s.query.safeParse(this.#q).success
 
-    if (!isValid) {
-      throw new Exception(400)
+      if (!isValid) {
+        throw new Exception(400)
+      }
     }
 
-    return this.#q as Static<ValidatedQuery>
+    return this.#q as [ValidatedQuery] extends [never] ? Record<string, unknown>
+      : Static<ValidatedQuery>
   }
 
   /**

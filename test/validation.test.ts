@@ -159,6 +159,10 @@ Deno.test('Validation', async (t) => {
         third: z.number(),
       }),
     }, (c) => {
+      const d = c.req.query
+
+      d.first
+
       return c.req.query
     })
 
@@ -179,6 +183,36 @@ Deno.test('Validation', async (t) => {
         new Request('http://localhost/query?second=false&third=69'),
       )).status,
       200,
+    )
+  })
+
+  await t.step('query (no schema)', async () => {
+    const app = new cheetah()
+
+    app.get('/query', (c) => {
+      const d = c.req.query
+
+      d.lol
+      return d
+    })
+
+    assertEquals(
+      await (await app.fetch(
+        new Request('http://localhost/query?first=test&second&third=69'),
+      )).json(),
+      { first: 'test', second: true, third: 69 },
+    )
+    assertEquals(
+      await (await app.fetch(
+        new Request('http://localhost/query?second=false&third=e9'),
+      )).json(),
+      { second: false, third: 'e9' },
+    )
+    assertEquals(
+      await (await app.fetch(
+        new Request('http://localhost/query?second=false&third=69'),
+      )).json(),
+      { second: false, third: 69 },
     )
   })
 })

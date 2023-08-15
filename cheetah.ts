@@ -5,10 +5,13 @@ import { Context } from './context.ts'
 import { Exception } from './exception.ts'
 import { Extension, validExtension } from './extensions.ts'
 import { Handler, HandlerOrSchema, Payload } from './handler.ts'
+import { OAuthStore } from './oauth/mod.ts'
+import { OAuthSessionData } from './oauth/types.ts'
+import { ResponseContext } from './response_context.ts'
 
 export type AppContext = {
   env: Record<string, unknown> | undefined
-  ip: string | undefined
+  ip: string
   proxy: AppConfig['proxy']
   routes: Set<[Uppercase<Method>, string, RegExp, HandlerOrSchema[]]>
   runtime:
@@ -18,6 +21,7 @@ export type AppContext = {
     pathname: string
     querystring?: string
   }
+  oauth: AppConfig['oauth']
 }
 
 export type AppConfig = {
@@ -57,6 +61,26 @@ export type AppConfig = {
    * Set a custom 404 handler.
    */
   notFound?: (request: Request) => Response | Promise<Response>
+
+  oauth?: {
+    store: OAuthStore
+    cookie?: Parameters<ResponseContext['cookie']>[2]
+    onSignIn?: (
+      c: Context,
+      data: OAuthSessionData,
+    ) => Promise<unknown> | unknown
+    onSignOut?: (
+      c: Context,
+      identifier: string,
+    ) => Promise<unknown> | unknown
+  }
+
+  /**
+   * If you enable debug mode, all errors will get logged to the console.
+   *
+   * @since v1.3
+   */
+  debug?: boolean
 }
 
 export class cheetah extends base<cheetah>() {
@@ -70,6 +94,8 @@ export class cheetah extends base<cheetah>() {
   #routes: Set<[Uppercase<Method>, string, RegExp, HandlerOrSchema[]]>
   #runtime: 'deno' | 'cloudflare'
   #onPlugIn
+  #oauth
+  #debug
 
   constructor({
     base,
@@ -78,6 +104,8 @@ export class cheetah extends base<cheetah>() {
     proxy,
     error,
     notFound,
+    oauth,
+    debug,
   }: AppConfig = {}) {
     super((method, pathname, handlers) => {
       pathname = this.#base ? this.#base + pathname : pathname
@@ -111,6 +139,8 @@ export class cheetah extends base<cheetah>() {
       ? 'cloudflare'
       : 'deno'
     this.#onPlugIn = false
+    this.#oauth = oauth
+    this.#debug = debug
   }
 
   /* use ---------------------------------------------------------------------- */
@@ -223,7 +253,7 @@ export class cheetah extends base<cheetah>() {
       const ip = data?.remoteAddr && this.#runtime === 'deno'
         ? (data as Deno.ServeHandlerInfo).remoteAddr
           .hostname
-        : req.headers.get('cf-connecting-ip') ?? undefined
+        : req.headers.get('cf-connecting-ip') as string
 
       const parts = req.url.split('?')
 
@@ -239,6 +269,7 @@ export class cheetah extends base<cheetah>() {
         },
         routes: this.#routes,
         runtime: this.#runtime,
+        oauth: this.#oauth,
       }
 
       if (this.#extensions.size > 0) {
@@ -352,10 +383,16 @@ export class cheetah extends base<cheetah>() {
 
       if (err instanceof Exception) {
         res = err.response(req)
-      } else if (this.#error) {
-        res = await this.#error(err, req)
       } else {
-        res = new Exception('Something Went Wrong').response(req)
+        if (this.#debug) {
+          console.error(err)
+        }
+
+        if (this.#error) {
+          res = await this.#error(err, req)
+        } else {
+          res = new Exception('Something Went Wrong').response(req)
+        }
       }
 
       if (req.method === 'HEAD') {
@@ -547,6 +584,8 @@ export class cheetah extends base<cheetah>() {
     return Deno.serve({
       hostname,
       port,
-    }, this.fetch).finished
+    }, (request, data) => {
+      return this.fetch(request, data)
+    }).finished
   }
 }
