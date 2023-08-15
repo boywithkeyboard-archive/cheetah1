@@ -7,7 +7,7 @@ type VSCodeSettings = {
   vscode: Record<string, unknown>
   imports: string[]
 }
-
+// TODO delete file
 async function setup() {
   const platform = await Select.prompt({
     message: 'Where do you plan to deploy your app?',
