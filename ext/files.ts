@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { R2Bucket } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230807.0/index.ts'
+import { R2Bucket } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230814.0/index.ts'
 import { join } from 'https://deno.land/std@0.198.0/path/mod.ts'
 import { createExtension } from '../extensions.ts'
 
