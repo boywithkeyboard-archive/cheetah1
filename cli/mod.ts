@@ -1,12 +1,20 @@
-import { drgn } from 'https://deno.land/x/drgn@v0.10.2/drgn.ts'
-import { analyzeCommand } from './cmd/analyze.ts'
-import { bundleCommand } from './cmd/bundle.ts'
-import { deployCommand } from './cmd/deploy.ts'
-import { newCommand } from './cmd/new.ts'
+import { parse } from 'https://deno.land/std@0.198.0/flags/mod.ts'
+import { bundleCommand } from './commands/bundle.ts'
+import { createCommand } from './commands/create.ts'
+import { newCommand } from './commands/new.ts'
+import { serveCommand } from './commands/serve.ts'
+import { log } from './utils.ts'
 
-new drgn()
-  .command(analyzeCommand)
-  .command(bundleCommand)
-  .command(deployCommand)
-  .command(newCommand)
-  .run()
+const args = parse(Deno.args)
+
+if (args._[0] === 'bundle') {
+  bundleCommand(args)
+} else if (args._[0] === 'create') {
+  createCommand(args)
+} else if (args._[0] === 'new') {
+  newCommand()
+} else if (args._[0] === 'serve') {
+  serveCommand(args)
+} else {
+  log.error('unknown command')
+}
