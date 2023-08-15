@@ -18,7 +18,7 @@ export async function serveCommand(args: ReturnType<typeof parse>) {
 
   Deno.env.set('DEV', 'true')
 
-  const exports = await import('./mod.ts' as string)
+  const exports = await import(args._[1] as string)
 
   let childProcess: Deno.ChildProcess
 
