@@ -14,8 +14,8 @@ import { log } from '../utils.ts'
 export async function bundleCommand(args: ReturnType<typeof parse>) {
   const { _, target, runtime } = args
 
-  const input = _[0] && typeof _[0] === 'string' ? _[0] : undefined
-  const output = _[1] && typeof _[1] === 'string' ? _[1] : undefined
+  const input = _[1] && typeof _[1] === 'string' ? _[1] : undefined
+  const output = _[2] && typeof _[2] === 'string' ? _[2] : undefined
 
   try {
     const { outputSize } = await bundle({
