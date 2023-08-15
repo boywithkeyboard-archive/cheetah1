@@ -7,8 +7,8 @@ type VSCodeSettings = {
   vscode: Record<string, unknown>
   imports: string[]
 }
-// TODO delete file
-async function setup() {
+
+export async function newCommand() {
   const platform = await Select.prompt({
     message: 'Where do you plan to deploy your app?',
     options: [
@@ -90,8 +90,4 @@ command = "deno task build"`,
   })
 
   command.spawn()
-}
-
-if (import.meta.main) {
-  setup()
 }
