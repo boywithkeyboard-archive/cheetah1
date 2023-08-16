@@ -65,7 +65,7 @@ export type AppConfig = {
 
   oauth?: {
     store: OAuthStore
-    cookie?: Parameters<ResponseContext['cookie']>[2]
+    cookie?: Parameters<ResponseContext['setCookie']>[2]
     onSignIn?: (
       c: Context,
       data: OAuthSessionData,
@@ -82,6 +82,16 @@ export type AppConfig = {
    * @since v1.3
    */
   debug?: boolean
+
+  /**
+   * Desc
+   *
+   * @since v1.4
+   */
+  versioning?: {
+    highest: 'v4'
+    lowest: `v${string}`
+  }
 }
 
 export class cheetah extends base<cheetah>() {
