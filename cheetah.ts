@@ -2,12 +2,12 @@
 import { base, Method } from './base.ts'
 import { Collection } from './collection.ts'
 import { Context } from './context.ts'
-import { Exception } from './exception.ts'
 import { Extension, validExtension } from './extensions.ts'
 import { Handler, HandlerOrSchema, Payload } from './handler.ts'
 import { OAuthStore } from './oauth/mod.ts'
 import { OAuthSessionData } from './oauth/types.ts'
 import { ResponseContext } from './response_context.ts'
+import { Exception } from './context.ts'
 
 export type AppContext = {
   env: Record<string, unknown> | undefined
@@ -341,7 +341,7 @@ export class cheetah extends base<cheetah>() {
 
       if (!route) {
         if (!this.#notFound) {
-          throw new Exception(404)
+          throw new Exception('Not Found', undefined, 404)
         }
 
         if (req.method !== 'HEAD') {
@@ -391,7 +391,7 @@ export class cheetah extends base<cheetah>() {
         if (this.#error) {
           res = await this.#error(err, req)
         } else {
-          res = new Exception('Something Went Wrong').response(req)
+          res = new Exception('Something Went Wrong', undefined, 500).response(req)
         }
       }
 

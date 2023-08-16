@@ -6,7 +6,6 @@ import {
   getUser,
 } from 'https://deno.land/x/authenticus@v2.0.3/mod.ts'
 import { Context } from '../context.ts'
-import { Exception } from '../exception.ts'
 import { getVariable } from '../x/env.ts'
 import { sign, verify } from '../x/jwt.ts'
 import { LocationData } from '../x/location_data.ts'
@@ -31,7 +30,7 @@ export async function handleCallback(
     typeof c.req.query.state !== 'string' ||
     typeof c.req.query.code !== 'string'
   ) {
-    throw new Exception('Bad Request')
+    throw c.exception('Bad Request')
   }
 
   // validate state
@@ -43,7 +42,7 @@ export async function handleCallback(
   )
 
   if (!payload || payload.ip !== c.req.ip) {
-    throw new Exception('Access Denied')
+    throw c.exception('Access Denied')
   }
 
   try {
@@ -125,6 +124,6 @@ export async function handleCallback(
       ...data,
     }
   } catch (_err) {
-    throw new Exception('Bad Request')
+    throw c.exception('Bad Request')
   }
 }

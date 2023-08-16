@@ -1,10 +1,10 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 /** @jsx h */
+import { cheetah } from '../cheetah.ts'
 import {
   assertEquals,
   assertInstanceOf,
-} from 'https://deno.land/std@0.198.0/testing/asserts.ts'
-import { cheetah } from '../cheetah.ts'
+} from '../test/deps.ts'
 import { h, jsx } from './jsx.tsx'
 import { createKey, importKey, sign, verify } from './jwt.ts'
 
