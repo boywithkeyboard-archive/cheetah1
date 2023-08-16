@@ -88,6 +88,10 @@ export class Context<
     return this.#a
   }
 
+  get dev(): boolean {
+    return this.runtime === 'deno' && Deno.env.get('DEV') === 'true'
+  }
+
   get req(): RequestContext<
     Params,
     ValidatedBody,
