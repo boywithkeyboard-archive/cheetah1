@@ -215,4 +215,38 @@ Deno.test('Validation', async (t) => {
       { second: false, third: 69 },
     )
   })
+
+  await t.step('params', async () => {
+    const app = new cheetah()
+
+    app.get(
+      '/animals/:name',
+      {
+        params: {
+          name: z.union([z.literal('cat'), z.literal('dog')]),
+        },
+      },
+      (c) => {
+        return c.req.param('name')
+      },
+    )
+
+    const res1 = await app.fetch(
+      new Request('http://localhost/animals/cat'),
+    )
+
+    assertEquals(res1.status, 200)
+
+    const res2 = await app.fetch(
+      new Request('http://localhost/animals/dog'),
+    )
+
+    assertEquals(res2.status, 200)
+
+    const res3 = await app.fetch(
+      new Request('http://localhost/animals/rabbit'),
+    )
+
+    assertEquals(res3.status, 400)
+  })
 })

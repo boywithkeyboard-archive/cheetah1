@@ -68,7 +68,7 @@ export function handler<T>() {
     pathname: Pathname,
     // deno-lint-ignore no-unused-vars
     ...handler: (
-      | {
+      | ({
         body?: ValidatedBody
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
@@ -76,7 +76,8 @@ export function handler<T>() {
         /** @deprecated please pass this option to the `c.req.body()` method! */
         transform?: boolean // TODO remove at v2.0
         cors?: string
-      }
+        params?: Partial<Record<keyof ExtractParams<Pathname>, ZodType>>
+      })
       | Handler<
         Pathname,
         ValidatedBody,
@@ -124,6 +125,7 @@ export function bodylessHandler<T>() {
         headers?: ValidatedHeaders
         query?: ValidatedQuery
         cors?: string
+        params?: Partial<Record<keyof ExtractParams<Pathname>, ZodType>>
       }
       | BodylessHandler<
         Pathname,
@@ -147,6 +149,7 @@ export type HandlerOrSchema =
     /** @deprecated please pass this option to the `c.req.body()` method! */
     transform?: boolean // TODO remove at v2.0
     cors?: string
+    params?: Record<string, ZodType>
   }
   | Handler<unknown>
   | BodylessHandler<unknown>
