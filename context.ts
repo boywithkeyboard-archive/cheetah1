@@ -1,11 +1,10 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
+/// <reference types='./env.d.ts' />
 import { ZodType } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { AppContext } from './cheetah.ts'
 import { ObjectType, Payload } from './handler.ts'
 import { RequestContext } from './request_context.ts'
 import { ResponseContext } from './response_context.ts'
-
-type Variables = Record<string, unknown>
 
 const HTTP_MESSAGES = {
   'Bad Request': 400,
