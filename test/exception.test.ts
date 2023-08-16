@@ -1,6 +1,9 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import cheetah, { Exception } from '../mod.ts'
+import cheetah from '../mod.ts'
 import { assertEquals } from './deps.ts'
+import { Exception } from '../exception.ts'
+
+// TODO write test suite for new c.exception() instead
 
 Deno.test('Exception', async () => {
   const app = new cheetah()

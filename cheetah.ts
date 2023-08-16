@@ -8,6 +8,7 @@ import { OAuthStore } from './oauth/mod.ts'
 import { OAuthSessionData } from './oauth/types.ts'
 import { ResponseContext } from './response_context.ts'
 import { Exception } from './context.ts'
+import { Exception as OriginalException } from './exception.ts'
 
 export type AppContext = {
   env: Record<string, unknown> | undefined
@@ -381,7 +382,7 @@ export class cheetah extends base<cheetah>() {
     } catch (err) {
       let res: Response
 
-      if (err instanceof Exception) {
+      if (err instanceof Exception || err instanceof OriginalException) {
         res = err.response(req)
       } else {
         if (this.#debug) {
