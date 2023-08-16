@@ -29,7 +29,7 @@ const HTTP_MESSAGES = {
   'Precondition Required': 428,
   'Rate Limit Exceeded': 429,
   'Regional Ban': 451,
-  'Something Went Wrong': 500
+  'Something Went Wrong': 500,
 }
 
 export class Context<
@@ -110,7 +110,13 @@ export class Context<
       return this.#req
     }
 
-    this.#req = new RequestContext(this.#a, this.#p, this.#r, this.#s, this.exception)
+    this.#req = new RequestContext(
+      this.#a,
+      this.#p,
+      this.#r,
+      this.#s,
+      this.exception,
+    )
 
     return this.#req
   }

@@ -391,7 +391,9 @@ export class cheetah extends base<cheetah>() {
         if (this.#error) {
           res = await this.#error(err, req)
         } else {
-          res = new Exception('Something Went Wrong', undefined, 500).response(req)
+          res = new Exception('Something Went Wrong', undefined, 500).response(
+            req,
+          )
         }
       }
 
