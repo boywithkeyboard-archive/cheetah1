@@ -5,6 +5,8 @@ import { ObjectType, Payload } from './handler.ts'
 import { RequestContext } from './request_context.ts'
 import { ResponseContext } from './response_context.ts'
 
+type Variables = Record<string, unknown>
+
 const HTTP_MESSAGES = {
   'Bad Request': 400,
   'Unauthorized': 401,
@@ -90,6 +92,10 @@ export class Context<
 
   get dev(): boolean {
     return this.runtime === 'deno' && Deno.env.get('DEV') === 'true'
+  }
+
+  env<T extends keyof Variables>(name: T): Variables[T] {
+    return this.runtime === 'cloudflare' ? (this.#a.env as Variables)[name] : Deno.env.get(name)
   }
 
   get req(): RequestContext<
