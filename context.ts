@@ -18,7 +18,7 @@ const HTTP_MESSAGES = {
   'Gone': 410,
   'Length Required': 411,
   'Precondition Failed': 412,
-  'Upload Limit Exceeded': 413,
+  'Content Too Large': 413,
   'URI Too Long': 414,
   'Unsupported Media Type': 415,
   'Range Not Satisfiable': 416,
@@ -110,7 +110,13 @@ export class Context<
       return this.#req
     }
 
-    this.#req = new RequestContext(this.#a, this.#p, this.#r, this.#s)
+    this.#req = new RequestContext(
+      this.#a,
+      this.#p,
+      this.#r,
+      this.#s,
+      this.exception,
+    )
 
     return this.#req
   }
@@ -136,6 +142,7 @@ export class Context<
   }
 }
 
+/** @private */
 export class Exception {
   public response
 

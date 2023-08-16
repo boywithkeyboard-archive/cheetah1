@@ -11,7 +11,7 @@ import {
 } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { Method } from './base.ts'
 import { BaseType, ObjectType } from './handler.ts'
-import { AppContext, Exception } from './mod.ts'
+import { AppContext, Context } from './mod.ts'
 
 type Static<T extends ZodType> = T extends ZodType ? z.infer<T>
   : never
@@ -30,6 +30,7 @@ export class RequestContext<
   #q: Record<string, unknown> | undefined
   #r
   #s
+  #e
 
   constructor(
     a: AppContext,
@@ -42,11 +43,13 @@ export class RequestContext<
       query?: ObjectType | undefined
       [key: string]: unknown
     } | null,
+    e: Context['exception'],
   ) {
     this.#a = a
     this.#p = p
     this.#r = r
     this.#s = s
+    this.#e = e
   }
 
   get ip(): string {
@@ -127,13 +130,15 @@ export class RequestContext<
         }
       }
     } catch (err: unknown) {
-      throw new Exception(err instanceof DeadlineError ? 413 : 400)
+      throw this.#e(
+        err instanceof DeadlineError ? 'Content Too Large' : 'Bad Request',
+      )
     }
 
     const result = this.#s.body.safeParse(body)
 
     if (!result.success) {
-      throw new Exception(400)
+      throw this.#e('Bad Request')
     }
 
     return result.data
@@ -153,7 +158,7 @@ export class RequestContext<
       const header = this.#r.headers.get('cookies') ?? ''
 
       if (header.length > 1000) {
-        throw new Exception(413)
+        throw this.#e('Content Too Large')
       }
 
       this.#c = header
@@ -173,7 +178,7 @@ export class RequestContext<
     const isValid = this.#s.cookies.safeParse(this.#c).success
 
     if (!isValid) {
-      throw new Exception(400)
+      throw this.#e('Bad Request')
     }
 
     return this.#c as [ValidatedCookies] extends [never] ? never
@@ -212,7 +217,7 @@ export class RequestContext<
       const isValid = this.#s.headers.safeParse(this.#h).success
 
       if (!isValid) {
-        throw new Exception(400)
+        throw this.#e('Bad Request')
       }
     }
 
@@ -262,7 +267,7 @@ export class RequestContext<
       const isValid = this.#s.query.safeParse(this.#q).success
 
       if (!isValid) {
-        throw new Exception(400)
+        throw this.#e('Bad Request')
       }
     }
 

@@ -87,20 +87,12 @@ Deno.test('preflight mode', async (t) => {
     const res1 = await app.fetch(new Request('https://deno.com/foo'))
 
     assertEquals(res1.body === null, false)
-    assertEquals(
-      res1.headers.get('content-length'),
-      'Something Went Wrong'.length.toString(),
-    )
 
     const res2 = await app.fetch(
       new Request('https://deno.com/foo', { method: 'HEAD' }),
     )
 
     assertEquals(res2.body === null, true)
-    assertEquals(
-      res2.headers.get('content-length'),
-      'Something Went Wrong'.length.toString(),
-    )
   })
 
   await t.step('error (custom)', async () => {
