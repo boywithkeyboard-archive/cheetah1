@@ -41,6 +41,7 @@ export class RequestContext<
       cookies?: ObjectType | undefined
       headers?: ObjectType | undefined
       query?: ObjectType | undefined
+      params?: Record<string, ZodType>
       [key: string]: unknown
     } | null,
     e: Context['exception'],
@@ -70,8 +71,17 @@ export class RequestContext<
    * A method to retrieve the corresponding value of a parameter.
    */
   param<T extends keyof Params>(name: T): Params[T] {
-    // @ts-ignore:
-    return this.#p[name]
+    if (this.#s?.params && this.#s.params[name as string]) {
+      const result = this.#s.params[name as string].safeParse(this.#p[name])
+
+      if (!result.success) {
+        throw this.#e('Bad Request')
+      }
+
+      return result.data as Params[T]
+    } else {
+      return this.#p[name as string] as Params[T]
+    }
   }
 
   /**
