@@ -95,7 +95,9 @@ export class Context<
   }
 
   env<T extends keyof Variables>(name: T): Variables[T] {
-    return this.runtime === 'cloudflare' ? (this.#a.env as Variables)[name] : Deno.env.get(name)
+    return this.runtime === 'cloudflare'
+      ? (this.#a.env as Variables)[name]
+      : Deno.env.get(name)
   }
 
   get req(): RequestContext<
