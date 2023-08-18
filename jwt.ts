@@ -3,13 +3,8 @@ import {
   decode,
   encode,
 } from 'https://deno.land/std@0.198.0/encoding/base64.ts'
-import {
-  create,
-  getNumericDate,
-  Payload as JwtPayload,
-  verify as _verify,
-  VerifyOptions,
-} from 'https://deno.land/x/djwt@v2.8/mod.ts'
+import * as Jwt from 'https://deno.land/x/djwt@v2.8/mod.ts'
+import { Context } from './mod.ts'
 
 interface Payload {
   iss?: string
@@ -55,16 +50,22 @@ export function importKey(key: string) {
  */
 // deno-lint-ignore ban-types
 export async function sign<T extends Record<string, unknown> = {}>(
+  secret: string | CryptoKey | Context,
   payload: T & Payload,
-  secret: string | CryptoKey,
 ) {
-  const key = typeof secret === 'string' ? await importKey(secret) : secret
+  const key = typeof secret === 'string'
+    ? await importKey(secret)
+    : secret instanceof Context
+    ? await importKey(
+      (secret.env('jwt_secret') ?? secret.env('JWT_SECRET')) as string,
+    )
+    : secret
 
   const { exp, nbf, ...rest } = payload
 
-  return await create({ alg: 'HS512', typ: 'JWT' }, {
-    ...(exp && { exp: getNumericDate(exp) }),
-    ...(nbf && { nbf: getNumericDate(nbf) }),
+  return await Jwt.create({ alg: 'HS512', typ: 'JWT' }, {
+    ...(exp && { exp: Jwt.getNumericDate(exp) }),
+    ...(nbf && { nbf: Jwt.getNumericDate(nbf) }),
     ...rest,
   }, key)
 }
@@ -73,14 +74,20 @@ export async function sign<T extends Record<string, unknown> = {}>(
  * Verify the validity of a JWT.
  */
 export async function verify<T extends Record<string, unknown> = Payload>(
+  secret: string | CryptoKey | Context,
   token: string,
-  secret: string | CryptoKey,
-  options?: VerifyOptions,
+  options?: Jwt.VerifyOptions,
 ) {
   try {
-    const key = typeof secret === 'string' ? await importKey(secret) : secret
+    const key = typeof secret === 'string'
+      ? await importKey(secret)
+      : secret instanceof Context
+      ? await importKey(
+        (secret.env('jwt_secret') ?? secret.env('JWT_SECRET')) as string,
+      )
+      : secret
 
-    return await _verify(token, key, options) as JwtPayload & T
+    return await Jwt.verify(token, key, options) as Jwt.Payload & T
   } catch (_err) {
     return
   }

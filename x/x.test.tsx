@@ -5,6 +5,8 @@ import { assertEquals, assertInstanceOf } from '../test/deps.ts'
 import { h, jsx } from './jsx.tsx'
 import { createKey, importKey, sign, verify } from './jwt.ts'
 
+// TODO delete at v2.0
+
 Deno.test('x', async (t) => {
   await t.step('jwt', async () => {
     const key = await createKey()
