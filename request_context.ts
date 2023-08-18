@@ -53,6 +53,10 @@ export class RequestContext<
     this.#e = e
   }
 
+  get gateway(): number {
+    return this.#a.gateway ?? -1
+  }
+
   get ip(): string {
     return this.#a.ip
   }

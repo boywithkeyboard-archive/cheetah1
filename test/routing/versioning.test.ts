@@ -20,7 +20,7 @@ Deno.test('versioning', async (t) => {
 
     // unspecified
 
-    app.get('/1', (c) => `hello from v${c.gateway}`)
+    app.get('/1', (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/1'), 'hello from v1')
     assertEquals(await get('/v2/1'), 'hello from v2')
@@ -30,7 +30,7 @@ Deno.test('versioning', async (t) => {
 
     // exact
 
-    app.get('/2', { versionRange: 'v3' }, (c) => `hello from v${c.gateway}`)
+    app.get('/2', { gateway: 'v3' }, (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/2') !== 'hello from v1', true)
     assertEquals(await get('/v2/2') !== 'hello from v2', true)
@@ -39,7 +39,7 @@ Deno.test('versioning', async (t) => {
 
     // smaller than
 
-    app.get('/3', { versionRange: '< v3' }, (c) => `hello from v${c.gateway}`)
+    app.get('/3', { gateway: '< v3' }, (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/3'), 'hello from v1')
     assertEquals(await get('/v2/3'), 'hello from v2')
@@ -48,7 +48,7 @@ Deno.test('versioning', async (t) => {
 
     // smaller than or equal to
 
-    app.get('/4', { versionRange: '<= v3' }, (c) => `hello from v${c.gateway}`)
+    app.get('/4', { gateway: '<= v3' }, (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/4'), 'hello from v1')
     assertEquals(await get('/v2/4'), 'hello from v2')
@@ -57,7 +57,7 @@ Deno.test('versioning', async (t) => {
 
     // greater than
 
-    app.get('/5', { versionRange: '> v3' }, (c) => `hello from v${c.gateway}`)
+    app.get('/5', { gateway: '> v3' }, (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/5') !== 'hello from v1', true)
     assertEquals(await get('/v2/5') !== 'hello from v2', true)
@@ -66,7 +66,7 @@ Deno.test('versioning', async (t) => {
 
     // greater than or equal
 
-    app.get('/6', { versionRange: '>= v3' }, (c) => `hello from v${c.gateway}`)
+    app.get('/6', { gateway: '>= v3' }, (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/6') !== 'hello from v1', true)
     assertEquals(await get('/v2/6') !== 'hello from v2', true)
@@ -77,8 +77,8 @@ Deno.test('versioning', async (t) => {
 
     app.get(
       '/7',
-      { versionRange: 'v2...v3' },
-      (c) => `hello from v${c.gateway}`,
+      { gateway: 'v2...v3' },
+      (c) => `hello from v${c.req.gateway}`,
     )
 
     assertEquals(await get('/v1/7') !== 'hello from v1', true)
@@ -114,7 +114,7 @@ Deno.test('versioning', async (t) => {
 
     // unspecified
 
-    app.get('/1', (c) => `hello from v${c.gateway}`)
+    app.get('/1', (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/1'), 'hello from v1')
     assertEquals(await get('/v2/1'), 'hello from v2')
@@ -124,7 +124,7 @@ Deno.test('versioning', async (t) => {
 
     // exact
 
-    app.get('/2', { versionRange: 'v3' }, (c) => `hello from v${c.gateway}`)
+    app.get('/2', { gateway: 'v3' }, (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/2') !== 'hello from v1', true)
     assertEquals(await get('/v2/2') !== 'hello from v2', true)
@@ -133,7 +133,7 @@ Deno.test('versioning', async (t) => {
 
     // smaller than
 
-    app.get('/3', { versionRange: '< v3' }, (c) => `hello from v${c.gateway}`)
+    app.get('/3', { gateway: '< v3' }, (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/3'), 'hello from v1')
     assertEquals(await get('/v2/3'), 'hello from v2')
@@ -142,7 +142,7 @@ Deno.test('versioning', async (t) => {
 
     // smaller than or equal to
 
-    app.get('/4', { versionRange: '<= v3' }, (c) => `hello from v${c.gateway}`)
+    app.get('/4', { gateway: '<= v3' }, (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/4'), 'hello from v1')
     assertEquals(await get('/v2/4'), 'hello from v2')
@@ -151,7 +151,7 @@ Deno.test('versioning', async (t) => {
 
     // greater than
 
-    app.get('/5', { versionRange: '> v3' }, (c) => `hello from v${c.gateway}`)
+    app.get('/5', { gateway: '> v3' }, (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/5') !== 'hello from v1', true)
     assertEquals(await get('/v2/5') !== 'hello from v2', true)
@@ -160,7 +160,7 @@ Deno.test('versioning', async (t) => {
 
     // greater than or equal
 
-    app.get('/6', { versionRange: '>= v3' }, (c) => `hello from v${c.gateway}`)
+    app.get('/6', { gateway: '>= v3' }, (c) => `hello from v${c.req.gateway}`)
 
     assertEquals(await get('/v1/6') !== 'hello from v1', true)
     assertEquals(await get('/v2/6') !== 'hello from v2', true)
@@ -171,8 +171,8 @@ Deno.test('versioning', async (t) => {
 
     app.get(
       '/7',
-      { versionRange: 'v2...v3' },
-      (c) => `hello from v${c.gateway}`,
+      { gateway: 'v2...v3' },
+      (c) => `hello from v${c.req.gateway}`,
     )
 
     assertEquals(await get('/v1/7') !== 'hello from v1', true)

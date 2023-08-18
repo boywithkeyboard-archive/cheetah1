@@ -294,7 +294,7 @@ export class cheetah extends base<cheetah>() {
 
           const options = typeof r[3][0] !== 'function' ? r[3][0] : null
 
-          if (options?.versionRange !== undefined) {
+          if (options?.gateway !== undefined) {
             const result = pathname.match(r[2])
 
             if (!result) {
@@ -303,7 +303,7 @@ export class cheetah extends base<cheetah>() {
 
             const gateway = isVersionWithinRange(
               version as Version,
-              options.versionRange as VersionRange,
+              options.gateway as VersionRange,
             )
 
             if (!gateway) {
