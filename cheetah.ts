@@ -1,20 +1,26 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { base, Method } from './base.ts'
 import { Collection } from './collection.ts'
-import { Context } from './context.ts'
+import { Context, Exception } from './context.ts'
+import { Exception as OriginalException } from './exception.ts'
 import { Extension, validExtension } from './extensions.ts'
-import { Handler, HandlerOrSchema, Payload } from './handler.ts'
+import {
+  Handler,
+  HandlerOrSchema,
+  Payload,
+  Version,
+  VersionRange,
+} from './handler.ts'
 import { OAuthStore } from './oauth/mod.ts'
 import { OAuthSessionData } from './oauth/types.ts'
 import { ResponseContext } from './response_context.ts'
-import { Exception } from './context.ts'
-import { Exception as OriginalException } from './exception.ts'
 
 export type AppContext = {
+  gateway?: number
   env: Record<string, unknown> | undefined
   ip: string
   proxy: AppConfig['proxy']
-  routes: Set<[Uppercase<Method>, string, RegExp, HandlerOrSchema[]]>
+  routes: cheetah['routes']
   runtime:
     | 'cloudflare'
     | 'deno'
@@ -23,6 +29,7 @@ export type AppContext = {
     querystring?: string
   }
   oauth: AppConfig['oauth']
+  versioning: AppConfig['versioning']
 }
 
 export type AppConfig = {
@@ -83,15 +90,19 @@ export type AppConfig = {
    */
   debug?: boolean
 
-  /**
-   * Desc
-   *
-   * @since v1.4
-   */
-  versioning?: {
-    highest: 'v4'
-    lowest: `v${string}`
-  }
+  versioning?:
+    & (
+      | {
+        type: 'uri'
+      }
+      | {
+        type: 'header'
+        header: string
+      }
+    )
+    & {
+      current: Version
+    }
 }
 
 export class cheetah extends base<cheetah>() {
@@ -107,6 +118,7 @@ export class cheetah extends base<cheetah>() {
   #onPlugIn
   #oauth
   #debug
+  #versioning
 
   constructor({
     base,
@@ -117,6 +129,7 @@ export class cheetah extends base<cheetah>() {
     notFound,
     oauth,
     debug,
+    versioning,
   }: AppConfig = {}) {
     super((method, pathname, handlers) => {
       pathname = this.#base ? this.#base + pathname : pathname
@@ -152,6 +165,7 @@ export class cheetah extends base<cheetah>() {
     this.#onPlugIn = false
     this.#oauth = oauth
     this.#debug = debug
+    this.#versioning = versioning
   }
 
   /* use ---------------------------------------------------------------------- */
@@ -228,22 +242,104 @@ export class cheetah extends base<cheetah>() {
 
   /* router ------------------------------------------------------------------- */
 
-  #match(method: string, pathname: string, preflight: boolean) {
+  #parseVersion(headers: Headers, pathname: string) {
+    if (!this.#versioning) { // for typescript
+      throw new Error('Versioning not configured!')
+    }
+
+    const regex = /^v[1-9][0-9]?$|^100$/
+
+    if (this.#versioning.type === 'uri') {
+      const arr = pathname.replace('/', '').split('/')
+
+      if (regex.test(arr[0])) {
+        const version = arr[0]
+
+        arr.shift()
+
+        return { version, pathname: '/' + arr.join('/') }
+      }
+
+      return { version: this.#versioning.current, pathname }
+    }
+
+    const header = headers.get(this.#versioning.header)
+
+    if (
+      this.#versioning.type === 'header' && header !== null &&
+      regex.test(header)
+    ) {
+      return { version: header, pathname }
+    }
+
+    return { version: this.#versioning.current, pathname }
+  }
+
+  #match(request: Request, p: string) {
     for (const r of this.#routes.values()) {
       if (
-        method === r[0] ||
-        method === 'OPTIONS' ||
-        preflight && method === 'HEAD' && r[0] === 'GET'
+        request.method === r[0] ||
+        request.method === 'OPTIONS' ||
+        this.#preflight && request.method === 'HEAD' && r[0] === 'GET'
       ) {
-        const result = pathname.match(r[2])
+        if (this.#versioning) {
+          const { pathname, version } = this.#parseVersion(request.headers, p)
 
-        if (!result) {
-          continue
-        }
+          if (
+            parseInt(version.replace('v', '')) >
+              parseInt(this.#versioning.current.replace('v', ''))
+          ) {
+            break
+          }
 
-        return {
-          handlers: r[3],
-          params: result.groups ?? {},
+          const options = typeof r[3][0] !== 'function' ? r[3][0] : null
+
+          if (options?.versionRange !== undefined) {
+            const result = pathname.match(r[2])
+
+            if (!result) {
+              continue
+            }
+
+            const gateway = isVersionWithinRange(
+              version as Version,
+              options.versionRange as VersionRange,
+            )
+
+            if (!gateway) {
+              break
+            }
+
+            return {
+              handlers: r[3],
+              params: result.groups ?? {},
+              gateway,
+            }
+          } else {
+            const result = pathname.match(r[2])
+
+            if (!result) {
+              continue
+            }
+
+            return {
+              handlers: r[3],
+              params: result.groups ?? {},
+              gateway: parseInt(version.replace('v', '')),
+            }
+          }
+        } else {
+          const result = p.match(r[2])
+
+          if (!result) {
+            continue
+          }
+
+          return {
+            handlers: r[3],
+            params: result.groups ?? {},
+            gateway: undefined,
+          }
         }
       }
     }
@@ -281,6 +377,8 @@ export class cheetah extends base<cheetah>() {
         routes: this.#routes,
         runtime: this.#runtime,
         oauth: this.#oauth,
+        versioning: this.#versioning,
+        gateway: -1,
       }
 
       if (this.#extensions.size > 0) {
@@ -345,10 +443,11 @@ export class cheetah extends base<cheetah>() {
       }
 
       const route = this.#match(
-        req.method,
+        req,
         __app.request.pathname,
-        this.#preflight,
       )
+
+      __app.gateway = route?.gateway ?? -1
 
       if (!route) {
         if (!this.#notFound) {
@@ -601,4 +700,32 @@ export class cheetah extends base<cheetah>() {
       return this.fetch(request, data)
     }).finished
   }
+}
+
+function isVersionWithinRange(
+  version: Version,
+  r: VersionRange,
+): number | undefined {
+  const v = parseInt(version.replace('v', ''))
+
+  if (parseInt(r.replace('v', '')) === v) {
+    return v
+  }
+
+  if (r.startsWith('v') && r.includes('...')) { // from (min) ... to (max)
+    const from = parseInt(r.split('...')[0].replace('v', ''))
+    const to = parseInt(r.split('...')[1].replace('v', ''))
+
+    return v >= from && v <= to ? v : undefined
+  } else if (r.startsWith('> ')) {
+    return v > parseInt(r.replace('> v', '')) ? v : undefined
+  } else if (r.startsWith('< ')) {
+    return v < parseInt(r.replace('< v', '')) ? v : undefined
+  } else if (r.startsWith('>= ')) {
+    return v >= parseInt(r.replace('>= v', '')) ? v : undefined
+  } else if (r.startsWith('<= ')) {
+    return v <= parseInt(r.replace('<= v', '')) ? v : undefined
+  }
+
+  return undefined
 }
