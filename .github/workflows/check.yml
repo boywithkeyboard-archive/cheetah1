@@ -24,13 +24,3 @@ jobs:
 
       - name: Run deno test
         run: deno task test --fail-fast
-
-      - name: Run deno test
-        run: deno task test --fail-fast
-
-      - name: Check license headers
-        run: |
-          deno run -A --no-check https://deno.land/x/anzu@1.0.0/src/cli.ts \
-           -i ./ "/.+\.ts/" \
-           -l "// Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license." \
-           -p
