@@ -250,15 +250,17 @@ export class cheetah extends base<cheetah>() {
     const regex = /^v[1-9][0-9]?$|^100$/
 
     if (this.#versioning.type === 'uri') {
-      pathname = pathname.replace('/', '')
+      const arr = pathname.replace('/', '').split('/')
 
-      if (regex.test(pathname.split('/')[0])) {
-        pathname.split('/').shift()
+      if (regex.test(arr[0])) {
+        const version = arr[0]
 
-        return { version: pathname.split('/')[0], pathname: '/' + pathname }
+        arr.shift()
+
+        return { version, pathname: '/' + arr.join('/') }
       }
 
-      return { version: this.#versioning.current, pathname: '/' + pathname }
+      return { version: this.#versioning.current, pathname }
     }
 
     const header = headers.get(this.#versioning.header)
@@ -281,18 +283,18 @@ export class cheetah extends base<cheetah>() {
         this.#preflight && request.method === 'HEAD' && r[0] === 'GET'
       ) {
         if (this.#versioning) {
-          const options = typeof r[3][0] !== 'function' ? r[3][0] : null
-
           const { pathname, version } = this.#parseVersion(request.headers, p)
 
           if (
             parseInt(version.replace('v', '')) >
               parseInt(this.#versioning.current.replace('v', ''))
           ) {
-            return null
+            break
           }
 
-          if (options !== null && options.versionRange !== undefined) {
+          const options = typeof r[3][0] !== 'function' ? r[3][0] : null
+
+          if (options?.versionRange !== undefined) {
             const result = pathname.match(r[2])
 
             if (!result) {
@@ -305,7 +307,7 @@ export class cheetah extends base<cheetah>() {
             )
 
             if (!gateway) {
-              return null
+              break
             }
 
             return {
@@ -376,6 +378,7 @@ export class cheetah extends base<cheetah>() {
         runtime: this.#runtime,
         oauth: this.#oauth,
         versioning: this.#versioning,
+        gateway: -1,
       }
 
       if (this.#extensions.size > 0) {
@@ -443,6 +446,8 @@ export class cheetah extends base<cheetah>() {
         req,
         __app.request.pathname,
       )
+
+      __app.gateway = route?.gateway ?? -1
 
       if (!route) {
         if (!this.#notFound) {

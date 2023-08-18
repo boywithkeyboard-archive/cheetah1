@@ -25,7 +25,8 @@ Deno.test('versioning', async (t) => {
     assertEquals(await get('/v1/1'), 'hello from v1')
     assertEquals(await get('/v2/1'), 'hello from v2')
     assertEquals(await get('/v3/1'), 'hello from v3')
-    assertEquals(await get('/v4/1') !== 'hello from v4', true)
+    assertEquals(await get('/v4/1'), 'hello from v4')
+    assertEquals(await get('/v5/1') !== 'hello from v5', true)
 
     // exact
 
@@ -118,7 +119,8 @@ Deno.test('versioning', async (t) => {
     assertEquals(await get('/v1/1'), 'hello from v1')
     assertEquals(await get('/v2/1'), 'hello from v2')
     assertEquals(await get('/v3/1'), 'hello from v3')
-    assertEquals(await get('/v4/1') !== 'hello from v4', true)
+    assertEquals(await get('/v4/1'), 'hello from v4')
+    assertEquals(await get('/v5/1') !== 'hello from v5', true)
 
     // exact
 
