@@ -89,10 +89,6 @@ export class Context<
     return this.#a
   }
 
-  get gateway(): number {
-    return this.#a.gateway ?? -1
-  }
-
   get dev(): boolean {
     return this.runtime === 'deno' && Deno.env.get('DEV') === 'true'
   }
