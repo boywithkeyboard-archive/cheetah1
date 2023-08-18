@@ -91,7 +91,7 @@ export function handler<T>() {
         transform?: boolean // TODO remove at v2.0
         cors?: string
         params?: Partial<Record<keyof ExtractParams<Pathname>, ZodType>>
-        versionRange?: VersionRange
+        gateway?: VersionRange
       })
       | Handler<
         Pathname,
@@ -141,7 +141,7 @@ export function bodylessHandler<T>() {
         query?: ValidatedQuery
         cors?: string
         params?: Partial<Record<keyof ExtractParams<Pathname>, ZodType>>
-        versionRange?: VersionRange
+        gateway?: VersionRange
       }
       | BodylessHandler<
         Pathname,
@@ -166,7 +166,7 @@ export type HandlerOrSchema =
     transform?: boolean // TODO remove at v2.0
     cors?: string
     params?: Record<string, ZodType>
-    versionRange?: VersionRange
+    gateway?: VersionRange
   }
   | Handler<unknown>
   | BodylessHandler<unknown>
