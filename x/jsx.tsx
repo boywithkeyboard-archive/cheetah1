@@ -9,12 +9,12 @@ import { Context } from '../mod.ts'
 export function jsx(c: Context, Component: (() => h.JSX.Element) | VNode) {
   const html$ = renderToString(
     Component instanceof Function ? <Component /> : Component,
-  );
+  )
   try {
     const { html, css } = extract(html$) // twind throws error when trying to extract if it is not installed
     c.res.body = `<style>${css}</style><body>${html}</body>`
   } catch (e) {
-    c.res.body = html$;
+    c.res.body = html$
   }
   c.res.header('content-type', 'text/html; charset=utf-8')
 }
