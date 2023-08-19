@@ -370,4 +370,8 @@ export class RequestContext<
   get stream() {
     return this.#r.body
   }
+
+  upgradeToWebsocket() {
+    return Deno.upgradeWebSocket(this.#r)
+  }
 }
