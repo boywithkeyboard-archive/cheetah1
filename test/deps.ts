@@ -9,3 +9,4 @@ import presetAutoPrefix from 'https://esm.sh/@twind/preset-autoprefix@1.0.7'
 import presetTailwind from 'https://esm.sh/@twind/preset-tailwind@1.1.4'
 export { presetAutoPrefix, presetTailwind }
 export { DOMParser } from 'https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts'
+export { install } from 'https://esm.sh/@twind/core@1.1.3'
