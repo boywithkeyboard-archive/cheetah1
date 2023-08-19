@@ -4,7 +4,7 @@ import { firewall } from '../../ext/firewall.ts'
 
 Deno.test('ext/firewall', async (t) => {
   await t.step('vpn', async () => {
-    const app = new cheetah({ debug: true })
+    const app = new cheetah({ proxy: 'cloudflare' })
 
     app.use(firewall({
       blockVPN: true,
@@ -23,7 +23,7 @@ Deno.test('ext/firewall', async (t) => {
 })
 
 Deno.test('datacenters', async () => {
-  const app = new cheetah({ debug: true })
+  const app = new cheetah({ proxy: 'cloudflare' })
 
   app.use(firewall({
     blockDatacenter: true,
@@ -41,7 +41,7 @@ Deno.test('datacenters', async () => {
 })
 
 Deno.test('customRanges', async () => {
-  const app = new cheetah({ debug: true })
+  const app = new cheetah({ proxy: 'cloudflare' })
 
   app.use(firewall({
     customRanges: [
