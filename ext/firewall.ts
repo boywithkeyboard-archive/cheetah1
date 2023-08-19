@@ -1,7 +1,8 @@
 import { createExtension } from '../mod.ts'
 
-let vpnList: string[]
-let datacenterList: string[]
+let VPN_LIST: string[] = []
+let DATACENTER_LIST: string[] = []
+let LAST_UPDATE = 0
 
 type FirewallOptions = {
   blockVPN?: boolean
@@ -10,16 +11,16 @@ type FirewallOptions = {
 }
 
 export const firewall = createExtension<FirewallOptions>({
-  async onPlugIn() {
-    await update()
-  },
-  onRequest({ _: opts, app }) {
-    if (opts?.blockVPN && vpnList.find((range) => isIpInRange(app.ip, range))) {
+  async onRequest({ _: opts, app }) {
+    await checkUpdate()
+    if (
+      opts?.blockVPN && VPN_LIST.find((range) => isIpInRange(app.ip, range))
+    ) {
       return new Response(null, { status: 403 })
     }
     if (
       opts?.blockDatacenter &&
-      datacenterList.find((range) => isIpInRange(app.ip, range))
+      DATACENTER_LIST.find((range) => isIpInRange(app.ip, range))
     ) return new Response(null, { status: 403 })
     if (
       opts?.customRanges &&
@@ -28,13 +29,15 @@ export const firewall = createExtension<FirewallOptions>({
   },
 })
 
-async function update() {
-  vpnList = (await (await fetch(
-    'https://cdn.jsdelivr.net/gh/X4BNet/lists_vpn/output/vpn/ipv4.txt',
+async function checkUpdate() {
+  if (!(Date.now() - LAST_UPDATE > 9e5 /* 15 minutes */)) return
+  VPN_LIST = (await (await fetch(
+    'https://raw.githubusercontent.com/X4BNet/lists_vpn/main/output/vpn/ipv4.txt',
   )).text()).split('\n')
-  datacenterList = (await (await fetch(
-    'https://cdn.jsdelivr.net/gh/X4BNet/lists_vpn/output/datacenter/ipv4.txt',
+  DATACENTER_LIST = (await (await fetch(
+    'https://raw.githubusercontent.com/X4BNet/lists_vpn/main/output/datacenter/ipv4.txt',
   )).text()).split('\n')
+  LAST_UPDATE = Date.now()
 }
 
 function isIpInRange(ip: string, range: string) {
