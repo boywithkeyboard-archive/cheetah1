@@ -37,6 +37,20 @@ export type Payload =
   | undefined
   | void
 
+type Number = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+export type Version = `v${
+  | Exclude<Number, 0>
+  | `${Exclude<Number, 0>}${Number}`}`
+
+export type VersionRange =
+  | Version // exact version
+  | `> ${Version}` // greater than version
+  | `< ${Version}` // smaller than version
+  | `>= ${Version}` // greater than or equal to version
+  | `<= ${Version}` // smaller than or equal to version
+  | `${Version}...${Version}` // from (min) ... to (max)
+
 export type Handler<
   Pathname extends `/${string}` | unknown,
   // deno-lint-ignore no-explicit-any
@@ -77,6 +91,7 @@ export function handler<T>() {
         transform?: boolean // TODO remove at v2.0
         cors?: string
         params?: Partial<Record<keyof ExtractParams<Pathname>, ZodType>>
+        gateway?: VersionRange
       })
       | Handler<
         Pathname,
@@ -126,6 +141,7 @@ export function bodylessHandler<T>() {
         query?: ValidatedQuery
         cors?: string
         params?: Partial<Record<keyof ExtractParams<Pathname>, ZodType>>
+        gateway?: VersionRange
       }
       | BodylessHandler<
         Pathname,
@@ -150,6 +166,7 @@ export type HandlerOrSchema =
     transform?: boolean // TODO remove at v2.0
     cors?: string
     params?: Record<string, ZodType>
+    gateway?: VersionRange
   }
   | Handler<unknown>
   | BodylessHandler<unknown>
