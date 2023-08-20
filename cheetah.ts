@@ -380,7 +380,7 @@ export class cheetah extends base<cheetah>() {
         oauth: this.#oauth,
         versioning: this.#versioning,
         gateway: -1,
-        debugging: this.#debug
+        debugging: this.#debug,
       }
 
       if (this.#extensions.size > 0) {
