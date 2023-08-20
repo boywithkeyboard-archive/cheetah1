@@ -1,6 +1,9 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import * as OTP from 'https://deno.land/x/otpauth@v9.1.4/dist/otpauth.esm.js'
 
+/**
+ * @deprecated please import the module from `https://deno.land/x/cheetah@v1.4.0/mod.ts`!
+ */
 export const otp = {
   /**
    * Create a random secret.
