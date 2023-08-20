@@ -9,7 +9,7 @@ export type { Extension } from './extensions.ts'
 export { default as jwt } from './jwt.ts'
 export { LocationData } from './location_data.ts'
 export { otp } from './otp.ts'
-export { render } from './render.tsx'
+export { h, Renderer } from './render.ts'
 export { sendMail } from './send_mail.ts'
 export { Store } from './store.ts'
 

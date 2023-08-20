@@ -1,23 +1,12 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 /** @jsx h */
-
-import { h, render } from '../render.tsx'
-import cheetah from '../mod.ts'
-import {
-  assert,
-  assertEquals,
-  defineConfig,
-  DOMParser,
-  install,
-  presetAutoPrefix,
-  presetTailwind,
-} from './deps.ts'
+import cheetah, { h, Renderer } from '../mod.ts'
+import { assert, assertEquals, DOMParser } from './deps.ts'
 
 Deno.test('render', async () => {
   const app = new cheetah()
-  install(defineConfig({
-    presets: [presetAutoPrefix(), presetTailwind()],
-  }))
+
+  const { render } = new Renderer()
 
   function Styled() {
     return (
@@ -27,12 +16,14 @@ Deno.test('render', async () => {
     )
   }
 
-  app.get('/a', (c) => render(c, Styled))
+  app.get('/a', (c) => render(c, <Styled />))
 
   const a = await app.fetch(new Request('http://localhost/a'))
 
+  const tx = await a.text()
+
   const document = new DOMParser().parseFromString(
-    await a.text(),
+    tx,
     'text/html',
   )
 
