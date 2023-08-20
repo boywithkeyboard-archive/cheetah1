@@ -6,6 +6,7 @@ import {
   brightYellow,
   gray,
 } from 'https://deno.land/std@0.198.0/fmt/colors.ts'
+import { ensureFile } from 'https://deno.land/std@0.198.0/fs/ensure_file.ts'
 import { join } from 'https://deno.land/std@0.198.0/path/mod.ts'
 import byte from 'https://deno.land/x/byte@v3.3.0/byte.ts'
 import * as esbuild from 'https://deno.land/x/esbuild@v0.19.2/mod.js'
@@ -118,8 +119,10 @@ async function bundle({
     options = ['--import-map', 'imports.json']
   }
 
+  ensureFile(output)
+
   const cmd = new Deno.Command('deno', {
-    args: ['bundle', '-q', ...options, input, output],
+    args: ['bundle', '-q', '--unstable', ...options, input, output],
     cwd,
   })
 
