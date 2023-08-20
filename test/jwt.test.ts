@@ -9,7 +9,10 @@ Deno.test('jwt', async () => {
 
   const token = await jwt.sign(key, { example: 'object' })
 
-  assertEquals(await jwt.verify(await createJwtSecret(), token) === undefined, true)
+  assertEquals(
+    await jwt.verify(await createJwtSecret(), token) === undefined,
+    true,
+  )
   assertEquals(await jwt.verify(key, token) !== undefined, true)
 
   Deno.env.set('jwt_secret', key)
