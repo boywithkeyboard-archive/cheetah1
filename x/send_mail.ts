@@ -7,6 +7,8 @@ type MailContact =
 
 /**
  * Send an email through [mailchannels](https://blog.cloudflare.com/sending-email-from-workers-with-mailchannels).
+ *
+ * @deprecated please import the module from `https://deno.land/x/cheetah@v1.4.0/mod.ts`!
  */
 export function sendMail(
   options: {
