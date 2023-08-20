@@ -90,7 +90,7 @@ export class Context<
   }
 
   get dev(): boolean {
-    return this.runtime === 'deno' && Deno.env.get('DEV') === 'true'
+    return this.#a.debugging || this.runtime === 'deno' && Deno.env.get('DEV') === 'true'
   }
 
   env<T extends keyof Variables>(name: T): Variables[T] {

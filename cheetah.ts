@@ -16,6 +16,7 @@ import { OAuthSessionData } from './oauth/types.ts'
 import { ResponseContext } from './response_context.ts'
 
 export type AppContext = {
+  debugging: boolean
   gateway?: number
   env: Record<string, unknown> | undefined
   ip: string
@@ -128,7 +129,7 @@ export class cheetah extends base<cheetah>() {
     error,
     notFound,
     oauth,
-    debug,
+    debug = false,
     versioning,
   }: AppConfig = {}) {
     super((method, pathname, handlers) => {
@@ -379,6 +380,7 @@ export class cheetah extends base<cheetah>() {
         oauth: this.#oauth,
         versioning: this.#versioning,
         gateway: -1,
+        debugging: this.#debug
       }
 
       if (this.#extensions.size > 0) {
