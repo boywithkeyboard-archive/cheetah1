@@ -18,7 +18,7 @@ export function render(c: Context, Component: VNode) {
     const { html, css } = extract(htmlString) // twind throws error when trying to extract if it is not installed
 
     c.res.body = `<style>${css}</style><body>${html}</body>`
-  } catch (e) {
+  } catch (_err) {
     if (c.dev) {
       console.warn(
         gray(
