@@ -20,34 +20,36 @@ Deno.test('x', async (t) => {
     assertEquals(await verify(token, cryptoKey) !== undefined, true)
   })
 
-  await t.step('jsx', async () => {
-    const app = new cheetah()
+  await t.step('jsx', async (t) => {
+    await t.step('plain', async () => {
+      const app = new cheetah()
 
-    function Custom() {
-      return <h1>hello world</h1>
-    }
+      function Custom() {
+        return <h1>hello world</h1>
+      }
 
-    app.get('/a', (c) => jsx(c, Custom))
-    app.get('/b', (c) => jsx(c, <Custom />))
+      app.get('/a', (c) => jsx(c, Custom))
+      app.get('/b', (c) => jsx(c, <Custom />))
 
-    const a = await app.fetch(new Request('http://localhost/a'))
-    const b = await app.fetch(new Request('http://localhost/b'))
+      const a = await app.fetch(new Request('http://localhost/a'))
+      const b = await app.fetch(new Request('http://localhost/b'))
 
-    assertEquals(
-      await a.text(),
-      '<h1>hello world</h1>',
-    )
-    assertEquals(
-      a.headers.get('content-type'),
-      'text/html; charset=utf-8',
-    )
-    assertEquals(
-      await b.text(),
-      '<h1>hello world</h1>',
-    )
-    assertEquals(
-      b.headers.get('content-type'),
-      'text/html; charset=utf-8',
-    )
+      assertEquals(
+        await a.text(),
+        '<h1>hello world</h1>',
+      )
+      assertEquals(
+        a.headers.get('content-type'),
+        'text/html; charset=utf-8',
+      )
+      assertEquals(
+        await b.text(),
+        '<h1>hello world</h1>',
+      )
+      assertEquals(
+        b.headers.get('content-type'),
+        'text/html; charset=utf-8',
+      )
+    })
   })
 })
