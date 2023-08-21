@@ -3,6 +3,7 @@ import { Context } from '../mod.ts'
 
 let ENV: Record<string, unknown> | undefined
 
+/** @deprecated please use new `c.env()` method instead! */
 export function env<Environment extends Record<string, unknown>>(
   c: Context,
 ): Environment {
@@ -15,6 +16,7 @@ export function env<Environment extends Record<string, unknown>>(
   return ENV as Environment
 }
 
+/** @deprecated please use new `c.env()` method instead! */
 export function getVariable<T extends unknown = string | undefined>(
   c: Context,
   name: string,

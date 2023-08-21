@@ -28,6 +28,9 @@ interface Payload {
   [key: string]: unknown
 }
 
+/**
+ * @deprecated will be removed at v2.0!
+ */
 export async function createKey() {
   const key = await crypto.subtle.generateKey(
     { name: 'HMAC', hash: 'SHA-512' },
@@ -40,6 +43,9 @@ export async function createKey() {
   return encode(exportedKey)
 }
 
+/**
+ * @deprecated will be removed at v2.0!
+ */
 export function importKey(key: string) {
   return crypto.subtle.importKey(
     'raw',
@@ -52,6 +58,14 @@ export function importKey(key: string) {
 
 /**
  * Sign a payload.
+ *
+ * @deprecated please import the module from `https://deno.land/x/cheetah@v1.4.0/mod.ts` instead!
+ *
+ * ```ts
+ * import { jwt } from 'https://deno.land/x/cheetah@v1.4.0/mod.ts'
+ *
+ * await jwt.sign(...)
+ * ```
  */
 // deno-lint-ignore ban-types
 export async function sign<T extends Record<string, unknown> = {}>(
@@ -71,6 +85,14 @@ export async function sign<T extends Record<string, unknown> = {}>(
 
 /**
  * Verify the validity of a JWT.
+ *
+ * @deprecated please import the module from `https://deno.land/x/cheetah@v1.4.0/mod.ts` instead!
+ *
+ * ```ts
+ * import { jwt } from 'https://deno.land/x/cheetah@v1.4.0/mod.ts'
+ *
+ * await jwt.verify(...)
+ * ```
  */
 export async function verify<T extends Record<string, unknown> = Payload>(
   token: string,
@@ -86,6 +108,13 @@ export async function verify<T extends Record<string, unknown> = Payload>(
   }
 }
 
+/**
+ * @deprecated please import the module from `https://deno.land/x/cheetah@v1.4.0/mod.ts` instead!
+ *
+ * ```ts
+ * import { jwt } from 'https://deno.land/x/cheetah@v1.4.0/mod.ts'
+ * ```
+ */
 export default {
   sign,
   verify,

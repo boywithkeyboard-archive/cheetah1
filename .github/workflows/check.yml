@@ -11,6 +11,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/deno
+            ~/.deno
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/*') }}
+          restore-keys: |
+            ${{ runner.os }}-deno-
+
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:

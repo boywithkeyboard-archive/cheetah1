@@ -10,6 +10,8 @@ type CloudflareRequest = Request & {
  * Inspect the geolocation data of the incoming request.
  *
  * You must either deploy your app to [Cloudflare Workers](https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties) or use [Cloudflare as a proxy](https://developers.cloudflare.com/support/network/configuring-ip-geolocation/) to use the `LocationData` API.
+ *
+ * @deprecated please import the module from `https://deno.land/x/cheetah@v1.4.0/mod.ts`!
  */
 export class LocationData {
   #c: Context

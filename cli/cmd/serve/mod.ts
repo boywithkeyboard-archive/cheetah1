@@ -1,17 +1,21 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { loadSync } from 'https://deno.land/std@0.198.0/dotenv/mod.ts'
 import { parse } from 'https://deno.land/std@0.198.0/flags/mod.ts'
-import { brightGreen, gray } from 'https://deno.land/std@0.198.0/fmt/colors.ts'
+import {
+  brightGreen,
+  gray,
+  white,
+} from 'https://deno.land/std@0.198.0/fmt/colors.ts'
 import {
   keypress,
   KeyPressEvent,
 } from 'https://deno.land/x/cliffy@v0.25.7/keypress/mod.ts'
-import { cheetah } from '../../cheetah.ts'
-import { log } from '../utils.ts'
+import { cheetah } from '../../../cheetah.ts'
+import { logError } from '../../utils.ts'
 
 export async function serveCommand(args: ReturnType<typeof parse>) {
   if (typeof args._[1] !== 'string') {
-    return log.error('please specify an entry point')
+    return logError('please specify an entry point')
   }
 
   loadSync({ export: true })
@@ -58,7 +62,9 @@ export async function serveCommand(args: ReturnType<typeof parse>) {
     childProcess = cmd.spawn()
   }
 
-  console.info(gray(`${brightGreen('success')} - press CTRL+C to exit`))
+  console.info(
+    gray(`${brightGreen('success')} - press ${white('CTRL+C')} to exit`),
+  )
 
   for await (const e of keypress()) {
     const { ctrlKey, key } = e as KeyPressEvent
