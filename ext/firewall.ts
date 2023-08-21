@@ -30,7 +30,7 @@ export const firewall = createExtension<FirewallOptions>({
 })
 
 async function checkUpdate() {
-  if (!(Date.now() - LAST_UPDATE > 9e5 /* 15 minutes */)) return
+  if (Date.now() - LAST_UPDATE < 9e5 /* 15 minutes */) return
   VPN_LIST = (await (await fetch(
     'https://raw.githubusercontent.com/X4BNet/lists_vpn/main/output/vpn/ipv4.txt',
   )).text()).split('\n')
