@@ -7,7 +7,7 @@ import {
 } from 'https://esm.sh/@twind/core@1.1.3'
 import presetAutoPrefix from 'https://esm.sh/@twind/preset-autoprefix@1.0.7'
 import presetTailwind from 'https://esm.sh/@twind/preset-tailwind@1.1.4'
-import { default as renderToString } from 'https://esm.sh/preact-render-to-string@6.1.0?deps=preact@10.17.1&target=es2022'
+import renderToString from 'https://esm.sh/preact-render-to-string@6.1.0?deps=preact@10.17.1&target=es2022'
 import { VNode } from 'https://esm.sh/preact@10.17.1?target=es2022'
 import { Context } from './mod.ts'
 
@@ -15,7 +15,7 @@ export function render(c: Context, Component: VNode) {
   const htmlString = renderToString(Component)
 
   try {
-    const { html, css } = extract(htmlString) // twind throws error when trying to extract if it is not installed
+    const { html, css } = extract(htmlString)
 
     c.res.body = `<style>${css}</style><body>${html}</body>`
   } catch (_err) {
