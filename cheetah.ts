@@ -31,6 +31,7 @@ export type AppContext = {
   }
   oauth: AppConfig['oauth']
   versioning: AppConfig['versioning']
+  caching: AppConfig['cache']
 }
 
 export type AppConfig = {
@@ -104,6 +105,11 @@ export type AppConfig = {
     & {
       current: Version
     }
+
+  cache?: {
+    /** A unique name for your cache. */
+    name: string
+  }
 }
 
 export class cheetah extends base<cheetah>() {
@@ -120,6 +126,7 @@ export class cheetah extends base<cheetah>() {
   #oauth
   #debug
   #versioning
+  #cache
 
   constructor({
     base,
@@ -131,6 +138,7 @@ export class cheetah extends base<cheetah>() {
     oauth,
     debug = false,
     versioning,
+    cache,
   }: AppConfig = {}) {
     super((method, pathname, handlers) => {
       pathname = this.#base ? this.#base + pathname : pathname
@@ -167,6 +175,7 @@ export class cheetah extends base<cheetah>() {
     this.#oauth = oauth
     this.#debug = debug
     this.#versioning = versioning
+    this.#cache = cache
   }
 
   /* use ---------------------------------------------------------------------- */
@@ -381,6 +390,7 @@ export class cheetah extends base<cheetah>() {
         versioning: this.#versioning,
         gateway: -1,
         debugging: this.#debug,
+        caching: this.#cache,
       }
 
       if (this.#extensions.size > 0) {
