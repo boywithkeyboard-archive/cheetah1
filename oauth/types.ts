@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { UserAgent } from 'https://deno.land/std@0.198.0/http/user_agent.ts'
+import { UserAgent } from 'https://deno.land/std@0.199.0/http/user_agent.ts'
 import { LocationData } from '../x/location_data.ts'
 
 export type OAuthMethod =

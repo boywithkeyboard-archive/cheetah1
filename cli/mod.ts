@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { parse } from 'https://deno.land/std@0.198.0/flags/mod.ts'
+import { parse } from 'https://deno.land/std@0.199.0/flags/mod.ts'
 import { bundleCommand } from './cmd/bundle/mod.ts'
 import { newCommand } from './cmd/new/mod.ts'
 import { randomCommand } from './cmd/random/mod.ts'
