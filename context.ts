@@ -1,5 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 /// <reference types='./env.d.ts' />
+import { encode } from 'https://deno.land/std@0.199.0/encoding/base64.ts'
 import { ZodType } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { AppContext } from './cheetah.ts'
 import { ObjectType, Payload } from './handler.ts'
@@ -40,6 +41,7 @@ export class Context<
   ValidatedQuery extends ObjectType = never,
 > {
   #a
+  #c: Cache | undefined
   #i
   #p
   #r
@@ -87,6 +89,16 @@ export class Context<
 
   get __app(): AppContext {
     return this.#a
+  }
+
+  get cache(): Cache {
+    if (this.#c) {
+      return this.#c
+    }
+
+    this.#c = new Cache(this)
+
+    return this.#c
   }
 
   get dev(): boolean {
@@ -172,5 +184,111 @@ export class Exception {
         },
       )
     }
+  }
+}
+
+class Cache {
+  #cache: globalThis.Cache | null
+  #context
+  #name
+
+  constructor(c: Context) {
+    this.#cache = null
+    this.#context = c
+    this.#name = c.__app.caching?.name ?? 'cheetah'
+  }
+
+  async set(
+    key: string,
+    value: string | Record<string, unknown> | Uint8Array,
+    options?: {
+      maxAge?: number
+    },
+  ) {
+    if (this.#cache === null) {
+      this.#cache = await caches.open(this.#name)
+    }
+
+    this.#context.waitUntil(
+      this.#cache.put(
+        `https://${this.#name}.com/${encode(key)}`,
+        new Response(
+          typeof value === 'string' || value instanceof Uint8Array
+            ? value
+            : JSON.stringify(value),
+          {
+            headers: {
+              'cache-control': `max-age=${options?.maxAge ?? 300}`,
+            },
+          },
+        ),
+      ),
+    )
+  }
+
+  get<T extends Record<string, unknown> = Record<string, unknown>>(
+    key: string,
+    type: 'json',
+  ): Promise<T | undefined>
+  get<T extends string = string>(
+    key: string,
+    type: 'string',
+  ): Promise<T | undefined>
+  get<T extends Uint8Array = Uint8Array>(
+    key: string,
+    type: 'buffer',
+  ): Promise<T | undefined>
+
+  async get<T extends Record<string, unknown> | string | Uint8Array>(
+    key: string,
+    type: 'string' | 'json' | 'buffer' = 'string',
+  ): Promise<T | undefined> {
+    if (this.#cache === null) {
+      this.#cache = await caches.open(this.#name)
+    }
+
+    try {
+      const result = await this.#cache.match(
+        `https://${this.#name}.com/${encode(key)}`,
+      )
+
+      if (!result) {
+        return undefined
+      }
+
+      const data = type === 'string'
+        ? await result.text()
+        : type === 'json'
+        ? await result.json()
+        : new Uint8Array(await result.arrayBuffer())
+
+      return data
+    } catch (_err) {
+      return undefined
+    }
+  }
+
+  async has(key: string) {
+    if (this.#cache === null) {
+      this.#cache = await caches.open(this.#name)
+    }
+
+    const result = await this.#cache.match(
+      `https://${this.#name}.com/${encode(key)}`,
+    )
+
+    return result !== undefined
+  }
+
+  async delete(key: string) {
+    if (this.#cache === null) {
+      this.#cache = await caches.open(this.#name)
+    }
+
+    this.#context.waitUntil(
+      this.#cache.delete(
+        `https://${this.#name}.com/${encode(key)}`,
+      ),
+    )
   }
 }

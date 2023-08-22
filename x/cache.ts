@@ -2,6 +2,7 @@
 import { encode } from 'https://deno.land/std@0.199.0/encoding/base64.ts'
 import { Context } from '../mod.ts'
 
+/** @deprecate please use `c.cache` instead! */
 export class Cache {
   #cache: globalThis.Cache | null
   #context
