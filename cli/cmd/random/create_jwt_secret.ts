@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { encode } from 'https://deno.land/std@0.198.0/encoding/base64.ts'
+import { encode } from 'https://deno.land/std@0.199.0/encoding/base64.ts'
 
 export async function createJwtSecret() {
   const key = await crypto.subtle.generateKey(

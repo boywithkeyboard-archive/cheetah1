@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { getCookies } from 'https://deno.land/std@0.198.0/http/cookie.ts'
+import { getCookies } from 'https://deno.land/std@0.199.0/http/cookie.ts'
 import { Context } from '../context.ts'
 import { getVariable } from '../x/env.ts'
 import { verify } from '../x/jwt.ts'

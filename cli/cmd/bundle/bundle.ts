@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { ensureFile } from 'https://deno.land/std@0.198.0/fs/ensure_file.ts'
-import { join } from 'https://deno.land/std@0.198.0/path/mod.ts'
+import { ensureFile } from 'https://deno.land/std@0.199.0/fs/ensure_file.ts'
+import { join } from 'https://deno.land/std@0.199.0/path/mod.ts'
 import * as esbuild from 'https://deno.land/x/esbuild@v0.19.2/mod.js'
 
 export async function bundle({

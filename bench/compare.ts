@@ -3,7 +3,7 @@ import {
   prerelease,
   rcompare,
 } from 'https://deno.land/std@0.191.0/semver/mod.ts#pin'
-import { gray, white } from 'https://deno.land/std@0.198.0/fmt/colors.ts'
+import { gray, white } from 'https://deno.land/std@0.199.0/fmt/colors.ts'
 
 async function bench(url: string) {
   const a = new Deno.Command('deno', {
