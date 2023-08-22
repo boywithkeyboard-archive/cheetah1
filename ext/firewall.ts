@@ -10,6 +10,12 @@ type FirewallOptions = {
   customRanges?: string[]
 }
 
+/**
+ * An extension for blocking specific traffic to your app.
+ *
+ * @namespace ext
+ * @since v1.4
+ */
 export const firewall = createExtension<FirewallOptions>({
   async onRequest({ _: opts, app }) {
     await checkUpdate()
