@@ -74,15 +74,35 @@ async function handleR2Files(
       ? app.request.pathname.substring(prefix.length + 1)
       : app.request.pathname,
   )
-
-  if (!object) return new Response(null, { status: 404 })
-
-  return new Response(object.body as ReadableStream, {
-    headers: {
-      ...(serve.etag !== false && { etag: object.httpEtag }),
-      'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
-    },
-  })
+  if (object) {
+    return new Response(object.body as ReadableStream, {
+      headers: {
+        ...(serve.etag !== false && { etag: object.httpEtag }),
+        'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+      },
+    })
+  } else {
+    const indexPath = join(app.request.pathname, 'index.html')
+    const indexObject = await bucket.get(indexPath)
+    if (indexObject) {
+      return new Response(indexObject.body as ReadableStream, {
+        headers: {
+          ...(serve.etag !== false && { etag: indexObject.httpEtag }),
+          'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+        },
+      })
+    } else {
+      const errorPath = join(prefix, '404.html')
+      const errorObject = await bucket.get(errorPath)
+      if (errorObject) {
+        return new Response(errorObject.body as ReadableStream, {
+          headers: {
+            'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+          },
+        })
+      }
+    }
+  }
 }
 
 async function handleFsFiles(
