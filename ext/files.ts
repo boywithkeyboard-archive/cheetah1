@@ -6,22 +6,22 @@ import { AppContext } from '../mod.ts'
 
 // An extension to serve static files from Cloudflare R2, an S3 bucket, or the local file system.
 
-type FilesCommonType = {
+type GeneralOptions = {
   cacheControl?: string
   etag?: boolean
 }
 
-type FsType = {
+type FsOptions = {
   type?: 'fs'
   directory: string
 }
 
-type R2Type = {
+type R2Options = {
   type: 'r2'
   name: string
 }
 
-type S3Type = {
+type S3Options = {
   type: 's3'
   endpoint: string
   bucketName: string
@@ -35,7 +35,7 @@ type S3Type = {
  * @since v1.2
  */
 export const files = createExtension<{
-  serve: FilesCommonType & (FsType | R2Type | S3Type)
+  serve: GeneralOptions & (FsOptions | R2Options | S3Options)
 }>({
   onRequest({
     app,
@@ -58,7 +58,7 @@ export const files = createExtension<{
 
 async function handleR2Files(
   app: AppContext,
-  serve: FilesCommonType & R2Type,
+  serve: GeneralOptions & R2Options,
   prefix: string,
 ) {
   if (app.runtime !== 'cloudflare' || !app.env) {
@@ -87,7 +87,7 @@ async function handleR2Files(
 
 async function handleFsFiles(
   app: AppContext,
-  serve: FilesCommonType & FsType,
+  serve: GeneralOptions & FsOptions,
   prefix: string,
 ) {
   const path = join(
