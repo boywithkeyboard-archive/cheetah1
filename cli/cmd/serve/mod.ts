@@ -1,11 +1,11 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { loadSync } from 'https://deno.land/std@0.199.0/dotenv/mod.ts'
-import { parse } from 'https://deno.land/std@0.199.0/flags/mod.ts'
+import { loadSync } from 'https://deno.land/std@0.200.0/dotenv/mod.ts'
+import { parse } from 'https://deno.land/std@0.200.0/flags/mod.ts'
 import {
   brightGreen,
   gray,
   white,
-} from 'https://deno.land/std@0.199.0/fmt/colors.ts'
+} from 'https://deno.land/std@0.200.0/fmt/colors.ts'
 import {
   keypress,
   KeyPressEvent,

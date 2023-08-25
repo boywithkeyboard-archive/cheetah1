@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 /// <reference types='./env.d.ts' />
-import { encode } from 'https://deno.land/std@0.199.0/encoding/base64.ts'
+import { encode } from 'https://deno.land/std@0.200.0/encoding/base64.ts'
 import { ZodType } from 'https://deno.land/x/zod@v3.21.4/types.ts'
 import { AppContext } from './cheetah.ts'
 import { ObjectType, Payload } from './handler.ts'

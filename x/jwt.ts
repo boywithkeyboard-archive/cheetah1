@@ -2,7 +2,7 @@
 import {
   decode,
   encode,
-} from 'https://deno.land/std@0.199.0/encoding/base64.ts'
+} from 'https://deno.land/std@0.200.0/encoding/base64.ts'
 import {
   create,
   getNumericDate,

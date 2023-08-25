@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { brightYellow, gray } from 'https://deno.land/std@0.199.0/fmt/colors.ts'
+import { brightYellow, gray } from 'https://deno.land/std@0.200.0/fmt/colors.ts'
 import {
   defineConfig,
   extract,
