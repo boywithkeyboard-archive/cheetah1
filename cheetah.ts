@@ -403,6 +403,7 @@ export class cheetah extends base<cheetah>() {
               env: __app.env,
               routes: this.#routes,
               runtime: this.#runtime,
+              settings: e[1].__config,
               setRoute: (method, pathname, ...handlers) => {
                 this.#routes.add([
                   method.toUpperCase() as Uppercase<Method>,
