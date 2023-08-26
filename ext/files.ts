@@ -32,6 +32,15 @@ const awsClient = new AwsClient({
   secretAccessKey: '',
 })
 
+function getVar<T extends unknown = string | undefined>(
+  app: AppContext,
+  name: string,
+): T {
+  return app.runtime === 'cloudflare' && app.env
+    ? app.env[name] as T
+    : Deno.env.get(name) as T
+}
+
 /**
  * An extension to serve static files from Cloudflare R2, an S3 bucket, or the local file system.
  *
@@ -60,11 +69,13 @@ export const files = createExtension<{
       case 'r2':
         return handleR2Files(app, serve, prefix)
       case 's3': {
-        const keyId = Deno.env.get('AWS_ACCESS_KEY_ID') ?? serve.accessKeyId
-        if (!keyId) throw new Error('AWS_ACCESS_KEY_ID is not set')
-        const accessKey = Deno.env.get('AWS_SECRET_ACCESS_KEY') ??
+        const keyId = getVar(app, 'S3_ACCESS_KEY_ID') ??
+          getVar(app, 's3_access_key_id') ?? serve.accessKeyId
+        if (!keyId) throw new Error('S3_ACCESS_KEY_ID is not set')
+        const accessKey = getVar(app, 'S3_SECRET_ACCESS_KEY') ??
+          getVar(app, 's3_secret_access_key') ??
           serve.secretAccessKey
-        if (!accessKey) throw new Error('AWS_SECRET_ACCESS_KEY is not set')
+        if (!accessKey) throw new Error('S3_SECRET_ACCESS_KEY is not set')
         awsClient.accessKeyId = keyId
         awsClient.secretAccessKey = accessKey
         return handleS3Files(app, serve, prefix, request)
