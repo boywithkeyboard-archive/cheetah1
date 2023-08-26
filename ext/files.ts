@@ -25,14 +25,14 @@ type R2Options = {
 type S3Options = {
   type: 's3'
   endpoint: string
-  bucketName: string
   accessKeyId: string
   secretAccessKey: string
-  region: string
 }
 
-let awsClient: AwsClient
-let s3Endpoint: string
+const awsClient = new AwsClient({
+  accessKeyId: '',
+  secretAccessKey: '',
+})
 
 /**
  * An extension to serve static files from Cloudflare R2 or the local file system.
@@ -42,29 +42,29 @@ let s3Endpoint: string
 export const files = createExtension<{
   serve: GeneralOptions & (FsOptions | R2Options | S3Options)
 }>({
-  onPlugIn({ settings }) {
-    if (settings.serve.type === 's3') {
-      const { accessKeyId, secretAccessKey, bucketName, region } =
-        settings.serve
-      awsClient = new AwsClient({
-        accessKeyId,
-        secretAccessKey,
-      })
-      s3Endpoint = `https://${bucketName}.s3.${region}.amazonaws.com`
-    }
-  },
+  // onPlugIn({ settings }) {
+  //     if (settings.serve.type === 's3') {
+  //     awsClient = new AwsClient({
+  //       accessKeyId: settings.serve.accessKeyId,
+  //       secretAccessKey: settings.serve.secretAccessKey,
+  //     })
+  //   }
+  // },
   onRequest({
     app,
     prefix,
     _: {
       serve,
     },
+    req: request,
   }) {
     switch (serve.type) {
       case 'r2':
         return handleR2Files(app, serve, prefix)
       case 's3':
-        return handleS3Files(app, serve, prefix)
+        awsClient.accessKeyId = serve.accessKeyId
+        awsClient.secretAccessKey = serve.secretAccessKey
+        return handleS3Files(app, serve, prefix, request)
       case 'fs':
       default:
         return handleFsFiles(app, serve, prefix)
@@ -76,7 +76,58 @@ async function handleS3Files(
   app: AppContext,
   serve: GeneralOptions & S3Options,
   prefix: string,
+  request: Request,
 ) {
+  const path = join(
+    prefix !== '*'
+      ? app.request.pathname.substring(prefix.length + 1)
+      : app.request.pathname,
+  )
+
+  const response = await awsClient.fetch(
+    `${serve.endpoint}${path}`,
+    {
+      headers: {
+        ...(serve.etag !== false &&
+          { etag: request.headers.get('if-none-match') ?? '' }),
+        'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+      },
+    },
+  )
+
+  if (response.status === 404) {
+    const indexPath = join(path, 'index.html')
+    const indexResponse = await awsClient.fetch(
+      `${serve.endpoint}${indexPath}`,
+      {
+        headers: {
+          ...(serve.etag !== false &&
+            { etag: request.headers.get('if-none-match') ?? '' }),
+          'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+        },
+      },
+    )
+    if (indexResponse.status === 404) {
+      const indexPath = join(path, '404.html')
+      const errorResponse = await awsClient.fetch(
+        `${serve.endpoint}${indexPath}`,
+        {
+          headers: {
+            'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+          },
+        },
+      )
+      if (errorResponse.status === 404) {
+        return
+      } else {
+        return errorResponse
+      }
+    } else {
+      return indexResponse
+    }
+  } else {
+    return response
+  }
 }
 
 async function handleR2Files(
