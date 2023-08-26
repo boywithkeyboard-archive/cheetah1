@@ -24,9 +24,9 @@ type R2Options = {
 
 type S3Options = {
   type: 's3'
-  endpoint: string
-  accessKeyId: string
-  secretAccessKey: string
+  endpoint?: string
+  accessKeyId?: string
+  secretAccessKey?: string
 }
 
 const awsClient = new AwsClient({
@@ -61,10 +61,16 @@ export const files = createExtension<{
     switch (serve.type) {
       case 'r2':
         return handleR2Files(app, serve, prefix)
-      case 's3':
-        awsClient.accessKeyId = serve.accessKeyId
-        awsClient.secretAccessKey = serve.secretAccessKey
+      case 's3': {
+        const keyId = Deno.env.get('AWS_ACCESS_KEY_ID') ?? serve.accessKeyId
+        if (!keyId) throw new Error('AWS_ACCESS_KEY_ID is not set')
+        const accessKey = Deno.env.get('AWS_SECRET_ACCESS_KEY') ??
+          serve.secretAccessKey
+        if (!accessKey) throw new Error('AWS_SECRET_ACCESS_KEY is not set')
+        awsClient.accessKeyId = keyId
+        awsClient.secretAccessKey = accessKey
         return handleS3Files(app, serve, prefix, request)
+      }
       case 'fs':
       default:
         return handleFsFiles(app, serve, prefix)
