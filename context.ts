@@ -151,7 +151,7 @@ export class Context<
   exception(error: keyof typeof HTTP_MESSAGES, description?: string) {
     const code = HTTP_MESSAGES[error]
 
-    return new Exception(error, description, code)
+    throw new Exception(error, description, code)
   }
 }
 
