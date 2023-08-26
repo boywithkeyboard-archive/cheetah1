@@ -44,6 +44,7 @@ function getVar<T extends unknown = string | undefined>(
 /**
  * An extension to serve static files from Cloudflare R2, an S3 bucket, or the local file system.
  *
+ * @copyright [@not-ivy](https://github.com/not-ivy), [@boywithkeyboard](https://github.com/boywithkeyboard)
  * @since v1.2
  */
 export const files = createExtension<{
