@@ -664,14 +664,18 @@ export class cheetah extends base<cheetah>() {
       }
 
       case 'Object': {
-        $.b = JSON.stringify($.b)
+        try {
+          if ((($.b as unknown) as { code: number }).code) {
+            $.c = (($.b as unknown) as { code: number }).code
+          }
 
-        if (!$.h.has('content-type')) {
-          $.h.set('content-type', 'application/json; charset=utf-8')
-        }
+          $.b = JSON.stringify($.b)
 
-        if ((($.b as unknown) as { code: number }).code) {
-          $.c = (($.b as unknown) as { code: number }).code
+          if (!$.h.has('content-type')) {
+            $.h.set('content-type', 'application/json; charset=utf-8')
+          }
+        } catch (err) {
+          console.log(err)
         }
 
         break
