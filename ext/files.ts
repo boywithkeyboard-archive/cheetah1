@@ -135,12 +135,11 @@ async function handleR2Files(
   }
 
   const bucket = app.env[serve.name] as R2Bucket
+  const path = prefix !== '*'
+    ? app.request.pathname.substring(prefix.length + 1)
+    : app.request.pathname
 
-  const object = await bucket.get(
-    prefix !== '*'
-      ? app.request.pathname.substring(prefix.length + 1)
-      : app.request.pathname,
-  )
+  let object = await bucket.get(path)
   if (object) {
     return new Response(object.body as ReadableStream, {
       headers: {
@@ -148,27 +147,27 @@ async function handleR2Files(
         'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
       },
     })
-  } else {
-    const indexPath = join(app.request.pathname, 'index.html')
-    const indexObject = await bucket.get(indexPath)
-    if (indexObject) {
-      return new Response(indexObject.body as ReadableStream, {
-        headers: {
-          ...(serve.etag !== false && { etag: indexObject.httpEtag }),
-          'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
-        },
-      })
-    } else {
-      const errorPath = join(prefix, '404.html')
-      const errorObject = await bucket.get(errorPath)
-      if (errorObject) {
-        return new Response(errorObject.body as ReadableStream, {
-          headers: {
-            'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
-          },
-        })
-      }
-    }
+  }
+
+  const indexPath = join(app.request.pathname, 'index.html')
+  object = await bucket.get(indexPath)
+  if (object) {
+    return new Response(object.body as ReadableStream, {
+      headers: {
+        ...(serve.etag !== false && { etag: object.httpEtag }),
+        'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+      },
+    })
+  }
+
+  const errorPath = join(prefix, '404.html')
+  object = await bucket.get(errorPath)
+  if (object) {
+    return new Response(object.body as ReadableStream, {
+      headers: {
+        'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+      },
+    })
   }
 }
 
