@@ -1,10 +1,9 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { R2Bucket } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230821.0/index.ts'
 import { join } from 'https://deno.land/std@0.200.0/path/mod.ts'
+import { AwsClient } from 'https://esm.sh/aws4fetch@1.0.17?target=es2022'
 import { createExtension } from '../extensions.ts'
 import { AppContext } from '../mod.ts'
-
-// An extension to serve static files from Cloudflare R2, an S3 bucket, or the local file system.
 
 type GeneralOptions = {
   cacheControl?: string
@@ -23,38 +22,122 @@ type R2Options = {
 
 type S3Options = {
   type: 's3'
-  endpoint: string
-  bucketName: string
-  accessKeyId: string
-  secretAccessKey: string
+  endpoint?: string
+  accessKeyId?: string
+  secretAccessKey?: string
+}
+
+const awsClient = new AwsClient({
+  accessKeyId: '',
+  secretAccessKey: '',
+})
+
+function getVar<T extends unknown = string | undefined>(
+  app: AppContext,
+  name: string,
+): T {
+  return app.runtime === 'cloudflare' && app.env
+    ? app.env[name] as T
+    : Deno.env.get(name) as T
 }
 
 /**
- * An extension to serve static files from Cloudflare R2 or the local file system.
+ * An extension to serve static files from Cloudflare R2, an S3 bucket, or the local file system.
  *
+ * @copyright [@not-ivy](https://github.com/not-ivy), [@boywithkeyboard](https://github.com/boywithkeyboard)
  * @since v1.2
  */
 export const files = createExtension<{
   serve: GeneralOptions & (FsOptions | R2Options | S3Options)
 }>({
+  // onPlugIn({ settings }) {
+  //     if (settings.serve.type === 's3') {
+  //     awsClient = new AwsClient({
+  //       accessKeyId: settings.serve.accessKeyId,
+  //       secretAccessKey: settings.serve.secretAccessKey,
+  //     })
+  //   }
+  // },
   onRequest({
     app,
     prefix,
     _: {
       serve,
     },
+    req: request,
   }) {
     switch (serve.type) {
       case 'r2':
         return handleR2Files(app, serve, prefix)
-      case 's3':
-        throw new Error('S3 is not yet supported!')
+      case 's3': {
+        const keyId = getVar(app, 'S3_ACCESS_KEY_ID') ??
+          getVar(app, 's3_access_key_id') ?? serve.accessKeyId
+        if (!keyId) throw new Error('S3_ACCESS_KEY_ID is not set')
+        const accessKey = getVar(app, 'S3_SECRET_ACCESS_KEY') ??
+          getVar(app, 's3_secret_access_key') ??
+          serve.secretAccessKey
+        if (!accessKey) throw new Error('S3_SECRET_ACCESS_KEY is not set')
+        awsClient.accessKeyId = keyId
+        awsClient.secretAccessKey = accessKey
+        return handleS3Files(app, serve, prefix, request)
+      }
       case 'fs':
       default:
         return handleFsFiles(app, serve, prefix)
     }
   },
 })
+
+async function handleS3Files(
+  app: AppContext,
+  serve: GeneralOptions & S3Options,
+  prefix: string,
+  request: Request,
+) {
+  const path = join(
+    prefix !== '*'
+      ? app.request.pathname.substring(prefix.length + 1)
+      : app.request.pathname,
+  )
+
+  let response = await awsClient.fetch(
+    `${serve.endpoint}${path}`,
+    {
+      headers: {
+        ...(serve.etag !== false &&
+          { etag: request.headers.get('if-none-match') ?? '' }),
+        'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+      },
+    },
+  )
+
+  if (response.status === 404) {
+    const indexPath = join(path, 'index.html')
+    response = await awsClient.fetch(
+      `${serve.endpoint}${indexPath}`,
+      {
+        headers: {
+          ...(serve.etag !== false &&
+            { etag: request.headers.get('if-none-match') ?? '' }),
+          'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+        },
+      },
+    )
+    if (response.status === 404) {
+      const indexPath = join(path, '404.html')
+      response = await awsClient.fetch(
+        `${serve.endpoint}${indexPath}`,
+        {
+          headers: {
+            'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+          },
+        },
+      )
+    }
+  }
+
+  return response.status === 404 ? undefined : response
+}
 
 async function handleR2Files(
   app: AppContext,
@@ -68,12 +151,11 @@ async function handleR2Files(
   }
 
   const bucket = app.env[serve.name] as R2Bucket
+  const path = prefix !== '*'
+    ? app.request.pathname.substring(prefix.length + 1)
+    : app.request.pathname
 
-  const object = await bucket.get(
-    prefix !== '*'
-      ? app.request.pathname.substring(prefix.length + 1)
-      : app.request.pathname,
-  )
+  let object = await bucket.get(path)
   if (object) {
     return new Response(object.body as ReadableStream, {
       headers: {
@@ -81,27 +163,27 @@ async function handleR2Files(
         'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
       },
     })
-  } else {
-    const indexPath = join(app.request.pathname, 'index.html')
-    const indexObject = await bucket.get(indexPath)
-    if (indexObject) {
-      return new Response(indexObject.body as ReadableStream, {
-        headers: {
-          ...(serve.etag !== false && { etag: indexObject.httpEtag }),
-          'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
-        },
-      })
-    } else {
-      const errorPath = join(prefix, '404.html')
-      const errorObject = await bucket.get(errorPath)
-      if (errorObject) {
-        return new Response(errorObject.body as ReadableStream, {
-          headers: {
-            'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
-          },
-        })
-      }
-    }
+  }
+
+  const indexPath = join(app.request.pathname, 'index.html')
+  object = await bucket.get(indexPath)
+  if (object) {
+    return new Response(object.body as ReadableStream, {
+      headers: {
+        ...(serve.etag !== false && { etag: object.httpEtag }),
+        'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+      },
+    })
+  }
+
+  const errorPath = join(prefix, '404.html')
+  object = await bucket.get(errorPath)
+  if (object) {
+    return new Response(object.body as ReadableStream, {
+      headers: {
+        'cache-control': serve.cacheControl ?? 's-maxage=300', // 5m
+      },
+    })
   }
 }
 
