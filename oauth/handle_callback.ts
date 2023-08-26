@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { UserAgent } from 'https://deno.land/std@0.199.0/http/user_agent.ts'
+import { UserAgent } from 'https://deno.land/std@0.200.0/http/user_agent.ts'
 import {
   getNormalizedUser,
   getToken,
