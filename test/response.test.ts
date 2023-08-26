@@ -6,12 +6,22 @@ Deno.test('Response', async (t) => {
   const app = new cheetah()
 
   await t.step('res.code', async () => {
-    app.get('/code', (c) => {
+    app.get('/code-explicit', (c) => {
       c.res.code = 101
     })
     assertEquals(
-      (await app.fetch(new Request('http://localhost/code'))).status,
+      (await app.fetch(new Request('http://localhost/code-explicit'))).status,
       101,
+    )
+
+    app.get('/code-implicit', () => {
+      return {
+        code: 403,
+      }
+    })
+    assertEquals(
+      (await app.fetch(new Request('http://localhost/code-implicit'))).status,
+      403,
     )
   })
 
