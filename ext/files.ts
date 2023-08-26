@@ -84,7 +84,7 @@ async function handleS3Files(
       : app.request.pathname,
   )
 
-  const response = await awsClient.fetch(
+  let response = await awsClient.fetch(
     `${serve.endpoint}${path}`,
     {
       headers: {
@@ -97,7 +97,7 @@ async function handleS3Files(
 
   if (response.status === 404) {
     const indexPath = join(path, 'index.html')
-    const indexResponse = await awsClient.fetch(
+    response = await awsClient.fetch(
       `${serve.endpoint}${indexPath}`,
       {
         headers: {
@@ -107,9 +107,9 @@ async function handleS3Files(
         },
       },
     )
-    if (indexResponse.status === 404) {
+    if (response.status === 404) {
       const indexPath = join(path, '404.html')
-      const errorResponse = await awsClient.fetch(
+      response = await awsClient.fetch(
         `${serve.endpoint}${indexPath}`,
         {
           headers: {
@@ -117,17 +117,10 @@ async function handleS3Files(
           },
         },
       )
-      if (errorResponse.status === 404) {
-        return
-      } else {
-        return errorResponse
-      }
-    } else {
-      return indexResponse
     }
-  } else {
-    return response
   }
+
+  return response.status === 404 ? undefined : response
 }
 
 async function handleR2Files(
