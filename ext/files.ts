@@ -1,11 +1,9 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { R2Bucket } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230821.0/index.ts'
 import { join } from 'https://deno.land/std@0.200.0/path/mod.ts'
-import { AwsClient } from 'https://esm.sh/aws4fetch@1.0.17'
+import { AwsClient } from 'https://esm.sh/aws4fetch@1.0.17?target=es2022'
 import { createExtension } from '../extensions.ts'
 import { AppContext } from '../mod.ts'
-
-// An extension to serve static files from Cloudflare R2, an S3 bucket, or the local file system.
 
 type GeneralOptions = {
   cacheControl?: string
@@ -35,7 +33,7 @@ const awsClient = new AwsClient({
 })
 
 /**
- * An extension to serve static files from Cloudflare R2 or the local file system.
+ * An extension to serve static files from Cloudflare R2, an S3 bucket, or the local file system.
  *
  * @since v1.2
  */
