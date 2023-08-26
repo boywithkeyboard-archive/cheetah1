@@ -14,7 +14,7 @@
 ### Sneak Peek 🤫
 
 ```ts
-import cheetah from 'https://deno.land/x/cheetah/mod.ts'
+import cheetah from 'https://deno.land/x/cheetah@1.4.0/mod.ts'
 
 const app = new cheetah()
   .get('/', () => 'Hello World')
@@ -51,11 +51,11 @@ app.serve()
 
 We strictly adhere to [SemVer](https://semver.org) and post updates **weekly**.
 
-- ◆ **current** *(e.g. v0.1.0)*
+- ◆ **current** *(e.g. v1.4.0)*
 
   The current channel is dedicated to stable releases and is safe for use in production.
 
-- ◇ **canary** *(e.g. v0.1.0-canary.0)*
+- ◇ **canary** *(e.g. v1.5.0-canary.1)*
 
   The canary channel is meant for pre-releases that lack features for a stable release or contain features that are still a prototype. These releases are **not suited for production** and only meant for testing purposes.
 
