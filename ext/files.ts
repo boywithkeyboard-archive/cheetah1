@@ -1,6 +1,7 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { R2Bucket } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230821.0/index.ts'
 import { join } from 'https://deno.land/std@0.200.0/path/mod.ts'
+import { AwsClient } from 'https://esm.sh/aws4fetch@1.0.17'
 import { createExtension } from '../extensions.ts'
 import { AppContext } from '../mod.ts'
 
@@ -27,7 +28,11 @@ type S3Options = {
   bucketName: string
   accessKeyId: string
   secretAccessKey: string
+  region: string
 }
+
+let awsClient: AwsClient
+let s3Endpoint: string
 
 /**
  * An extension to serve static files from Cloudflare R2 or the local file system.
@@ -37,6 +42,17 @@ type S3Options = {
 export const files = createExtension<{
   serve: GeneralOptions & (FsOptions | R2Options | S3Options)
 }>({
+  onPlugIn({ settings }) {
+    if (settings.serve.type === 's3') {
+      const { accessKeyId, secretAccessKey, bucketName, region } =
+        settings.serve
+      awsClient = new AwsClient({
+        accessKeyId,
+        secretAccessKey,
+      })
+      s3Endpoint = `https://${bucketName}.s3.${region}.amazonaws.com`
+    }
+  },
   onRequest({
     app,
     prefix,
@@ -48,13 +64,20 @@ export const files = createExtension<{
       case 'r2':
         return handleR2Files(app, serve, prefix)
       case 's3':
-        throw new Error('S3 is not yet supported!')
+        return handleS3Files(app, serve, prefix)
       case 'fs':
       default:
         return handleFsFiles(app, serve, prefix)
     }
   },
 })
+
+async function handleS3Files(
+  app: AppContext,
+  serve: GeneralOptions & S3Options,
+  prefix: string,
+) {
+}
 
 async function handleR2Files(
   app: AppContext,
