@@ -9,7 +9,7 @@ export async function bundle({
   banner = '// deno-fmt-ignore-file\n// deno-lint-ignore-file',
   target = 'es2022',
   cwd = Deno.cwd(),
-  runtime: _ = 'deno',
+  runtime: _ = 'cloudflare',
 }: {
   /**
    * @default './mod.ts'
