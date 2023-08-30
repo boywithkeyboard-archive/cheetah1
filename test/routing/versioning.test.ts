@@ -4,7 +4,7 @@ import { assertEquals } from '../deps.ts'
 Deno.test('versioning', async (t) => {
   /* uri ---------------------------------------------------------------------- */
 
-  await t.step('uri', async (t) => {
+  await t.step('uri', async () => {
     const app = new cheetah({
       versioning: {
         current: 'v4', // latest
