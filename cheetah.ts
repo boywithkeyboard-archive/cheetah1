@@ -262,12 +262,22 @@ export class cheetah extends base<cheetah>() {
     if (this.#versioning.type === 'uri') {
       const arr = pathname.replace('/', '').split('/')
 
-      if (regex.test(arr[0])) {
-        const version = arr[0]
+      if (this.#base) {
+        if (regex.test(arr[1])) {
+          const version = arr[1]
 
-        arr.shift()
+          arr.splice(1, 1)
 
-        return { version, pathname: '/' + arr.join('/') }
+          return { version, pathname: '/' + arr.join('/') }
+        }
+      } else {
+        if (regex.test(arr[0])) {
+          const version = arr[0]
+
+          arr.shift()
+
+          return { version, pathname: '/' + arr.join('/') }
+        }
       }
 
       return { version: this.#versioning.current, pathname }
