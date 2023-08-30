@@ -85,6 +85,32 @@ Deno.test('versioning', async (t) => {
     assertEquals(await get('/v2/7'), 'hello from v2')
     assertEquals(await get('/v3/7'), 'hello from v3')
     assertEquals(await get('/v4/7') !== 'hello from v4', true)
+
+    // with base path
+    const app2 = new cheetah({
+      base: '/api',
+      versioning: {
+        current: 'v4', // latest
+        type: 'uri',
+      },
+    })
+
+    async function get2(path: string) {
+      const res = await app2.fetch(new Request(`http://localhost${path}`))
+
+      return await res.text()
+    }
+
+    app2.get(
+      '/7',
+      { gateway: 'v2...v3' },
+      (c) => `hello from v${c.req.gateway}`,
+    )
+
+    assertEquals(await get2('/api/v1/7') !== 'hello from v1', true)
+    assertEquals(await get2('/api/v2/7'), 'hello from v2')
+    assertEquals(await get2('/api/v3/7'), 'hello from v3')
+    assertEquals(await get2('/api/v4/7') !== 'hello from v4', true)
   })
 
   /* header ------------------------------------------------------------------- */
