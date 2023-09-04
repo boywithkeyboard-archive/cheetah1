@@ -11,33 +11,11 @@ import renderToString from 'https://esm.sh/preact-render-to-string@6.1.0?deps=pr
 import { VNode } from 'https://esm.sh/preact@10.17.1?target=es2022'
 import { Context } from './mod.ts'
 
-const HEAD_TAG = '<head>'
-
 export function render(c: Context, Component: VNode) {
   const htmlString = renderToString(Component)
-  c.res.header('content-type', 'text/html; charset=utf-8')
   try {
     const { html, css } = extract(htmlString)
-    if (css.length === 0) {
-      c.res.body = html
-      return
-    }
-    const startIdxOfHeadContent = html.indexOf(HEAD_TAG)
-    const endIdxOfHeadContent = html.indexOf(
-      '</head>',
-    )
-    const headContent =
-      startIdxOfHeadContent >= 0 && endIdxOfHeadContent >= 0 &&
-        endIdxOfHeadContent > startIdxOfHeadContent
-        ? html.slice(
-          startIdxOfHeadContent + HEAD_TAG.length,
-          endIdxOfHeadContent,
-        )
-        : ''
-    c.res.body = html.replace(
-      headContent,
-      `${headContent}<style>${css}</style>`,
-    )
+    c.res.body = `${css.length > 0 ? `<style>${css}</style>` : ''}${html}`
   } catch (_err) {
     if (c.dev) {
       console.warn(
@@ -50,6 +28,7 @@ export function render(c: Context, Component: VNode) {
     }
     c.res.body = htmlString
   }
+  c.res.header('content-type', 'text/html; charset=utf-8')
 }
 
 export class Renderer {
