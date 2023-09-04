@@ -17,7 +17,10 @@ export function render(c: Context, Component: VNode) {
   try {
     const { html, css } = extract(htmlString)
 
-    c.res.body = `<style>${css}</style><body>${html}</body>`
+    c.res.body = html.replace(
+      css,
+      `<style>${css}</style>`,
+    )
   } catch (_err) {
     if (c.dev) {
       console.warn(
