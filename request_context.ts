@@ -2,13 +2,8 @@
 import {
   deadline as resolveWithDeadline,
   DeadlineError,
-} from 'https://deno.land/std@0.200.0/async/deadline.ts'
-import { z } from 'https://deno.land/x/zod@v3.21.4/mod.ts'
-import {
-  ZodStringDef,
-  ZodType,
-  ZodUnionDef,
-} from 'https://deno.land/x/zod@v3.21.4/types.ts'
+} from 'std/async/deadline.ts'
+import { z, ZodStringDef, ZodType, ZodUnionDef } from 'zod'
 import { Method } from './base.ts'
 import { BaseType, ObjectType } from './handler.ts'
 import { AppContext, Context } from './mod.ts'

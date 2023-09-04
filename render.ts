@@ -1,14 +1,10 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { brightYellow, gray } from 'https://deno.land/std@0.200.0/fmt/colors.ts'
-import {
-  defineConfig,
-  extract,
-  install,
-} from 'https://esm.sh/@twind/core@1.1.3'
-import presetAutoPrefix from 'https://esm.sh/@twind/preset-autoprefix@1.0.7'
-import presetTailwind from 'https://esm.sh/@twind/preset-tailwind@1.1.4'
-import renderToString from 'https://esm.sh/preact-render-to-string@6.1.0?deps=preact@10.17.1&target=es2022'
-import { VNode } from 'https://esm.sh/preact@10.17.1?target=es2022'
+import { VNode } from 'preact'
+import renderToString from 'preact/render-to-string'
+import { brightYellow, gray } from 'std/fmt/colors.ts'
+import { defineConfig, extract, install } from 'twind'
+import presetAutoPrefix from 'twind/preset-autoprefix'
+import presetTailwind from 'twind/preset-tailwind'
 import { Context } from './mod.ts'
 
 export function render(c: Context, Component: VNode) {

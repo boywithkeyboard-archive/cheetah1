@@ -1,10 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { UserAgent } from 'https://deno.land/std@0.200.0/http/user_agent.ts'
-import {
-  getNormalizedUser,
-  getToken,
-  getUser,
-} from 'https://deno.land/x/authenticus@v2.0.3/mod.ts'
+import { getNormalizedUser, getToken, getUser } from 'authenticus'
+import { UserAgent } from 'std/http/user_agent.ts'
 import { Context } from '../context.ts'
 import { sign, verify } from '../jwt.ts'
 import { LocationData } from '../location_data.ts'

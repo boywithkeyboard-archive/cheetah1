@@ -1,7 +1,7 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
+import { assertEquals } from 'std/assert/mod.ts'
 import { favicon } from '../../ext/favicon.ts'
 import cheetah from '../../mod.ts'
-import { assertEquals } from '../deps.ts'
 
 Deno.test('ext/favicon', async () => {
   const app = new cheetah()

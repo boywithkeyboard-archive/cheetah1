@@ -1,8 +1,8 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { ZodString, ZodUnion } from 'https://deno.land/x/zod@v3.21.4/types.ts'
+import { ZodString, ZodUnion } from 'zod'
+import { Method } from './base.ts'
 import { Handler, ObjectType } from './handler.ts'
 import { AppContext, Context } from './mod.ts'
-import { Method } from './base.ts'
 
 type HasRequired<T> = Partial<T> extends T ? false : true
 

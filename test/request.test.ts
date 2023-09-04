@@ -1,6 +1,7 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
+import { assertEquals } from 'std/assert/mod.ts'
+import { z } from 'zod'
 import cheetah from '../mod.ts'
-import { assertEquals, z } from './deps.ts'
 
 Deno.test('Request', async (t) => {
   await t.step('req.param()', async () => {
