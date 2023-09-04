@@ -15,9 +15,13 @@ const HEAD_TAG = '<head>'
 
 export function render(c: Context, Component: VNode) {
   const htmlString = renderToString(Component)
-
+  c.res.header('content-type', 'text/html; charset=utf-8')
   try {
     const { html, css } = extract(htmlString)
+    if (css.length === 0) {
+      c.res.body = html
+      return
+    }
     const startIdxOfHeadContent = html.indexOf(HEAD_TAG)
     const endIdxOfHeadContent = html.indexOf(
       '</head>',
@@ -32,7 +36,7 @@ export function render(c: Context, Component: VNode) {
         : ''
     c.res.body = html.replace(
       headContent,
-      `${headContent}${css.length > 0 ? `<style>${css}</style>` : ''}`,
+      `${headContent}<style>${css}</style>`,
     )
   } catch (_err) {
     if (c.dev) {
@@ -44,11 +48,8 @@ export function render(c: Context, Component: VNode) {
         ),
       )
     }
-
     c.res.body = htmlString
   }
-
-  c.res.header('content-type', 'text/html; charset=utf-8')
 }
 
 export class Renderer {
