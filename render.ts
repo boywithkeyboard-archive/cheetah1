@@ -18,10 +18,9 @@ export function render(c: Context, Component: VNode) {
 
   try {
     const { html, css } = extract(htmlString)
-    console.log(css.length)
     const startIdxOfHeadContent = html.indexOf(HEAD_TAG)
     const endIdxOfHeadContent = html.indexOf(
-      `${HEAD_TAG.at(0)}/${HEAD_TAG.slice(1)}`,
+      '</head>',
     )
     const headContent =
       startIdxOfHeadContent >= 0 && endIdxOfHeadContent >= 0 &&
