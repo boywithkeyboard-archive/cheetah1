@@ -13,11 +13,9 @@ import { Context } from './mod.ts'
 
 export function render(c: Context, Component: VNode) {
   const htmlString = renderToString(Component)
-
   try {
     const { html, css } = extract(htmlString)
-
-    c.res.body = `<style>${css}</style><body>${html}</body>`
+    c.res.body = `${css.length > 0 ? `<style>${css}</style>` : ''}${html}`
   } catch (_err) {
     if (c.dev) {
       console.warn(
@@ -28,10 +26,8 @@ export function render(c: Context, Component: VNode) {
         ),
       )
     }
-
     c.res.body = htmlString
   }
-
   c.res.header('content-type', 'text/html; charset=utf-8')
 }
 
