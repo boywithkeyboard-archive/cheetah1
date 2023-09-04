@@ -37,23 +37,23 @@ const Unstyled = () => {
   )
 }
 
+const app = new cheetah()
+
+const { render } = new Renderer()
+
+app.get('/render', {
+  query: z.object({
+    type: z.union([z.literal('styled'), z.literal('unstyled')]),
+  }),
+}, (ctx) => {
+  render(
+    ctx,
+    ctx.req.query.type === 'styled' ? <Styled /> : <Unstyled />,
+  )
+})
+
 Deno.test('render', async (test) => {
-  const app = new cheetah()
-
-  const { render } = new Renderer()
-
-  app.get('/render', {
-    query: z.object({
-      type: z.union([z.literal('styled'), z.literal('unstyled')]),
-    }),
-  }, (ctx) => {
-    render(
-      ctx,
-      ctx.req.query.type === 'styled' ? <Styled /> : <Unstyled />,
-    )
-  })
-
-  await test.step('Twind styles are applied to the resulting HTML correctly', async () => {
+  await test.step('Twind styles are applied to the resulting HTML correctly.', async () => {
     const renderResponse = await app.fetch(
       new Request('http://localhost/render?type=styled'),
     )
