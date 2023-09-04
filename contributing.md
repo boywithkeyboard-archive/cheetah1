@@ -1,3 +1,8 @@
+### Follow Conventional Commits
+
+This repository enforces [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+Please follow the convention when writing commit messages.
+
 ### Write a meaningful title
 
 We ask you to write a short and meaningful title while going into more detail
