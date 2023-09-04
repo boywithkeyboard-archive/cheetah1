@@ -1,8 +1,10 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 /** @jsx h */
-import { Fragment, VNode } from 'https://esm.sh/preact@10.17.1'
-import cheetah, { h, Renderer } from '../mod.ts'
-import { assert, assertEquals, DOMParser, z } from './deps.ts'
+import { DOMParser } from 'dom'
+import { Fragment, h, VNode } from 'preact'
+import { assert, assertEquals } from 'std/assert/mod.ts'
+import { z } from 'zod'
+import cheetah, { Renderer } from '../mod.ts'
 
 const Document = ({ children }: { children: VNode }) => {
   return (
@@ -39,11 +41,11 @@ const Unstyled = () => {
 
 const MetaTagsWithoutWrappers = () => {
   return (
-    <>
+    <Fragment>
       <title>This is a document!</title>
       <meta charSet='utf-8' />
       <h1>Hello world!</h1>
-    </>
+    </Fragment>
   )
 }
 
@@ -59,13 +61,15 @@ app.get('/render', {
       z.literal('meta-tags-without-wrappers'),
     ]),
   }),
-}, (ctx) => {
-  const type = ctx.req.query.type
+}, (c) => {
+  const type = c.req.query.type
+
   if (type === 'meta-tags-without-wrappers') {
-    return render(ctx, <MetaTagsWithoutWrappers />)
+    return render(c, <MetaTagsWithoutWrappers />)
   }
+
   render(
-    ctx,
+    c,
     type === 'styled' ? <Styled /> : <Unstyled />,
   )
 })
@@ -75,11 +79,14 @@ Deno.test('render', async (test) => {
     const renderResponse = await app.fetch(
       new Request('http://localhost/render?type=styled'),
     )
+
     const htmlText = await renderResponse.text()
+
     const document = new DOMParser().parseFromString(
       htmlText,
       'text/html',
     )
+
     assert(document)
     assert([...document.getElementsByTagName('style')].length === 1)
     assertEquals(
@@ -95,13 +102,16 @@ Deno.test('render', async (test) => {
   const renderResponse = await app.fetch(
     new Request('http://localhost/render?type=unstyled'),
   )
+
   const htmlText = await renderResponse.text()
+
   const document = new DOMParser().parseFromString(
     htmlText,
     'text/html',
   )
 
   assert(document)
+
   await test.step('No empty style tag is injected if no Twind styles are utilised.', () => {
     assertEquals(
       [...document.getElementsByTagName('style')].length,
@@ -119,8 +129,11 @@ Deno.test('render', async (test) => {
 
   await test.step('Head meta tags are able to be injected into the HTML output properly.', () => {
     const headElementsInDocument = [...document.getElementsByTagName('head')]
+
     assert(headElementsInDocument.length === 1)
+
     const headElementInDocument = headElementsInDocument.at(0)
+
     assert(headElementInDocument)
     assert(
       [...headElementInDocument.children].find((childNode) =>
@@ -134,17 +147,22 @@ Deno.test('render', async (test) => {
     const renderResponse = await app.fetch(
       new Request('http://localhost/render?type=meta-tags-without-wrappers'),
     )
+
     const htmlText = await renderResponse.text()
+
     const document = new DOMParser().parseFromString(
       htmlText,
       'text/html',
     )
     assert(document)
+
     const { documentElement } = document
     assert(documentElement)
+
     const headElementsInDocument = documentElement.getElementsByTagName('head')
     const [headElement] = headElementsInDocument
     assert(headElement)
+
     const titleElementInDocument = headElement.getElementsByTagName('title').at(
       0,
     )
@@ -152,14 +170,17 @@ Deno.test('render', async (test) => {
       titleElementInDocument &&
         titleElementInDocument.textContent === 'This is a document!',
     )
+
     const metaTagsInDocument = documentElement.getElementsByTagName('meta')
     assert(
       metaTagsInDocument.find((metaTag) =>
         metaTag.getAttribute('charset') === 'utf-8'
       ),
     )
+
     const [bodyElement] = documentElement.getElementsByTagName('body')
     assert(bodyElement)
+
     const [headingElementInBody] = [...bodyElement.children]
     assert(
       headingElementInBody !== undefined &&

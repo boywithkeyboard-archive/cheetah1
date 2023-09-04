@@ -1,7 +1,7 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
+import { assertEquals } from 'std/assert/mod.ts'
 import { files } from '../../ext/files.ts'
 import cheetah from '../../mod.ts'
-import { assertEquals } from '../deps.ts'
 
 Deno.test('ext/files', async (t) => {
   await t.step('root', async () => {
@@ -27,11 +27,13 @@ Deno.test('ext/files', async (t) => {
       200,
     )
 
-    const res2 = await app.fetch(new Request('http://localhost/deps.ts'))
+    const res2 = await app.fetch(
+      new Request('http://localhost/render.test.tsx'),
+    )
 
     assertEquals(
       await res2.text(),
-      await Deno.readTextFile('./test/deps.ts'),
+      await Deno.readTextFile('./test/render.test.tsx'),
     )
 
     assertEquals(

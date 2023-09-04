@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { createAuthorizeUrl } from 'https://deno.land/x/authenticus@v2.0.3/mod.ts'
+import { createAuthorizeUrl } from 'authenticus'
 import { Context } from '../context.ts'
 import { sign } from '../jwt.ts'
 import { OAuthClient } from './client.ts'

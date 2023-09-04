@@ -1,15 +1,8 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { loadSync } from 'https://deno.land/std@0.200.0/dotenv/mod.ts'
-import { parse } from 'https://deno.land/std@0.200.0/flags/mod.ts'
-import {
-  brightGreen,
-  gray,
-  white,
-} from 'https://deno.land/std@0.200.0/fmt/colors.ts'
-import {
-  keypress,
-  KeyPressEvent,
-} from 'https://deno.land/x/cliffy@v0.25.7/keypress/mod.ts'
+import { keypress, KeyPressEvent } from 'cliffy/keypress'
+import { loadSync } from 'std/dotenv/mod.ts'
+import { parse } from 'std/flags/mod.ts'
+import { brightGreen, gray, white } from 'std/fmt/colors.ts'
 import { cheetah } from '../../../cheetah.ts'
 import { logError } from '../../utils.ts'
 
