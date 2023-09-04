@@ -2,7 +2,6 @@
 import { KVNamespace } from 'https://cdn.jsdelivr.net/npm/@cloudflare/workers-types@4.20230821.0/index.ts'
 import { Redis } from 'https://deno.land/x/upstash_redis@v1.22.0/mod.ts'
 import { Context } from '../context.ts'
-import { env } from '../x/env.ts'
 import { OAuthSessionData } from './types.ts'
 
 export class OAuthStore {
@@ -148,18 +147,9 @@ let REDIS: Redis | undefined
 export const upstash = new OAuthStore({
   async set(c, key, value, expiresAt) {
     if (!REDIS) {
-      const e = env<{
-        upstashUrl?: string
-        upstash_url?: string
-        UPSTASH_URL?: string
-        upstashToken?: string
-        upstash_token?: string
-        UPSTASH_TOKEN?: string
-      }>(c)
-
       REDIS = new Redis({
-        url: e.upstashUrl ?? e.upstash_url ?? e.UPSTASH_URL as string,
-        token: e.upstashToken ?? e.upstash_token ?? e.UPSTASH_TOKEN as string,
+        url: c.env('UPSTASH_URL') as string,
+        token: c.env('UPSTASH_TOKEN') as string,
       })
     }
 
@@ -170,18 +160,9 @@ export const upstash = new OAuthStore({
 
   async get(c, key) {
     if (!REDIS) {
-      const e = env<{
-        upstashUrl?: string
-        upstash_url?: string
-        UPSTASH_URL?: string
-        upstashToken?: string
-        upstash_token?: string
-        UPSTASH_TOKEN?: string
-      }>(c)
-
       REDIS = new Redis({
-        url: e.upstashUrl ?? e.upstash_url ?? e.UPSTASH_URL as string,
-        token: e.upstashToken ?? e.upstash_token ?? e.UPSTASH_TOKEN as string,
+        url: c.env('UPSTASH_URL') as string,
+        token: c.env('UPSTASH_TOKEN') as string,
       })
     }
 
@@ -190,18 +171,9 @@ export const upstash = new OAuthStore({
 
   async has(c, key) {
     if (!REDIS) {
-      const e = env<{
-        upstashUrl?: string
-        upstash_url?: string
-        UPSTASH_URL?: string
-        upstashToken?: string
-        upstash_token?: string
-        UPSTASH_TOKEN?: string
-      }>(c)
-
       REDIS = new Redis({
-        url: e.upstashUrl ?? e.upstash_url ?? e.UPSTASH_URL as string,
-        token: e.upstashToken ?? e.upstash_token ?? e.UPSTASH_TOKEN as string,
+        url: c.env('UPSTASH_URL') as string,
+        token: c.env('UPSTASH_TOKEN') as string,
       })
     }
 
@@ -210,18 +182,9 @@ export const upstash = new OAuthStore({
 
   async delete(c, key) {
     if (!REDIS) {
-      const e = env<{
-        upstashUrl?: string
-        upstash_url?: string
-        UPSTASH_URL?: string
-        upstashToken?: string
-        upstash_token?: string
-        UPSTASH_TOKEN?: string
-      }>(c)
-
       REDIS = new Redis({
-        url: e.upstashUrl ?? e.upstash_url ?? e.UPSTASH_URL as string,
-        token: e.upstashToken ?? e.upstash_token ?? e.UPSTASH_TOKEN as string,
+        url: c.env('UPSTASH_URL') as string,
+        token: c.env('UPSTASH_TOKEN') as string,
       })
     }
 

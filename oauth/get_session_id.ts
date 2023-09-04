@@ -1,8 +1,7 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { getCookies } from 'https://deno.land/std@0.200.0/http/cookie.ts'
 import { Context } from '../context.ts'
-import { getVariable } from '../x/env.ts'
-import { verify } from '../x/jwt.ts'
+import { verify } from '../jwt.ts'
 import { OAuthSessionToken } from './types.ts'
 
 /**
@@ -23,9 +22,8 @@ export async function getSessionId(c: Context): Promise<string | undefined> {
   }
 
   const payload = await verify<OAuthSessionToken>(
+    c,
     cookies.token,
-    getVariable(c, 'JWT_SECRET') ?? getVariable(c, 'jwt_secret') ??
-      getVariable(c, 'jwtSecret'),
     { audience: 'oauth:session' },
   )
 

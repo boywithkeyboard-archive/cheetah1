@@ -87,8 +87,6 @@ export function handler<T>() {
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
-        /** @deprecated please pass this option to the `c.req.body()` method! */
-        transform?: boolean // TODO remove at v2.0
         cors?: string
         params?: Partial<Record<keyof ExtractParams<Pathname>, ZodType>>
         gateway?: VersionRange
@@ -162,8 +160,6 @@ export type HandlerOrSchema =
     cookies?: ObjectType
     headers?: ObjectType
     query?: ObjectType
-    /** @deprecated please pass this option to the `c.req.body()` method! */
-    transform?: boolean // TODO remove at v2.0
     cors?: string
     params?: Record<string, ZodType>
     gateway?: VersionRange
