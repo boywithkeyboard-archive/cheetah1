@@ -39,8 +39,6 @@ export type Extension<
               cookies?: ValidatedCookies
               headers?: ValidatedHeaders
               query?: ValidatedQuery
-              /** @deprecated please pass this option to the `c.req.body()` method! */
-              transform?: boolean // TODO remove at v2.0
               cors?: string
             }
             | Handler<
@@ -76,8 +74,6 @@ export type Extension<
               cookies?: ValidatedCookies
               headers?: ValidatedHeaders
               query?: ValidatedQuery
-              /** @deprecated please pass this option to the `c.req.body()` method! */
-              transform?: boolean // TODO remove at v2.0
               cors?: string
             }
             | Handler<
