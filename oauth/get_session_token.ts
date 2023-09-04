@@ -17,9 +17,8 @@ export async function getSessionToken(c: Context) {
   }
 
   const payload = await verify(
+    c,
     cookies.token,
-    (c.env('JWT_SECRET') ?? c.env('jwt_secret') ??
-      c.env('jwtSecret')) as string,
     { audience: 'oauth:session' },
   )
 

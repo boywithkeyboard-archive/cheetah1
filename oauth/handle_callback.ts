@@ -35,8 +35,8 @@ export async function handleCallback(
   // validate state
 
   const payload = await verify<OAuthSignInToken>(
+    c,
     c.req.query.state,
-    c.env('JWT_SECRET') as string,
     { audience: 'oauth:sign_in' },
   )
 
