@@ -75,7 +75,7 @@ export async function handleCallback(
         exp: expirationDate,
         identifier,
         ip: c.req.ip,
-      }
+      },
     )
 
     const userAgent = new UserAgent(c.req.headers['user-agent'] ?? '')
