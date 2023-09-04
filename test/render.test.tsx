@@ -38,3 +38,33 @@ Deno.test('render', async () => {
     'text/html; charset=utf-8',
   )
 })
+
+Deno.test('No empty style tag is injected if no twind styles are utilised.', async () => {
+  const app = new cheetah()
+
+  const { render } = new Renderer()
+
+  function NonStyled() {
+    return (
+      <h3 id='styled'>
+        non-styled <code>h3</code> component
+      </h3>
+    )
+  }
+
+  app.get('/a', (c) => render(c, <NonStyled />))
+
+  const a = await app.fetch(new Request('http://localhost/a'))
+
+  const tx = await a.text()
+
+  const document = new DOMParser().parseFromString(
+    tx,
+    'text/html',
+  )
+  assert(document)
+  assertEquals(
+    [...document.getElementsByTagName('style')].length,
+    0,
+  )
+})

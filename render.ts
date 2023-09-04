@@ -18,6 +18,7 @@ export function render(c: Context, Component: VNode) {
 
   try {
     const { html, css } = extract(htmlString)
+    console.log(css.length)
     const startIdxOfHeadContent = html.indexOf(HEAD_TAG)
     const endIdxOfHeadContent = html.indexOf(
       `${HEAD_TAG.at(0)}/${HEAD_TAG.slice(1)}`,
@@ -32,7 +33,7 @@ export function render(c: Context, Component: VNode) {
         : ''
     c.res.body = html.replace(
       headContent,
-      `${headContent}<style>${css}</style>`,
+      `${headContent}${css.length > 0 ? `<style>${css}</style>` : ''}`,
     )
   } catch (_err) {
     if (c.dev) {
