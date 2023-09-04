@@ -22,7 +22,7 @@ const app = new cheetah()
     body: z.object({ // < scheme validation
       name: z.string()
     })
-  } c => {
+  }, async c => {
     const body = await c.req.body()
 
     return `Hey, ${body.name}!` // < response body
