@@ -1,7 +1,7 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 /** @jsx h */
 import { DOMParser } from 'dom'
-import { Fragment, h, VNode } from 'preact'
+import { Fragment, h, type VNode } from 'preact'
 import { assert, assertEquals } from 'std/assert/mod.ts'
 import { z } from 'zod'
 import cheetah, { Renderer } from '../mod.ts'
