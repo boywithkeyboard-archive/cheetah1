@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { assertEquals } from 'std/assert/mod.ts'
-import { cheetah } from '../cheetah.ts'
+import cheetah from '../mod.ts'
 import { createJwtSecret } from '../cli/cmd/random/create_jwt_secret.ts'
 import { jwt } from '../mod.ts'
 

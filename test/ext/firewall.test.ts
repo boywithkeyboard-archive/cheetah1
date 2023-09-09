@@ -1,5 +1,5 @@
 import { assertEquals } from 'std/assert/mod.ts'
-import { firewall } from '../../ext/firewall.ts'
+import { firewall } from '../../src/extensions/firewall.ts'
 import cheetah from '../../mod.ts'
 
 Deno.test('ext/firewall', async (t) => {
