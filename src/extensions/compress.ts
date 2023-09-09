@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { compress as brotli } from 'brotli'
-import { deflate, gzip, initBundledOnce, InitOutput } from 'foras'
+import { deflate, gzip, initBundledOnce, type InitOutput } from 'foras'
 import { createExtension } from './extension.ts'
 
 type CompressionAlgorithm = {
@@ -22,7 +22,7 @@ export const DEFLATE: CompressionAlgorithm = {
       FORAS = await initBundledOnce()
     }
 
-    return deflate(input)
+    return deflate(input).bytes
   },
 }
 
@@ -33,7 +33,7 @@ export const GZIP: CompressionAlgorithm = {
       FORAS = await initBundledOnce()
     }
 
-    return gzip(input)
+    return gzip(input).bytes
   },
 }
 
