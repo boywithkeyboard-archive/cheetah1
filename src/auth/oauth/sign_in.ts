@@ -1,9 +1,9 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { createAuthorizeUrl } from 'authenticus'
-import { Context } from '../../contexts/context.ts'
+import type { Context } from '../../contexts/context.ts'
 import { sign } from '../jwt/jwt.ts'
-import { OAuthClient } from './client.ts'
-import { OAuthSignInToken } from '../../types/oauth.ts'
+import type { OAuthClient } from './client.ts'
+import type { OAuthSignInToken } from '../../types/oauth.ts'
 
 /**
  * Start the login flow by redirecting the user.

@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { IncomingRequestCfProperties } from 'worker'
-import { Context } from '../contexts/context.ts'
+import type { IncomingRequestCfProperties } from 'worker'
+import type { Context } from '../contexts/context.ts'
 
 type CloudflareRequest = Request & {
   cf: IncomingRequestCfProperties

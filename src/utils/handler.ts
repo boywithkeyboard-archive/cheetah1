@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import {
+import type {
   ZodObject,
   ZodRecord,
   ZodString,
@@ -7,7 +7,7 @@ import {
   ZodTypeDef,
   ZodUnion,
 } from 'zod'
-import { Context } from '../contexts/context.ts'
+import type { Context } from '../contexts/context.ts'
 
 export type ObjectType =
   // deno-lint-ignore no-explicit-any

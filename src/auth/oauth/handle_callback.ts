@@ -1,11 +1,11 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { getNormalizedUser, getToken, getUser } from 'authenticus'
 import { UserAgent } from 'std/http/user_agent.ts'
-import { Context } from '../../contexts/context.ts'
+import type { Context } from '../../contexts/context.ts'
 import { sign, verify } from '../jwt/jwt.ts'
 import { LocationData } from '../../utils/location_data.ts'
-import { OAuthClient } from './client.ts'
-import {
+import type { OAuthClient } from './client.ts'
+import type {
   OAuthSessionData,
   OAuthSessionToken,
   OAuthSignInToken,

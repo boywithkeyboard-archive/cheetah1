@@ -1,11 +1,11 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { VNode } from 'preact'
+import type { VNode } from 'preact'
 import renderToString from 'preact/render-to-string'
 import { brightYellow, gray } from 'std/fmt/colors.ts'
 import { defineConfig, extract, install } from 'twind'
 import presetAutoPrefix from 'twind/preset-autoprefix'
 import presetTailwind from 'twind/preset-tailwind'
-import { Context } from '../contexts/context.ts'
+import type { Context } from '../contexts/context.ts'
 
 export function render(c: Context, Component: VNode) {
   const htmlString = renderToString(Component)

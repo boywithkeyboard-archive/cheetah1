@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "jsxFactory": "h",
-    "jsxFragmentFactory": "Fragment"
+    "jsxFragmentFactory": "Fragment",
+    "importsNotUsedAsValues": "error",
+    "verbatimModuleSyntax": true
   },
   "fmt": {
     "semiColons": false,

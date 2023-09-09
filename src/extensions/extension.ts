@@ -1,9 +1,9 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { ZodString, ZodUnion } from 'zod'
-import { Method } from '../base.ts'
-import { Handler, ObjectType } from '../utils/handler.ts'
-import { AppContext } from '../cheetah.ts'
-import { Context } from '../contexts/context.ts'
+import type { ZodString, ZodUnion } from 'zod'
+import type { Method } from '../base.ts'
+import type { Handler, ObjectType } from '../utils/handler.ts'
+import type { AppContext } from '../cheetah.ts'
+import type { Context } from '../contexts/context.ts'
 
 type HasRequired<T> = Partial<T> extends T ? false : true
 

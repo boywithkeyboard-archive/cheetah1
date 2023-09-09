@@ -1,18 +1,18 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { base, Method } from './base.ts'
+import { base, type Method } from './base.ts'
 import { Collection } from './utils/collection.ts'
 import { Context, Exception } from './contexts/context.ts'
-import { Extension, validExtension } from './extensions/extension.ts'
-import {
+import { type Extension, validExtension } from './extensions/extension.ts'
+import type {
   Handler,
   HandlerOrSchema,
   Payload,
   Version,
   VersionRange,
 } from './utils/handler.ts'
-import { OAuthStore } from './auth/oauth/mod.ts'
-import { OAuthSessionData } from './types/oauth.ts'
-import { ResponseContext } from './contexts/response_context.ts'
+import type { OAuthStore } from './auth/oauth/mod.ts'
+import type { OAuthSessionData } from './types/oauth.ts'
+import type { ResponseContext } from './contexts/response_context.ts'
 
 export type AppContext = {
   debugging: boolean

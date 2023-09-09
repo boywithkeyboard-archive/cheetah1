@@ -1,8 +1,8 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { Redis } from 'upstash'
-import { KVNamespace } from 'worker'
-import { Context } from '../../contexts/context.ts'
-import { OAuthSessionData } from '../../types/oauth.ts'
+import type { KVNamespace } from 'worker'
+import type { Context } from '../../contexts/context.ts'
+import type { OAuthSessionData } from '../../types/oauth.ts'
 
 export class OAuthStore {
   set: (

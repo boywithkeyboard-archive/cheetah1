@@ -1,9 +1,9 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 /// <reference types='../types/env.d.ts' />
 import { encode } from 'std/encoding/base64.ts'
-import { ZodType } from 'zod'
-import { AppContext } from '../cheetah.ts'
-import { ObjectType, Payload } from '../utils/handler.ts'
+import type { ZodType } from 'zod'
+import type { AppContext } from '../cheetah.ts'
+import type { ObjectType, Payload } from '../utils/handler.ts'
 import { RequestContext } from './request_context.ts'
 import { ResponseContext } from './response_context.ts'
 

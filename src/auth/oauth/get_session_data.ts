@@ -1,11 +1,8 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { getCookies } from 'std/http/cookie.ts'
-import { Context } from '../../contexts/context.ts'
+import type { Context } from '../../contexts/context.ts'
 import { verify } from '../jwt/jwt.ts'
-import {
-  type OAuthSessionData,
-  type OAuthSessionToken,
-} from '../../types/oauth.ts'
+import type { OAuthSessionData, OAuthSessionToken } from '../../types/oauth.ts'
 
 /**
  * Get the data associated with the current session if logged in.

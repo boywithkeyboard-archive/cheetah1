@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { UserAgent } from 'std/http/user_agent.ts'
-import { LocationData } from '../utils/location_data.ts'
+import type { UserAgent } from 'std/http/user_agent.ts'
+import type { LocationData } from '../utils/location_data.ts'
 
 export type OAuthMethod =
   | 'google'

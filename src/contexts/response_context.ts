@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { Payload } from '../utils/handler.ts'
+import type { Payload } from '../utils/handler.ts'
 
 export class ResponseContext {
   #i

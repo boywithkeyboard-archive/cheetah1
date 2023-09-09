@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { getCookies } from 'std/http/cookie.ts'
-import { type Context } from '../../contexts/context.ts'
+import type { Context } from '../../contexts/context.ts'
 import { verify } from '../jwt/jwt.ts'
 
 /**

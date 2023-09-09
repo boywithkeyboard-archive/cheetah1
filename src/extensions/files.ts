@@ -1,9 +1,9 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { AwsClient } from 'aws4fetch'
 import { join } from 'std/path/mod.ts'
-import { R2Bucket } from 'worker'
+import type { R2Bucket } from 'worker'
 import { createExtension } from './extension.ts'
-import { AppContext } from '../cheetah.ts'
+import type { AppContext } from '../cheetah.ts'
 
 type GeneralOptions = {
   cacheControl?: string

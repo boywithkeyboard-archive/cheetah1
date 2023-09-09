@@ -1,7 +1,7 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import * as Jwt from 'djwt'
 import { decode } from 'std/encoding/base64.ts'
-import { type Context } from '/contexts/context.ts'
+import type { Context } from '../../contexts/context.ts'
 
 interface Payload {
   iss?: string

@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { base, Method } from '../base.ts'
-import { HandlerOrSchema } from './handler.ts'
+import { base, type Method } from '../base.ts'
+import type { HandlerOrSchema } from './handler.ts'
 
 export class Collection extends base<Collection>() {
   #cors:

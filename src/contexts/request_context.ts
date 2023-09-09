@@ -3,11 +3,11 @@ import {
   deadline as resolveWithDeadline,
   DeadlineError,
 } from 'std/async/deadline.ts'
-import { z, ZodStringDef, ZodType, ZodUnionDef } from 'zod'
-import { Method } from '../base.ts'
-import { BaseType, ObjectType } from '../utils/handler.ts'
-import { AppContext } from '../cheetah.ts'
-import { Context } from '../contexts/context.ts'
+import type { z, ZodStringDef, ZodType, ZodUnionDef } from 'zod'
+import type { Method } from '../base.ts'
+import type { BaseType, ObjectType } from '../utils/handler.ts'
+import type { AppContext } from '../cheetah.ts'
+import type { Context } from '../contexts/context.ts'
 
 type Static<T extends ZodType> = T extends ZodType ? z.infer<T>
   : never

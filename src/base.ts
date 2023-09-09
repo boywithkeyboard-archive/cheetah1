@@ -1,5 +1,9 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { bodylessHandler, handler, HandlerOrSchema } from './utils/handler.ts'
+import type {
+  bodylessHandler,
+  handler,
+  HandlerOrSchema,
+} from './utils/handler.ts'
 
 export type Method =
   | 'delete'

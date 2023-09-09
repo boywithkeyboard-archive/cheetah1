@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { Context } from '../../contexts/context.ts'
+import type { Context } from '../../contexts/context.ts'
 import { getSessionId } from './get_session_id.ts'
 
 /**

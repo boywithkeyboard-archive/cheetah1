@@ -1,6 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
 import { decode } from 'std/encoding/base64.ts'
-import { Context } from '../contexts/context.ts'
+import type { Context } from '../contexts/context.ts'
 
 export async function encrypt(c: Context, message: string) {
   const key = (c.env('crypto_key') ?? c.env('CRYPTO_KEY')) as string
