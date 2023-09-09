@@ -1,8 +1,9 @@
 ### Follow Conventional Commits
 
 This repository enforces
-[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Please
-follow the convention when writing commit messages.
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). For
+writing pull request titles and as well as issues. Please follow the
+convention when writing them.
 
 ### Write a meaningful title
 
