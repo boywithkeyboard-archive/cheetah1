@@ -27,4 +27,4 @@ jobs:
         uses: boywithkeyboard/taco@v0
         with:
           kind: ${{github.event.inputs.kind}}
-          include_author: true
+          mention_contributors: true
