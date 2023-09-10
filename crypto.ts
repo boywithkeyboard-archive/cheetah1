@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { decode } from 'https://deno.land/std@0.200.0/encoding/base64.ts'
+import { decode } from 'std/encoding/base64.ts'
 import { Context } from './context.ts'
 
 export async function encrypt(c: Context, message: string) {

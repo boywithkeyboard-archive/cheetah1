@@ -1,8 +1,8 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { ZodString, ZodUnion } from 'https://deno.land/x/zod@v3.21.4/types.ts'
+import { ZodString, ZodUnion } from 'zod'
+import { Method } from './base.ts'
 import { Handler, ObjectType } from './handler.ts'
 import { AppContext, Context } from './mod.ts'
-import { Method } from './base.ts'
 
 type HasRequired<T> = Partial<T> extends T ? false : true
 
@@ -39,8 +39,6 @@ export type Extension<
               cookies?: ValidatedCookies
               headers?: ValidatedHeaders
               query?: ValidatedQuery
-              /** @deprecated please pass this option to the `c.req.body()` method! */
-              transform?: boolean // TODO remove at v2.0
               cors?: string
             }
             | Handler<
@@ -76,8 +74,6 @@ export type Extension<
               cookies?: ValidatedCookies
               headers?: ValidatedHeaders
               query?: ValidatedQuery
-              /** @deprecated please pass this option to the `c.req.body()` method! */
-              transform?: boolean // TODO remove at v2.0
               cors?: string
             }
             | Handler<

@@ -1,11 +1,12 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { ZodTypeDef, ZodUnion } from 'https://deno.land/x/zod@v3.21.4/index.ts'
 import {
   ZodObject,
   ZodRecord,
   ZodString,
   ZodType,
-} from 'https://deno.land/x/zod@v3.21.4/types.ts'
+  ZodTypeDef,
+  ZodUnion,
+} from 'zod'
 import { Context } from './mod.ts'
 
 export type ObjectType =
@@ -87,8 +88,6 @@ export function handler<T>() {
         cookies?: ValidatedCookies
         headers?: ValidatedHeaders
         query?: ValidatedQuery
-        /** @deprecated please pass this option to the `c.req.body()` method! */
-        transform?: boolean // TODO remove at v2.0
         cors?: string
         params?: Partial<Record<keyof ExtractParams<Pathname>, ZodType>>
         gateway?: VersionRange
@@ -162,8 +161,6 @@ export type HandlerOrSchema =
     cookies?: ObjectType
     headers?: ObjectType
     query?: ObjectType
-    /** @deprecated please pass this option to the `c.req.body()` method! */
-    transform?: boolean // TODO remove at v2.0
     cors?: string
     params?: Record<string, ZodType>
     gateway?: VersionRange

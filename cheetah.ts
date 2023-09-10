@@ -2,7 +2,6 @@
 import { base, Method } from './base.ts'
 import { Collection } from './collection.ts'
 import { Context, Exception } from './context.ts'
-import { Exception as OriginalException } from './exception.ts'
 import { Extension, validExtension } from './extensions.ts'
 import {
   Handler,
@@ -514,7 +513,7 @@ export class cheetah extends base<cheetah>() {
     } catch (err) {
       let res: Response
 
-      if (err instanceof Exception || err instanceof OriginalException) {
+      if (err instanceof Exception) {
         res = err.response(req)
       } else {
         if (this.#debug) {

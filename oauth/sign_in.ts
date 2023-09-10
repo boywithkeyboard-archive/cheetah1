@@ -1,8 +1,7 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { createAuthorizeUrl } from 'https://deno.land/x/authenticus@v2.0.3/mod.ts'
+import { createAuthorizeUrl } from 'authenticus'
 import { Context } from '../context.ts'
-import { getVariable } from '../x/env.ts'
-import { sign } from '../x/jwt.ts'
+import { sign } from '../jwt.ts'
 import { OAuthClient } from './client.ts'
 import { OAuthSignInToken } from './types.ts'
 
@@ -25,19 +24,18 @@ export async function signIn(
   }
 
   const token = await sign<OAuthSignInToken>(
+    c,
     {
       aud: 'oauth:sign_in',
       exp: 300, // 5m
       ip: c.req.ip,
       redirectUri: options.redirectUri,
     },
-    getVariable(c, 'JWT_SECRET') ?? getVariable(c, 'jwt_secret') ??
-      getVariable(c, 'jwtSecret'),
   )
 
   const url = createAuthorizeUrl(client.preset, {
-    clientId: getVariable(c, `${client.name.toUpperCase()}_CLIENT_ID`) ??
-      getVariable(c, `${client.name}_client_id`),
+    clientId: c.env(`${client.name.toUpperCase()}_CLIENT_ID`) ??
+      c.env(`${client.name}_client_id`),
     scopes: options.scopes,
     state: token,
     redirectUri: options.redirectUri,

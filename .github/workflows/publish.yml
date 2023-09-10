@@ -21,10 +21,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Publish update
         uses: boywithkeyboard/taco@v0
         with:
           kind: ${{github.event.inputs.kind}}
-          include_author: true
+          mention_contributors: true

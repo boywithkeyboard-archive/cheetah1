@@ -130,50 +130,6 @@ export class ResponseContext {
   }
 
   /**
-   * Attach a cookie to the response.
-   *
-   * @deprecated please use `c.res.setCookie()` instead!
-   */
-  // TODO remove at v2.0
-  cookie(
-    name: string,
-    value: string,
-    options?: {
-      expiresAt?: Date
-      maxAge?: number
-      domain?: string
-      path?: string
-      secure?: boolean
-      httpOnly?: boolean
-      sameSite?:
-        | 'strict'
-        | 'lax'
-        | 'none'
-    },
-  ) {
-    let cookie = `${name}=${value};`
-
-    this.#i.h.append(
-      'set-cookie',
-      (
-        options?.expiresAt &&
-        (cookie += ` expires=${options.expiresAt.toUTCString()};`),
-          options?.maxAge && (cookie += ` max-age=${options.maxAge};`),
-          options?.domain && (cookie += ` domain=${options.domain};`),
-          options?.path && (cookie += ` path=${options.path};`),
-          options?.secure && (cookie += ' secure;'),
-          options?.httpOnly && (cookie += ' httpOnly;'),
-          options?.sameSite &&
-          (cookie += ` sameSite=${
-            options.sameSite.charAt(0).toUpperCase() +
-            options.sameSite.slice(1)
-          };`),
-          cookie
-      ),
-    )
-  }
-
-  /**
    * Attach a header to the response.
    */
   header(name: string, value: string | undefined) {

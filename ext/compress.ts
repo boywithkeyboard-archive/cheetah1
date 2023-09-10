@@ -1,11 +1,6 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { compress as brotli } from 'https://deno.land/x/brotli@0.1.7/mod.ts'
-import {
-  deflate,
-  gzip,
-  initBundledOnce,
-  InitOutput,
-} from 'https://deno.land/x/foras@2.0.8/src/deno/mod.ts'
+import { compress as brotli } from 'brotli'
+import { deflate, gzip, initBundledOnce, InitOutput } from 'foras'
 import { createExtension } from '../mod.ts'
 
 type CompressionAlgorithm = {

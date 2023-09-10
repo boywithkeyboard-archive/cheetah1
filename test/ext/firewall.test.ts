@@ -1,6 +1,6 @@
-import { assertEquals } from '../deps.ts'
-import cheetah from '../../mod.ts'
+import { assertEquals } from 'std/assert/mod.ts'
 import { firewall } from '../../ext/firewall.ts'
+import cheetah from '../../mod.ts'
 
 Deno.test('ext/firewall', async (t) => {
   await t.step('vpn', async () => {

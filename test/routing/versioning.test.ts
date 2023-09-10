@@ -1,5 +1,5 @@
+import { assertEquals } from 'std/assert/mod.ts'
 import { cheetah } from '../../cheetah.ts'
-import { assertEquals } from '../deps.ts'
 
 Deno.test('versioning', async (t) => {
   /* uri ---------------------------------------------------------------------- */

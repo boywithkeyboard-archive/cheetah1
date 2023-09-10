@@ -11,15 +11,24 @@
 
 <br>
 
-### Sneak Peek 🤫
+### Sneak Peek 👾
 
 ```ts
 import cheetah from 'https://deno.land/x/cheetah/mod.ts'
+import { z } from 'https://deno.land/x/zod/mod.ts'
 
 const app = new cheetah()
-  .get('/', () => 'Hello World')
+  .post('/', {
+    body: z.object({ // < scheme validation
+      name: z.string()
+    })
+  }, async c => {
+    const body = await c.req.body()
 
-app.serve()
+    return `Hey, ${body.name}!` // < response body
+  })
+
+app.serve() // < launch app
 ```
 
 ❔ Please read our [guide](https://cheetah.mod.land) or [join our Discord](https://discord.gg/2rCya9EWGv) to learn more.

@@ -1,14 +1,9 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { UserAgent } from 'https://deno.land/std@0.200.0/http/user_agent.ts'
-import {
-  getNormalizedUser,
-  getToken,
-  getUser,
-} from 'https://deno.land/x/authenticus@v2.0.3/mod.ts'
+import { getNormalizedUser, getToken, getUser } from 'authenticus'
+import { UserAgent } from 'std/http/user_agent.ts'
 import { Context } from '../context.ts'
-import { getVariable } from '../x/env.ts'
-import { sign, verify } from '../x/jwt.ts'
-import { LocationData } from '../x/location_data.ts'
+import { sign, verify } from '../jwt.ts'
+import { LocationData } from '../location_data.ts'
 import { OAuthClient } from './client.ts'
 import {
   OAuthSessionData,
@@ -36,8 +31,8 @@ export async function handleCallback(
   // validate state
 
   const payload = await verify<OAuthSignInToken>(
+    c,
     c.req.query.state,
-    getVariable(c, 'JWT_SECRET'),
     { audience: 'oauth:sign_in' },
   )
 
@@ -49,11 +44,10 @@ export async function handleCallback(
     // fetch user
 
     const { accessToken } = await getToken(client.preset, {
-      clientId: getVariable(c, `${client.name.toUpperCase()}_CLIENT_ID`) ??
-        getVariable(c, `${client.name}_client_id`) as string,
-      clientSecret:
-        getVariable(c, `${client.name.toUpperCase()}_CLIENT_SECRET`) ??
-          getVariable(c, `${client.name}_client_secret`) as string,
+      clientId: (c.env(`${client.name.toUpperCase()}_CLIENT_ID`) ??
+        c.env(`${client.name}_client_id`)) as string,
+      clientSecret: (c.env(`${client.name.toUpperCase()}_CLIENT_SECRET`) ??
+        c.env(`${client.name}_client_secret`)) as string,
       code: c.req.query.code,
       redirectUri: payload.redirectUri,
     })
@@ -71,14 +65,13 @@ export async function handleCallback(
     const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60000)
 
     const token = await sign<OAuthSessionToken>(
+      c,
       {
         aud: 'oauth:session',
         exp: expirationDate,
         identifier,
         ip: c.req.ip,
       },
-      getVariable(c, 'JWT_SECRET') ?? getVariable(c, 'jwt_secret') ??
-        getVariable(c, 'jwtSecret'),
     )
 
     const userAgent = new UserAgent(c.req.headers['user-agent'] ?? '')
