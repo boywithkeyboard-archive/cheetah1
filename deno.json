@@ -21,7 +21,7 @@
     "djwt": "https://deno.land/x/djwt@v2.8/mod.ts",
     "dom": "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts",
     "esbuild": "https://deno.land/x/esbuild@v0.19.2/mod.js",
-    "foras": "https://deno.land/x/foras@v2.1.0/src/deno/mod.ts",
+    "foras": "https://deno.land/x/foras@v2.1.1/src/deno/mod.ts",
     "otpauth": "https://deno.land/x/otpauth@v9.1.4/dist/otpauth.esm.js",
     "preact": "https://esm.sh/preact@10.17.1?target=es2022",
     "preact/render-to-string": "https://esm.sh/preact-render-to-string@6.1.0?deps=preact@10.17.1&target=es2022",
