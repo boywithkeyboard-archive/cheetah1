@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Publish update
-        uses: boywithkeyboard/taco@v1
+        uses: boywithkeyboard/taco@v2
         with:
           kind: ${{github.event.inputs.kind}}
           mention_contributors: true
