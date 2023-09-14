@@ -2,7 +2,7 @@
 
 This repository enforces the
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
-specification for for composing titles for pull requests as well as for issues.
+specification for writing pull requests and issues titles.
 
 ### Write a meaningful title
 
