@@ -1,3 +1,9 @@
+### Follow Conventional Commits
+
+This repository enforces the
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+specification for writing pull requests and issues titles.
+
 ### Write a meaningful title
 
 We ask you to write a short and meaningful title while going into more detail
