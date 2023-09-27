@@ -1,5 +1,5 @@
 // Copyright 2023 Samuel Kopp. All rights reserved. Apache-2.0 license.
-import { ensureFile } from 'https://deno.land/std@0.201.0/fs/ensure_file.ts'
+import { ensureFile } from 'https://deno.land/std@0.203.0/fs/ensure_file.ts'
 import { Select } from 'cliffy'
 
 type VSCodeSettings = {
