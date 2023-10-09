@@ -11,6 +11,11 @@
 
 <br>
 
+> [!WARNING]
+> As of October 9th, cheetah was archived and won't receive any updates.
+
+<br>
+
 ### Sneak Peek 👾
 
 ```ts
