@@ -12,7 +12,7 @@
 <br>
 
 > [!WARNING]
-> As of October 9th, cheetah was archived and won't receive any updates.
+> cheetah is currently **not maintained**.
 
 <br>
 
