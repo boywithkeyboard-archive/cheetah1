@@ -31,7 +31,7 @@ jobs:
           rm updates_changelog.md
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           title: 'refactor: update deps'
           author: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
